@@ -22,12 +22,61 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Die Grotesk B";
+  src: url("../assets/fonts/die-grotesk-b-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Die Grotesk A";
+  src: url("../assets/fonts/die-grotesk-a-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-fg: #ffffff;
   --color-bg: #141414;
   --color-accent: #ff4713;
   --font-sans: "General Sans", Arial, sans-serif;
+  --font-heading: "Die Grotesk B", var(--font-sans); /* was: var(--font-sans) */
+  --font-small: var(--font-sans); /* was: "Die Grotesk A", var(--font-sans) */
   color-scheme: dark;
+
+  --distributor-padding: 2em;
+  --distributor-padding-bottom: 2em;
+  --heading-size: 64px;
+  --tagline-size: 20px;
+  --contact-size: 20px;
+}
+
+@media screen and (max-width: 991px) {
+  :root {
+    --distributor-padding-bottom: 1.75em;
+    --heading-size: 56px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  :root {
+    --distributor-padding-bottom: 1.75em;
+    --heading-size: 64px;
+    --tagline-size: 18px;
+    --contact-size: 18px;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  :root {
+    --distributor-padding-bottom: 1.5em;
+    --heading-size: 56px;
+    --tagline-size: 16px;
+    --contact-size: 16px;
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -66,15 +115,16 @@ a {
   flex-flow: column;
   justify-content: space-between;
   height: 100svh;
-  padding: 2em;
+  padding: var(--distributor-padding);
+  padding-bottom: var(--distributor-padding-bottom);
 }
 
 .heading {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: 56px;
+  font-family: var(--font-heading);
+  font-size: var(--heading-size);
   font-weight: 600;
-  line-height: 100%;
+  line-height: 90%;
 }
 
 .row {
@@ -85,8 +135,8 @@ a {
 
 .tagline {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: 20px;
+  font-family: var(--font-small);
+  font-size: var(--tagline-size);
   line-height: 140%;
 }
 
@@ -95,6 +145,7 @@ a {
   flex-flow: column;
   position: relative;
   padding-top: 1em;
+  font-family: var(--font-small);
   font-size: 0.75em;
   text-decoration: none;
   text-transform: none;
@@ -102,7 +153,7 @@ a {
 }
 
 .contact-us__text {
-  font-size: 20px;
+  font-size: var(--contact-size);
   line-height: 140%;
 }
 
