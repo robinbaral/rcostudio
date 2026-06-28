@@ -65,7 +65,7 @@ a {
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  height: 100vh;
+  height: 100svh;
   padding: 2em;
 }
 
