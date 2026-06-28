@@ -1,0 +1,131 @@
+@font-face {
+  font-family: "General Sans";
+  src: url("../assets/fonts/general-sans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("../assets/fonts/general-sans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("../assets/fonts/general-sans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-fg: #ffffff;
+  --color-bg: #141414;
+  --color-accent: #ff4713;
+  --font-sans: "General Sans", Arial, sans-serif;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-fg: #141414;
+    --color-bg: #ffffff;
+    color-scheme: light;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 150%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+a {
+  color: inherit;
+}
+
+.distributor {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  height: 100vh;
+  padding: 2em;
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 100%;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.tagline {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 140%;
+}
+
+.contact-us {
+  display: flex;
+  flex-flow: column;
+  position: relative;
+  padding-top: 1em;
+  font-size: 0.75em;
+  text-decoration: none;
+  text-transform: none;
+  color: var(--color-fg);
+}
+
+.contact-us__text {
+  font-size: 20px;
+  line-height: 140%;
+}
+
+.underline {
+  position: absolute;
+  inset: auto 0% -0.5em;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-fg);
+  transform: scaleX(0);
+  transform-origin: 0% 50%;
+  transition: transform 0.3s ease;
+}
+
+.contact-us:hover .underline {
+  transform: scaleX(1);
+}
+
+@media screen and (max-width: 479px) {
+  .row {
+    flex-flow: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1em;
+  }
+}
