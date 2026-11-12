@@ -178,3 +178,242 @@ a {
     gap: 1em;
   }
 }
+
+/* Projects ---------------------------------------------------------------- */
+
+:root {
+  --projects-padding-y: 64px;
+  --project-size: 32px;
+}
+
+@media screen and (max-width: 767px) {
+  :root {
+    --projects-padding-y: 48px;
+    --project-size: 24px;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  :root {
+    --project-size: 20px;
+  }
+}
+
+.projects {
+  /* Inverse of the hero: swaps the OS-mode colours. */
+  --rule: color-mix(in srgb, var(--color-bg) 40%, transparent);
+  background-color: var(--color-fg);
+  color: var(--color-bg);
+  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  flex-flow: column;
+  gap: var(--projects-padding-y);
+  padding: var(--projects-padding-y) var(--distributor-padding);
+}
+
+.projects__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--heading-size);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.projects__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.projects__list li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.project {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+  padding: 16px 0;
+  font-family: var(--font-heading);
+  font-size: var(--project-size);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+/* Hovering a linked project dims the other linked ones; rows without a link (coming soon,
+   Solarkraftwerk) only show their preview. */
+.projects__list:has(a.project:hover) a.project:not(:hover) {
+  opacity: 0.4;
+}
+
+.project:focus-visible {
+  outline: 1px solid var(--color-bg);
+  outline-offset: 4px;
+}
+
+/* Cursor-following screenshot; only shown on devices that can hover. */
+.preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: clamp(280px, 30vw, 480px);
+  aspect-ratio: 16 / 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+.preview__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  transform: scale(0.92);
+  transition: transform 0.3s ease;
+}
+
+/* Phone screenshots (apps without a site) are tall. */
+.preview--portrait {
+  width: clamp(160px, 14vw, 220px);
+}
+
+div.project {
+  cursor: default;
+}
+
+.preview.is-visible {
+  opacity: 1;
+}
+
+.preview.is-visible .preview__img {
+  transform: scale(1);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .preview {
+    display: none;
+  }
+}
+
+.project--soon {
+  opacity: 0.4;
+}
+
+/* Pre-footer and footer: back to the OS-mode colours, like the hero. ------- */
+
+.prefooter {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  padding: var(--distributor-padding);
+  padding-bottom: var(--projects-padding-y);
+}
+
+.prefooter__heading {
+  margin-top: var(--projects-padding-y);
+}
+
+.prefooter__cta {
+  margin-top: 16px;
+}
+
+.prefooter::before {
+  content: "";
+  align-self: stretch;
+  border-top: 1px solid color-mix(in srgb, var(--color-fg) 40%, transparent);
+}
+
+.prefooter__heading {
+  margin-bottom: 0;
+  font-family: var(--font-heading);
+  font-size: var(--heading-size);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.prefooter__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-heading);
+  font-size: var(--project-size);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.prefooter__arrow {
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  -webkit-mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
+  mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
+  transition: transform 0.3s ease;
+}
+
+.prefooter__cta:hover .prefooter__arrow {
+  transform: translateX(6px);
+}
+
+.footer {
+  display: flex;
+  flex-flow: column;
+  gap: 32px;
+  padding: var(--distributor-padding);
+  /* Same type as the hero's tagline and Contact Us. */
+  font-family: var(--font-small);
+  font-size: var(--tagline-size);
+  line-height: 140%;
+}
+
+.footer__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+.footer__col {
+  margin: 0;
+}
+
+.footer__contact div {
+  display: flex;
+  gap: 16px;
+}
+
+.footer__contact dt,
+.footer__contact dd {
+  margin: 0;
+}
+
+.footer a {
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.footer__wordmark {
+  width: 100%;
+  aspect-ratio: 1664 / 217.957;
+  background-color: color-mix(in srgb, var(--color-fg) 7%, var(--color-bg));
+  -webkit-mask: url("../assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+  mask: url("../assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+}
+
+@media screen and (max-width: 767px) {
+  .footer__row {
+    flex-flow: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
