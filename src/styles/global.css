@@ -451,6 +451,15 @@ div.project {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* Hover: the call to action and the footer links fade to grey (works in light and dark mode). */
+.footer__cta:hover,
+.footer__cta:focus-visible,
+.footer__contact a:hover,
+.footer__contact a:focus-visible {
+  color: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
 }
 
 .footer__arrow {
@@ -462,7 +471,8 @@ div.project {
   transition: transform 0.3s ease;
 }
 
-.footer__cta:hover .footer__arrow {
+.footer__cta:hover .footer__arrow,
+.footer__cta:focus-visible .footer__arrow {
   transform: translateX(6px);
 }
 
@@ -504,6 +514,7 @@ div.project {
 .footer__contact a {
   position: relative;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .footer__contact a::after {
