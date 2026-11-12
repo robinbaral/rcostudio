@@ -40,7 +40,7 @@ const sizes = await Promise.all(
 ---
 
 <main class="stack-hero">
-  <Nav live={["cases", "profile", "services"]} />
+  <Nav live={["profile", "services"]} />
   <h1 class="visually-hidden">R&amp;Co. Studio</h1>
   <p class="stack-hero__intro">
     A digital-first design studio that helps growing businesses find clarity. Shaped by 20+ years
@@ -410,6 +410,14 @@ const sizes = await Promise.all(
     .stack-hero__intro {
       margin-top: 24px;
       font-size: 17px;
+    }
+
+    /* Centre the stack between the intro and the caption: the stage's content box runs from
+       the intro's bottom to the caption's top (the padding covers the caption row and the
+       part of the stage that reaches into the wordmark). */
+    .stack-hero__stage {
+      margin-top: 0;
+      padding-bottom: calc(var(--wordmark-h) * 0.55 + 12px + 1.2 * 14px);
     }
 
     .stack {

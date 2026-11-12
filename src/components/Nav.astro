@@ -1,5 +1,7 @@
 ---
-// Items not in `live` are greyed out until their section exists on the page.
+// Items not in `live` are greyed out until their section exists on the page. The home link
+// reads just "R&Co." for now; revisit it if the site gets sub-pages. Cases is left out of the
+// menu while it only holds placeholders (the section stays on the page).
 interface Props {
   live?: string[];
 }
@@ -7,12 +9,11 @@ const { live = [] } = Astro.props;
 const later = [
   { id: "profile", label: "Profile" },
   { id: "services", label: "Services" },
-  { id: "cases", label: "Cases" },
 ];
 ---
 
 <nav class="nav" aria-label="Main">
-  <a class="nav__link nav__link--current" href="/" aria-current="page">R&amp;Co Studio</a>
+  <a class="nav__link nav__link--current" href="/" aria-current="page">R&amp;Co.</a>
   <a class="nav__link" href="#projects">Projects</a>
   {
     later.map((item) =>
