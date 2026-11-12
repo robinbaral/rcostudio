@@ -22,7 +22,7 @@ export interface Project {
 
 export const projects: Project[] = [
   { name: "Colombo", tags: "Coming soon", soon: true, preview: "/assets/work/colombo-desktop.webp" },
-  { name: "Faster", tags: "Coming soon", soon: true, preview: "/assets/work/faster-desktop.webp" },
+  { name: "Faster", tags: "Coming soon", soon: true, preview: "/assets/work/faster-hero.webp" },
   {
     name: "CrissCross",
     tags: "Web, App",
