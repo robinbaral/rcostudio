@@ -51,21 +51,21 @@
   --gutter: var(--distributor-padding); /* left/right page margin */
   --distributor-padding-bottom: 2em;
   --heading-size: 64px;
-  --tagline-size: 40px; /* hero statement */
+  --tagline-size: 34px; /* hero statement */
   --small-size: 20px; /* footer */
 }
 
 @media screen and (max-width: 991px) {
   :root {
     --distributor-padding-bottom: 1.75em;
-    --tagline-size: 32px;
+    --tagline-size: 28px;
   }
 }
 
 @media screen and (max-width: 767px) {
   :root {
     --distributor-padding-bottom: 1.75em;
-    --tagline-size: 26px;
+    --tagline-size: 24px;
     --small-size: 18px;
   }
 }
@@ -75,7 +75,7 @@
     --distributor-padding-bottom: 1.5em;
     --gutter: 20px;
     --heading-size: 56px;
-    --tagline-size: 22px;
+    --tagline-size: 21px;
   }
 }
 
@@ -128,7 +128,8 @@ a {
 }
 
 .tagline {
-  max-width: 34em;
+  /* About 7–10 words a line. */
+  max-width: 44ch;
   margin: 0;
   font-family: var(--font-small);
   font-size: var(--tagline-size);
@@ -330,6 +331,12 @@ div.project {
   margin: 0;
 }
 
+.footer__contact {
+  display: flex;
+  flex-flow: column;
+  gap: 0.35em; /* room for the link underline between the two lines */
+}
+
 .footer__contact div {
   display: flex;
   gap: 16px;
@@ -340,12 +347,36 @@ div.project {
   margin: 0;
 }
 
+/* Text links: a 1px line grows in from the left on hover and shrinks back on the way out
+   (same motion as the ProLog site). */
 .footer a {
+  position: relative;
   text-decoration: none;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+.footer a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.25em;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease-in;
+}
+
+.footer a:hover::after,
+.footer a:focus-visible::after {
+  transform: scaleX(1);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer a::after {
+    transition: none;
+  }
 }
 
 .footer__wordmark {
