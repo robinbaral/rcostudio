@@ -1,0 +1,101 @@
+---
+// Profile (test page /stack): the profile text from notes/copy.md as a large
+// statement across most of the width, opening line in full ink and the rest muted. Below it,
+// a short "Small by design" note on the setup behind the studio. Copy in notes/copy.md.
+const opening = "We love solving problems.";
+const rest =
+  "A good process starts at the foundations: understanding what a task really needs to solve. From there we build a sustainable core, made to be added to meaningfully over time, and pair it with great usability, a clear sense of context and a look that draws people in.";
+
+const setup = {
+  title: "Small by design",
+  text: "R&Co is an independent studio. Teams are sized to each project, with trusted specialists brought in when the work calls for them. It keeps things personal and focused.",
+};
+---
+
+<section class="profile" id="profile" aria-labelledby="profile-heading">
+  <h2 class="visually-hidden" id="profile-heading">Profile</h2>
+
+  <p class="profile__statement">
+    <span class="profile__opening">{opening}</span>{" "}{rest}
+  </p>
+
+  <div class="profile__setup">
+    <h3 class="profile__setup-title">{setup.title}</h3>
+    <p class="profile__setup-text">{setup.text}</p>
+  </div>
+</section>
+
+<style>
+  .profile {
+    --muted: color-mix(in srgb, var(--color-fg) 50%, var(--color-bg));
+    --rule: color-mix(in srgb, var(--color-fg) 20%, var(--color-bg));
+    display: flex;
+    flex-direction: column;
+    gap: var(--projects-padding-y);
+    margin: 0 var(--gutter);
+    padding-block: var(--projects-padding-y) calc(var(--projects-padding-y) * 2);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Large type across most of the width. */
+  .profile__statement {
+    max-width: 92%;
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(30px, 4.4vw, 84px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .profile__opening {
+    color: var(--color-fg);
+  }
+
+  /* Same columns as Services, so the setup text lines up with the service names below. */
+  .profile__setup {
+    display: grid;
+    grid-template-columns: clamp(300px, 26vw, 460px) minmax(0, 1fr);
+    column-gap: clamp(48px, 6vw, 120px);
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .profile__setup-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--project-size);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .profile__setup-text {
+    max-width: 40ch;
+    margin: 0;
+    font-size: 20px;
+    line-height: 140%;
+    color: var(--muted);
+  }
+
+  @media screen and (max-width: 767px) {
+    /* Small screens: more air between lines and normal letter spacing, so the long statement
+       reads as a paragraph rather than a block. */
+    .profile__statement {
+      max-width: none;
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .profile__setup {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 12px;
+    }
+
+    .profile__setup-text {
+      font-size: 17px;
+    }
+  }
+</style>

@@ -1,0 +1,216 @@
+---
+// Services (test page /stack). Desktop: a left column (title, a note set as a large, light
+// paragraph and a quiet contact line) that sticks while the services follow on one after
+// another on the right.
+// Below 992px it's one column and nothing sticks.
+import { services, servicesNote, servicesContact } from "../data/services";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<section class="services" id="services" aria-labelledby="services-heading">
+  <div class="services__aside">
+    <h2 class="services__title" id="services-heading">Services</h2>
+    <p class="services__note">{servicesNote}</p>
+    <p class="services__contact">
+      {servicesContact.lead}{" "}
+      <a class="services__link" href="mailto:baralrobin@gmail.com">{servicesContact.link}</a>
+    </p>
+  </div>
+
+  <div class="services__list">
+    {
+      services.map((s, i) => (
+        <article class="service" id={`service-${s.id}`} aria-labelledby={`service-${s.id}-name`}>
+          <h3 class="service__name" id={`service-${s.id}-name`}>
+            <span class="service__num">{pad(i + 1)}</span>
+            {s.name}
+          </h3>
+          <p class="service__lead">
+            {s.emphasis && <span class="service__emphasis">{s.emphasis} </span>}
+            {s.lead}
+          </p>
+          <ul class="service__items">
+            {s.items.map((item) => (
+              <li class="service__item">
+                <h4 class="service__item-title">{item.title}</h4>
+                <p class="service__item-text">{item.text}</p>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  /* Inverted like the projects list: OS-mode colours swapped. */
+  .services {
+    --ink: var(--color-bg);
+    --muted: color-mix(in srgb, var(--color-bg) 50%, var(--color-fg));
+    --rule: color-mix(in srgb, var(--color-bg) 20%, var(--color-fg));
+    display: grid;
+    /* The left column is sized to its content, not a share of the screen, so wide screens
+       don't open a gap between it and the services; those take the rest. */
+    grid-template-columns: clamp(300px, 26vw, 460px) minmax(0, 1fr);
+    column-gap: clamp(48px, 6vw, 120px);
+    padding: 0 var(--gutter) var(--projects-padding-y);
+    background-color: var(--color-fg);
+    color: var(--ink);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  /* --- Left: title, text and Get in touch, sticking while the services scroll ------------ */
+  .services__aside {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-block: var(--projects-padding-y);
+  }
+
+  .services__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--heading-size);
+    font-weight: 700;
+    line-height: 0.9;
+  }
+
+  /* A large, light paragraph in the body font, like a quiet statement. */
+  .services__note {
+    max-width: 22ch;
+    margin: 32px 0 0;
+    font-family: var(--font-sans);
+    font-size: clamp(22px, 1.9vw, 30px);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: -0.005em;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  /* The contact line: small and muted, the link only marked by an underline. */
+  .services__contact {
+    margin: 32px 0 0;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .services__link {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+  }
+
+  .services__link:hover,
+  .services__link:focus-visible {
+    color: var(--muted);
+  }
+
+  /* --- Right: the services, one after another --------------------------------------------- */
+  .service {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding-block: var(--projects-padding-y);
+  }
+
+  .service__name {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--heading-size);
+    font-weight: 700;
+    line-height: 0.9;
+  }
+
+  .service__num {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .service__lead {
+    /* Two thirds of the column (capped at two thirds of the items' 1080px). */
+    max-width: min(66.667%, 720px);
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+
+  .service__emphasis {
+    color: var(--ink);
+  }
+
+  .service__items {
+    display: grid;
+    /* Always two equal columns (one on phones); capped so lines stay readable. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 1080px;
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service__item {
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .service__item-title {
+    margin: 0 0 12px;
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .service__item-text {
+    margin: 0;
+    font-size: 17px;
+    line-height: 145%;
+    color: var(--muted);
+  }
+
+  /* --- Smaller screens: one column, nothing sticks ---------------------------------------- */
+  @media screen and (max-width: 991px) {
+    .services {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .services__aside {
+      position: static;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .services__note {
+      max-width: none;
+      font-size: 22px;
+    }
+
+    .service__lead {
+      max-width: none;
+      font-size: 24px;
+    }
+
+    .service__items {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+  }
+</style>

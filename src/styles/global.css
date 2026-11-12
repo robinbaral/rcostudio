@@ -143,13 +143,14 @@ a {
 
 @media screen and (max-width: 479px) {
   .nav {
-    gap: 8px;
-    font-size: 14px;
+    gap: 6px;
+    font-size: 13px;
   }
 }
 
 @media screen and (max-width: 359px) {
   .nav {
+    gap: 4px;
     font-size: 12px;
   }
 }
@@ -413,8 +414,11 @@ div.project {
   line-height: 140%;
 }
 
-/* Screens too short for the footer: drop the reveal and let it scroll normally. */
-@media (max-height: 560px) {
+/* Touch screens and screens too short for the footer: no reveal, the footer just scrolls in at
+   the end of the page. iOS Safari 26+ tints its translucent toolbar from fixed elements at the
+   screen edge (a solid band in the footer colour, even while the footer is hidden) instead of
+   letting the page run on behind it. */
+@media (hover: none), (max-height: 560px) {
   .footer-reveal {
     height: auto;
     clip-path: none;

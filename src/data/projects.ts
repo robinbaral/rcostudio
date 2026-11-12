@@ -22,7 +22,6 @@ export interface Project {
 
 export const projects: Project[] = [
   { name: "Colombo", tags: "Coming soon", soon: true, preview: "/assets/work/colombo-desktop.webp" },
-  { name: "Faster", tags: "Coming soon", soon: true, preview: "/assets/work/faster-hero.webp" },
   {
     name: "CrissCross",
     tags: "Web, App",
@@ -48,6 +47,13 @@ export const projects: Project[] = [
     tags: "Branding, Web",
     href: "https://www.eventsitters.nz",
     preview: "/assets/work/eventsitters-desktop.webp",
+  },
+  {
+    name: "Faster",
+    tags: "Web, App",
+    // No country code, so it opens each visitor's own App Store.
+    href: "https://apps.apple.com/app/id6829356882",
+    preview: "/assets/work/faster-hero.webp",
   },
   {
     name: "Schlosskirche",

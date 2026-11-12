@@ -1,0 +1,123 @@
+---
+// Cases (test page /stack): skeleton cards until the case studies exist. Three columns with
+// staggered image heights; each card will become an image, a title and a short line.
+const cards = [
+  { ratio: "7 / 10", title: "62%", lines: ["88%", "64%"] },
+  { ratio: "4 / 3", title: "48%", lines: ["92%", "56%"] },
+  { ratio: "1 / 1", title: "56%", lines: ["84%", "70%"] },
+];
+---
+
+<section class="cases" id="cases" aria-labelledby="cases-heading">
+  <div class="cases__head">
+    <h2 class="cases__title" id="cases-heading">Cases</h2>
+    <p class="cases__note">Case studies are on their way.</p>
+  </div>
+
+  <ul class="cases__grid" aria-hidden="true">
+    {
+      cards.map((c) => (
+        <li class="case">
+          <div class="case__image skeleton" style={`aspect-ratio:${c.ratio}`} />
+          <div class="case__title skeleton" style={`width:${c.title}`} />
+          {c.lines.map((w) => (
+            <div class="case__line skeleton" style={`width:${w}`} />
+          ))}
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  /* Inverted like Services, so the dark footer underneath still reveals with contrast. */
+  .cases {
+    --ink: var(--color-bg);
+    --block: color-mix(in srgb, var(--color-bg) 8%, var(--color-fg));
+    --rule: color-mix(in srgb, var(--color-bg) 20%, var(--color-fg));
+    display: flex;
+    flex-direction: column;
+    gap: var(--projects-padding-y);
+    padding: 0 var(--gutter) var(--projects-padding-y);
+    background-color: var(--color-fg);
+    color: var(--ink);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  /* A rule between Services and Cases, inset like the ones inside Services. */
+  .cases__head {
+    padding-top: var(--projects-padding-y);
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+  }
+
+  .cases__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--heading-size);
+    font-weight: 700;
+    line-height: 0.9;
+  }
+
+  .cases__note {
+    margin: 0;
+    font-size: 18px;
+    color: color-mix(in srgb, var(--color-bg) 55%, var(--color-fg));
+  }
+
+  .cases__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .case__image {
+    width: 100%;
+  }
+
+  .case__title {
+    height: 22px;
+    margin-top: 24px;
+  }
+
+  .case__line {
+    height: 14px;
+    margin-top: 12px;
+  }
+
+  .case__title + .case__line {
+    margin-top: 18px;
+  }
+
+  /* Flat placeholder blocks, no animation. */
+  .skeleton {
+    border-radius: 3px;
+    background-color: var(--block);
+  }
+
+  @media screen and (max-width: 767px) {
+    .cases__head {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cases__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 48px;
+    }
+  }
+</style>

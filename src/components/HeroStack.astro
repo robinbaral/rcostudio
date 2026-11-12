@@ -1,0 +1,648 @@
+---
+// Hero with the project previews as a shuffled stack of cards (test page /stack).
+// - Mouse: over the stack the cursor becomes the round button, → on the right half (next) and
+//   ← on the left (previous); a click shuffles that way.
+// - Drag / swipe (mouse + touch), modelled on the Tommy Pickett album stack: the front card
+//   follows sideways with a tilt; past 18% of its width it's thrown out to that side and the
+//   stack moves on, otherwise it springs back. A tap counts as "next".
+// - Touch screens keep a fixed round button on the card; keyboard users get the arrow keys.
+// The project link is the name in the caption, since clicking the stack shuffles it.
+import Nav from "./Nav.astro";
+import { projects } from "../data/projects";
+import path from "node:path";
+import sharp from "sharp";
+
+// Where each card sits, front (0) to back. Cards further back reuse the last slot, hidden.
+const slots = [
+  { x: 0, y: 0, r: -1 },
+  { x: 5, y: -5, r: 2.5 },
+  { x: -6, y: -3, r: -3.5 },
+  { x: 4, y: 5, r: 4.5 },
+  { x: -5, y: 6, r: -5.5 },
+];
+const slotStyle = (i: number) => {
+  const s = slots[Math.min(i, slots.length - 1)];
+  return `--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;z-index:${projects.length - i};${
+    i >= slots.length ? "opacity:0;" : ""
+  }`;
+};
+const pad = (n: number) => String(n).padStart(2, "0");
+const first = projects[0];
+
+// Each card takes its image's own proportions (site screenshots 16:10, Design Week 16:9, app
+// screenshots portrait), read from the file at build time.
+const sizes = await Promise.all(
+  projects.map(async (p) => {
+    const { width = 1440, height = 900 } = await sharp(path.join(process.cwd(), "public", p.preview)).metadata();
+    return { width, height };
+  }),
+);
+---
+
+<main class="stack-hero">
+  <Nav live={["cases", "profile", "services"]} />
+  <h1 class="visually-hidden">R&amp;Co. Studio</h1>
+  <p class="stack-hero__intro">
+    A digital-first design studio that helps growing businesses find clarity. Shaped by 20+ years
+    of experience in strategy, branding, and design.
+  </p>
+
+  <div class="stack-hero__stage">
+    <div
+      class="stack"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Selected projects. Use the arrow keys to move through them."
+      tabindex="0"
+      data-slots={JSON.stringify(slots)}
+    >
+      {
+        projects.map((p, i) => (
+          <div
+            class:list={["stack__card", { "is-front": i === 0 }]}
+            style={`${slotStyle(i)}--ar:${sizes[i].width} / ${sizes[i].height};`}
+            data-name={p.name}
+            data-tags={p.tags}
+            data-href={p.href}
+            aria-hidden="true"
+          >
+            <img
+              src={p.preview}
+              alt=""
+              width={sizes[i].width}
+              height={sizes[i].height}
+              loading={i < 4 ? "eager" : "lazy"}
+              decoding="async"
+              draggable="false"
+            />
+          </div>
+        ))
+      }
+      <button class="stack__next" type="button" aria-label="Next project">
+        <span class="stack__arrow" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stack-cursor" aria-hidden="true">
+    <span class="stack-cursor__dot"><span class="stack__arrow"></span></span>
+  </div>
+
+  <div class="stack-hero__caption" aria-live="polite">
+    <span class="stack-hero__count"><span data-caption-count>{pad(1)}</span> / {pad(projects.length)}</span>
+    <a
+      class="stack-hero__project"
+      data-caption-link
+      href={first.href}
+      target="_blank"
+      rel="noopener"
+    >
+      <span data-caption-name>{first.name}</span>
+      <span class="stack-hero__tags" data-caption-tags>{first.tags}</span>
+      <span class="stack-hero__ext" aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div class="stack-hero__wordmark" role="img" aria-label="R&amp;Co Studio"></div>
+</main>
+
+<style>
+  .stack-hero {
+    --stack-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --wordmark-h: calc((100vw - 2 * var(--gutter)) * 217.957 / 1664);
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto minmax(280px, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 100svh;
+    padding: var(--distributor-padding) var(--gutter) var(--distributor-padding-bottom);
+    /* Rotated cards may poke past the sides; never let them widen the page. */
+    overflow-x: clip;
+  }
+
+  .stack-hero__intro {
+    max-width: 34ch;
+    margin: 32px 0 0;
+    font-size: 20px;
+    line-height: 135%;
+  }
+
+  /* The stage is a size container, so the stack can size itself to the space left over. */
+  .stack-hero__stage {
+    position: relative;
+    z-index: 2;
+    /* Spans the caption row too and reaches into the wordmark, so the stack overlaps it. */
+    grid-row: 3 / 5;
+    grid-column: 1;
+    display: grid;
+    place-items: center;
+    container-type: size;
+    margin: 24px 0 calc(var(--wordmark-h) * -0.55);
+    pointer-events: none;
+    /* A swipe on iOS must not start a text selection (it grabbed the counter). */
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .stack {
+    position: relative;
+    width: min(58cqw, 128cqh, 720px);
+    aspect-ratio: 16 / 10;
+    /* The frame the cards are fitted into (cqw/cqh in .stack__card refer to it). */
+    container-type: size;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    pointer-events: auto;
+    cursor: grab;
+  }
+
+  /* Tablets and small laptops: the stack sits just above the caption and grows upward into
+     the space under the intro, instead of floating in the middle of the stage. The padding
+     keeps it clear of the caption; cqh then measures the space above it. */
+  @media screen and (min-width: 768px) and (max-width: 1199px) {
+    .stack-hero__stage {
+      place-items: end center;
+      /* Extra room under the front card: the tilted cards behind it reach lower. */
+      padding-bottom: calc(var(--wordmark-h) * 0.55 + 64px);
+    }
+
+    .stack {
+      /* Inset from the page edges, so the tilted cards don't run to the sides. */
+      width: min(76cqw, 150cqh, 720px);
+    }
+  }
+
+  /* Narrower tablets: the stack spans the caption's width too, so the tilted back cards
+     must stay above it (white text on a white card disappears). */
+  @media screen and (min-width: 768px) and (max-width: 991px) {
+    .stack-hero__stage {
+      padding-bottom: calc(var(--wordmark-h) * 0.55 + 112px);
+    }
+  }
+
+  /* Wide screens: the stack grows with the screen, limited by the stage's height first, then
+     a 1260px cap. Narrower than this, a bigger stack would cover the caption. */
+  @media screen and (min-width: 1200px) {
+    .stack {
+      width: min(58cqw, 132cqh, 1260px);
+    }
+  }
+
+  .stack:active {
+    cursor: grabbing;
+  }
+
+  .stack:focus-visible {
+    outline: none;
+  }
+
+  .stack:focus-visible .stack__card.is-front {
+    outline: 2px solid var(--color-fg);
+    outline-offset: 6px;
+  }
+
+  .stack__card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* As large as fits the stack frame at the image's own proportions. Tall phone shots may run
+       a little above and below the frame (125%), so they don't look tiny next to the sites. */
+    width: min(100cqw, 125cqh * (var(--ar)));
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    border-radius: 6px;
+    background-color: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
+    box-shadow: 0 18px 50px rgb(0 0 0 / 0.35);
+    transform: translate(-50%, -50%) translate(calc(var(--x) + var(--dx, 0px)), var(--y)) rotate(calc(var(--r) + var(--dr, 0deg)));
+    transition:
+      transform 0.7s var(--stack-ease),
+      opacity 0.4s ease;
+  }
+
+  .stack__card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* Following the finger or mouse: no easing. */
+  .stack__card.is-dragging {
+    transition: none;
+  }
+
+  /* Let go before the swipe distance: spring back with a little overshoot. */
+  .stack__card.is-springing {
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Thrown out to one side (--out: 1 right, -1 left), from wherever the drag left it. The
+     distance is half the stack (cqw) plus most of the card's own width (%), so narrow portrait
+     cards clear the wide cards behind them too, not just their own width. */
+  .stack__card.is-leaving {
+    transform: translate(-50%, -50%) translate(calc(var(--out, 1) * (60cqw + 60%)), -3%) rotate(calc(var(--r) + var(--out, 1) * 4deg));
+    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  .stack__next {
+    position: absolute;
+    /* On the front card's right edge, whatever its shape (--front-w/-h set by the script). */
+    top: calc((100% - var(--front-h, 100%)) / 2 + var(--front-h, 100%) * 0.12);
+    right: calc((100% - var(--front-w, 100%)) / 2);
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--color-fg);
+    color: var(--color-bg);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    cursor: pointer;
+    translate: 50% 0;
+    transition:
+      top 0.6s var(--stack-ease),
+      right 0.6s var(--stack-ease);
+  }
+
+  .stack__next:focus-visible {
+    outline: 2px solid var(--color-fg);
+    outline-offset: 4px;
+  }
+
+  .stack__arrow {
+    width: 22px;
+    height: 22px;
+    background-color: currentColor;
+    -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    transition: rotate 0.3s var(--stack-ease);
+  }
+
+  /* The cursor button: only with a mouse. Hidden until the pointer is over the stack. */
+  .stack-cursor {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .stack {
+      cursor: none;
+    }
+
+    /* The fixed button gives way to the cursor; it comes back for keyboard focus. */
+    .stack__next:not(:focus-visible) {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .stack-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+      display: block;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .stack-cursor__dot {
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      margin: -36px 0 0 -36px;
+      border-radius: 50%;
+      background-color: var(--color-fg);
+      color: var(--color-bg);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+      scale: 0;
+      transition: scale 0.35s var(--stack-ease);
+    }
+
+    .stack-cursor.is-visible .stack-cursor__dot {
+      scale: 1;
+    }
+
+    .stack-cursor.is-pressed .stack-cursor__dot {
+      scale: 0.88;
+    }
+
+    .stack-cursor.is-prev .stack__arrow {
+      rotate: 180deg;
+    }
+  }
+
+  .stack-hero__caption {
+    position: relative;
+    z-index: 3;
+    grid-row: 4;
+    grid-column: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .stack-hero__count {
+    font-variant-numeric: tabular-nums;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .stack-hero__project {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-align: right;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  a.stack-hero__project[href]:hover,
+  a.stack-hero__project[href]:focus-visible {
+    color: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+  }
+
+  /* No link (coming soon, no public site): plain text, no arrow. */
+  a.stack-hero__project:not([href]) {
+    cursor: default;
+  }
+
+  .stack-hero__tags {
+    opacity: 0.5;
+  }
+
+  .stack-hero__ext {
+    align-self: center;
+    width: 0.7em;
+    height: 0.7em;
+    background-color: currentColor;
+    -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    rotate: -45deg;
+  }
+
+  a.stack-hero__project:not([href]) .stack-hero__ext {
+    display: none;
+  }
+
+  .stack-hero__wordmark {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    aspect-ratio: 1664 / 217.957;
+    background-color: var(--color-fg);
+    -webkit-mask: url("/assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+    mask: url("/assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+  }
+
+  @media screen and (max-width: 767px) {
+    .stack-hero__intro {
+      margin-top: 24px;
+      font-size: 17px;
+    }
+
+    .stack {
+      width: min(92cqw, 140cqh);
+    }
+
+    .stack__next {
+      width: 52px;
+      height: 52px;
+      translate: 20% 0;
+    }
+
+    .stack__next .stack__arrow {
+      width: 18px;
+      height: 18px;
+    }
+
+    .stack-hero__caption {
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stack__card,
+    .stack__card.is-leaving,
+    .stack__card.is-springing {
+      transition: opacity 0.2s ease;
+    }
+  }
+</style>
+
+<script>
+  const stack = document.querySelector<HTMLElement>(".stack");
+  if (stack) {
+    const slots: { x: number; y: number; r: number }[] = JSON.parse(stack.dataset.slots ?? "[]");
+    const cards = Array.from(stack.querySelectorAll<HTMLElement>(".stack__card"));
+    const button = stack.querySelector<HTMLButtonElement>(".stack__next")!;
+    const cursor = document.querySelector<HTMLElement>(".stack-cursor")!;
+    const count = document.querySelector<HTMLElement>("[data-caption-count]")!;
+    const link = document.querySelector<HTMLAnchorElement>("[data-caption-link]")!;
+    const nameEl = document.querySelector<HTMLElement>("[data-caption-name]")!;
+    const tagsEl = document.querySelector<HTMLElement>("[data-caption-tags]")!;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+    let order = cards.map((_, i) => i); // order[0] is the front card
+    let busy = false;
+    const SWIPE = 0.18; // share of the card width a drag must travel to count as a swipe
+    const T_OUT = 300; // ms, matches .is-leaving
+
+    const place = () => {
+      order.forEach((cardIndex, pos) => {
+        const card = cards[cardIndex];
+        const s = slots[Math.min(pos, slots.length - 1)];
+        card.style.setProperty("--x", `${s.x}%`);
+        card.style.setProperty("--y", `${s.y}%`);
+        card.style.setProperty("--r", `${s.r}deg`);
+        card.style.zIndex = String(cards.length - pos);
+        card.style.opacity = pos >= slots.length ? "0" : "";
+        card.classList.toggle("is-front", pos === 0);
+      });
+      const front = cards[order[0]];
+      stack.style.setProperty("--front-w", `${front.offsetWidth}px`);
+      stack.style.setProperty("--front-h", `${front.offsetHeight}px`);
+      count.textContent = String(order[0] + 1).padStart(2, "0");
+      nameEl.textContent = front.dataset.name ?? "";
+      tagsEl.textContent = front.dataset.tags ?? "";
+      if (front.dataset.href) {
+        link.href = front.dataset.href;
+        link.setAttribute("aria-label", `${front.dataset.name}, ${front.dataset.tags} (opens in a new tab)`);
+      } else {
+        link.removeAttribute("href");
+        link.removeAttribute("aria-label");
+      }
+    };
+
+    const clearDrag = (card: HTMLElement) => {
+      card.style.removeProperty("--dx");
+      card.style.removeProperty("--dr");
+    };
+
+    // Next: the front card is thrown out to one side (dir 1 right, -1 left), then tucks in at
+    // the back. It leaves from wherever a drag left it.
+    const next = (dir = 1) => {
+      if (busy) return false;
+      const leaving = cards[order[0]];
+      order = [...order.slice(1), order[0]];
+      if (reduce.matches) {
+        clearDrag(leaving);
+        place();
+        return true;
+      }
+      busy = true;
+      leaving.style.setProperty("--out", String(dir));
+      leaving.classList.remove("is-dragging", "is-springing");
+      leaving.classList.add("is-leaving");
+      window.setTimeout(() => {
+        leaving.classList.remove("is-leaving");
+        clearDrag(leaving);
+        place();
+        busy = false;
+      }, T_OUT);
+      return true;
+    };
+
+    // Previous: the back card jumps out to the left, above the stack, then slides in at the front.
+    const prev = () => {
+      if (busy) return false;
+      const incoming = cards[order[order.length - 1]];
+      order = [order[order.length - 1], ...order.slice(0, -1)];
+      if (!reduce.matches) {
+        incoming.style.transition = "none";
+        incoming.style.setProperty("--out", "-1");
+        incoming.classList.add("is-leaving");
+        incoming.style.zIndex = String(cards.length + 1);
+        incoming.style.opacity = "";
+        void incoming.offsetWidth;
+        incoming.style.transition = "";
+        incoming.classList.remove("is-leaving");
+      }
+      place();
+      return true;
+    };
+
+    // With a mouse, the left half of the stack goes back and the right half goes forward.
+    const isLeftHalf = (x: number) => {
+      const r = stack.getBoundingClientRect();
+      return x < r.left + r.width / 2;
+    };
+
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      next();
+    });
+
+    stack.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
+      else return;
+      e.preventDefault();
+    });
+
+    // --- Drag / swipe the front card ------------------------------------------------------
+    let pointerId: number | null = null;
+    let startX = 0;
+    let dx = 0;
+    let moved = false;
+
+    stack.addEventListener("pointerdown", (e) => {
+      if (busy || pointerId !== null || e.button !== 0 || e.target === button || button.contains(e.target as Node)) return;
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      dx = 0;
+      moved = false;
+      cursor.classList.add("is-pressed");
+    });
+
+    stack.addEventListener("pointermove", (e) => {
+      if (e.pointerId !== pointerId) return;
+      dx = e.clientX - startX;
+      const front = cards[order[0]];
+      if (!moved && Math.abs(dx) > 6) {
+        moved = true;
+        // keep getting moves even when the pointer leaves the stack
+        stack.setPointerCapture(e.pointerId);
+        front.classList.remove("is-springing");
+        front.classList.add("is-dragging");
+      }
+      if (moved) {
+        front.style.setProperty("--dx", `${dx}px`);
+        front.style.setProperty("--dr", `${dx * 0.02}deg`);
+      }
+    });
+
+    const release = (e: PointerEvent) => {
+      if (e.pointerId !== pointerId) return;
+      pointerId = null;
+      cursor.classList.remove("is-pressed");
+      const front = cards[order[0]];
+      if (!moved) {
+        // a tap or click: with a mouse the side decides, on touch it's always next
+        if (e.type === "pointerup") {
+          if (e.pointerType === "mouse" && isLeftHalf(e.clientX)) prev();
+          else next();
+        }
+        return;
+      }
+      front.classList.remove("is-dragging");
+      if (!(Math.abs(dx) > front.offsetWidth * SWIPE && next(dx < 0 ? -1 : 1))) {
+        front.classList.add("is-springing");
+        clearDrag(front);
+      }
+    };
+    stack.addEventListener("pointerup", release);
+    stack.addEventListener("pointercancel", release);
+
+    // --- Cursor button (mouse only) ---------------------------------------------------------
+    let cx = 0;
+    let cy = 0;
+    let raf = 0;
+    const draw = () => {
+      raf = 0;
+      cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+    };
+    const moveCursor = (e: PointerEvent) => {
+      if (!mouse.matches || e.pointerType !== "mouse") return;
+      cx = e.clientX;
+      cy = e.clientY;
+      cursor.classList.toggle("is-prev", isLeftHalf(e.clientX) && pointerId === null);
+      if (!raf) raf = requestAnimationFrame(draw);
+    };
+    stack.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse") return;
+      moveCursor(e);
+      draw();
+      cursor.classList.add("is-visible");
+    });
+    stack.addEventListener("pointermove", moveCursor);
+    stack.addEventListener("pointerleave", () => {
+      if (pointerId === null) cursor.classList.remove("is-visible");
+    });
+    // a drag that ends outside the stack hides the cursor button once it's let go
+    window.addEventListener("pointerup", (e) => {
+      if (e.pointerType === "mouse" && !stack.matches(":hover")) cursor.classList.remove("is-visible");
+    });
+
+    // The stack resizes with the window; keep the button on the front card's edge.
+    new ResizeObserver(() => {
+      const front = cards[order[0]];
+      stack.style.setProperty("--front-w", `${front.offsetWidth}px`);
+      stack.style.setProperty("--front-h", `${front.offsetHeight}px`);
+    }).observe(stack);
+
+    place();
+  }
+</script>
