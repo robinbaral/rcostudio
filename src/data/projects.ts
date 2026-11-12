@@ -21,7 +21,7 @@ export interface Project {
 }
 
 export const projects: Project[] = [
-  { name: "Colombo", tags: "Coming soon", soon: true, preview: "/assets/work/colombo-desktop.webp" },
+  { name: "Colombo", tags: "Coming soon", soon: true, preview: "/assets/work/colombo-desktop-v2.webp" },
   {
     name: "CrissCross",
     tags: "Web, App",
