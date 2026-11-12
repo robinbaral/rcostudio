@@ -204,15 +204,6 @@ html {
   }
 }
 
-.tagline {
-  /* About 7–10 words a line. */
-  max-width: 44ch;
-  margin: 0;
-  font-family: var(--font-small);
-  font-size: var(--tagline-size);
-  line-height: 125%;
-}
-
 /* Projects ---------------------------------------------------------------- */
 
 :root {

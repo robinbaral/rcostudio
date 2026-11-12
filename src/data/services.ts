@@ -1,4 +1,4 @@
-// The Services section (test page /stack), in order. Wording from the Figma Services frame
+// The Services section, in order. Wording from the Figma Services frame
 // (22:1603), moved from "I" to "we" and toned down to short, plain lines (drafts). The live
 // wording is kept in notes/copy.md.
 
