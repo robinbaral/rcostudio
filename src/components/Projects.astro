@@ -1,0 +1,35 @@
+---
+import { projects } from "../data/projects";
+---
+
+<section class="projects" aria-labelledby="projects-heading">
+  <h2 class="projects__heading" id="projects-heading">Explore Projects</h2>
+  <ul class="projects__list">
+    {
+      projects.map((p) => {
+        const Tag = p.href ? "a" : "div";
+        const link = p.href ? { href: p.href, target: "_blank", rel: "noopener" } : {};
+        return (
+          <li>
+            <Tag
+              class:list={["project", { "project--soon": p.soon }]}
+              {...link}
+              data-preview={p.preview}
+              data-preview-shape={p.portrait ? "portrait" : undefined}
+              data-accent={typeof p.accent === "string" ? p.accent : undefined}
+              data-accent-on-dark={typeof p.accent === "object" ? p.accent.onDark : undefined}
+              data-accent-on-light={typeof p.accent === "object" ? p.accent.onLight : undefined}
+            >
+              <span class="project__name">{p.name}</span>
+              <span class="project__tags">{p.tags}</span>
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<div class="preview" aria-hidden="true"><img class="preview__img" alt="" /></div>
+
+<script src="../scripts/preview.js"></script>

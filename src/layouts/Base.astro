@@ -1,0 +1,56 @@
+---
+import "../styles/global.css";
+
+const title = "R&Co. Studio";
+const description =
+  "A digital-first design studio that helps growing businesses find clarity. Shaped by 20+ years of experience in strategy, branding, and design.";
+const url = "https://rcostudio.nz/";
+const ogImage = "https://rcostudio.nz/assets/og/og-image.png";
+
+const organization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: title,
+  url,
+  description,
+  email: "baralrobin@gmail.com",
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={url} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={url} />
+    <meta property="og:site_name" content={title} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/favicon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/favicon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
+
+    <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+
+    <link rel="preload" href="/assets/fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+  </head>
+  <body class="body">
+    <slot />
+  </body>
+</html>

@@ -1,6 +1,6 @@
 @font-face {
   font-family: "General Sans";
-  src: url("../assets/fonts/general-sans-500.woff2") format("woff2");
+  src: url("/assets/fonts/general-sans-500.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: "General Sans";
-  src: url("../assets/fonts/general-sans-600.woff2") format("woff2");
+  src: url("/assets/fonts/general-sans-600.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: "General Sans";
-  src: url("../assets/fonts/general-sans-700.woff2") format("woff2");
+  src: url("/assets/fonts/general-sans-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: "Die Grotesk B";
-  src: url("../assets/fonts/die-grotesk-b-bold.woff2") format("woff2");
+  src: url("/assets/fonts/die-grotesk-b-bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -32,7 +32,7 @@
 
 @font-face {
   font-family: "Die Grotesk A";
-  src: url("../assets/fonts/die-grotesk-a-bold.woff2") format("woff2");
+  src: url("/assets/fonts/die-grotesk-a-bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -47,33 +47,35 @@
   --font-small: var(--font-sans); /* was: "Die Grotesk A", var(--font-sans) */
   color-scheme: dark;
 
-  --distributor-padding: 2em;
+  --distributor-padding: 32px;
+  --gutter: var(--distributor-padding); /* left/right page margin */
   --distributor-padding-bottom: 2em;
   --heading-size: 64px;
-  --tagline-size: 20px;
-  --contact-size: 20px;
+  --tagline-size: 40px; /* hero statement */
+  --small-size: 20px; /* footer */
 }
 
 @media screen and (max-width: 991px) {
   :root {
     --distributor-padding-bottom: 1.75em;
+    --tagline-size: 32px;
   }
 }
 
 @media screen and (max-width: 767px) {
   :root {
     --distributor-padding-bottom: 1.75em;
-    --tagline-size: 18px;
-    --contact-size: 18px;
+    --tagline-size: 26px;
+    --small-size: 18px;
   }
 }
 
 @media screen and (max-width: 479px) {
   :root {
     --distributor-padding-bottom: 1.5em;
+    --gutter: 20px;
     --heading-size: 56px;
-    --tagline-size: 18px;
-    --contact-size: 18px;
+    --tagline-size: 22px;
   }
 }
 
@@ -112,8 +114,8 @@ a {
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  height: 100svh;
-  padding: var(--distributor-padding);
+  height: 90svh;
+  padding: var(--distributor-padding) var(--gutter);
   padding-bottom: var(--distributor-padding-bottom);
 }
 
@@ -125,58 +127,12 @@ a {
   line-height: 90%;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
 .tagline {
+  max-width: 34em;
   margin: 0;
   font-family: var(--font-small);
   font-size: var(--tagline-size);
-  line-height: 140%;
-}
-
-.contact-us {
-  display: flex;
-  flex-flow: column;
-  position: relative;
-  padding-top: 1em;
-  font-family: var(--font-small);
-  font-size: 0.75em;
-  text-decoration: none;
-  text-transform: none;
-  color: var(--color-fg);
-}
-
-.contact-us__text {
-  font-size: var(--contact-size);
-  line-height: 140%;
-}
-
-.underline {
-  position: absolute;
-  inset: auto 0% -0.5em;
-  width: 100%;
-  height: 1px;
-  background-color: var(--color-fg);
-  transform: scaleX(0);
-  transform-origin: 0% 50%;
-  transition: transform 0.3s ease;
-}
-
-.contact-us:hover .underline {
-  transform: scaleX(1);
-}
-
-@media screen and (max-width: 479px) {
-  .row {
-    flex-flow: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1em;
-  }
+  line-height: 125%;
 }
 
 /* Projects ---------------------------------------------------------------- */
@@ -208,7 +164,7 @@ a {
   display: flex;
   flex-flow: column;
   gap: var(--projects-padding-y);
-  padding: var(--projects-padding-y) var(--distributor-padding);
+  padding: var(--projects-padding-y) var(--gutter);
 }
 
 .projects__heading {
@@ -241,13 +197,14 @@ a {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: color 0.2s, opacity 0.2s;
 }
 
-/* Hovering a linked project dims the other linked ones; rows without a link (coming soon,
-   Solarkraftwerk) only show their preview. */
-.projects__list:has(a.project:hover) a.project:not(:hover) {
-  opacity: 0.4;
+/* Hovering a row tints only that row, in a colour taken from its thumbnail (set by
+   js/preview.js as --row-accent). Other rows stay as they are. Coming-soon rows keep
+   their grey and only show the thumbnail. */
+.project:not(.project--soon):hover {
+  color: var(--row-accent, inherit);
 }
 
 .project:focus-visible {
@@ -312,26 +269,16 @@ div.project {
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  padding: var(--distributor-padding);
-  padding-bottom: var(--projects-padding-y);
-}
-
-.prefooter__heading {
-  margin-top: var(--projects-padding-y);
+  /* Same top spacing as the projects section above it. */
+  padding: var(--projects-padding-y) var(--gutter);
 }
 
 .prefooter__cta {
   margin-top: 16px;
 }
 
-.prefooter::before {
-  content: "";
-  align-self: stretch;
-  border-top: 1px solid color-mix(in srgb, var(--color-fg) 40%, transparent);
-}
-
 .prefooter__heading {
-  margin-bottom: 0;
+  margin: 0;
   font-family: var(--font-heading);
   font-size: var(--heading-size);
   font-weight: 700;
@@ -353,8 +300,8 @@ div.project {
   width: 24px;
   height: 24px;
   background-color: currentColor;
-  -webkit-mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
-  mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
+  -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+  mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
   transition: transform 0.3s ease;
 }
 
@@ -366,10 +313,9 @@ div.project {
   display: flex;
   flex-flow: column;
   gap: 32px;
-  padding: var(--distributor-padding);
-  /* Same type as the hero's tagline and Contact Us. */
+  padding: var(--distributor-padding) var(--gutter);
   font-family: var(--font-small);
-  font-size: var(--tagline-size);
+  font-size: var(--small-size);
   line-height: 140%;
 }
 
@@ -406,8 +352,8 @@ div.project {
   width: 100%;
   aspect-ratio: 1664 / 217.957;
   background-color: color-mix(in srgb, var(--color-fg) 7%, var(--color-bg));
-  -webkit-mask: url("../assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
-  mask: url("../assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+  -webkit-mask: url("/assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
+  mask: url("/assets/brand/rco-studio-wordmark.svg") center / contain no-repeat;
 }
 
 @media screen and (max-width: 767px) {
