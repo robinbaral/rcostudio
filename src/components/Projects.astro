@@ -2,8 +2,8 @@
 import { projects } from "../data/projects";
 ---
 
-<section class="projects" aria-labelledby="projects-heading">
-  <h2 class="projects__heading" id="projects-heading">Explore Projects</h2>
+<section class="projects" id="projects" aria-labelledby="projects-heading">
+  <h2 class="projects__heading" id="projects-heading">Selected Projects</h2>
   <ul class="projects__list">
     {
       projects.map((p) => {
@@ -21,7 +21,10 @@ import { projects } from "../data/projects";
               data-accent-on-light={typeof p.accent === "object" ? p.accent.onLight : undefined}
             >
               <span class="project__name">{p.name}</span>
-              <span class="project__tags">{p.tags}</span>
+              <span class="project__end">
+                <span class="project__tags">{p.tags}</span>
+                {p.href && <span class="project__arrow" aria-hidden="true" />}
+              </span>
             </Tag>
           </li>
         );

@@ -51,21 +51,21 @@
   --gutter: var(--distributor-padding); /* left/right page margin */
   --distributor-padding-bottom: 2em;
   --heading-size: 64px;
-  --tagline-size: 34px; /* hero statement */
+  --tagline-size: 40px; /* hero statement */
   --small-size: 20px; /* footer */
 }
 
 @media screen and (max-width: 991px) {
   :root {
     --distributor-padding-bottom: 1.75em;
-    --tagline-size: 28px;
+    --tagline-size: 32px;
   }
 }
 
 @media screen and (max-width: 767px) {
   :root {
     --distributor-padding-bottom: 1.75em;
-    --tagline-size: 24px;
+    --tagline-size: 26px;
     --small-size: 18px;
   }
 }
@@ -75,7 +75,7 @@
     --distributor-padding-bottom: 1.5em;
     --gutter: 20px;
     --heading-size: 56px;
-    --tagline-size: 21px;
+    --tagline-size: 22px;
   }
 }
 
@@ -119,12 +119,88 @@ a {
   padding-bottom: var(--distributor-padding-bottom);
 }
 
-.heading {
-  margin: 0;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Nav (Figma 22:1548): five items spread across the top. The current page is underlined;
+   Profile and Services are greyed out until those pages exist. */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   font-family: var(--font-heading);
-  font-size: var(--heading-size);
-  font-weight: 600;
-  line-height: 90%;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media screen and (max-width: 479px) {
+  .nav {
+    gap: 8px;
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 359px) {
+  .nav {
+    font-size: 12px;
+  }
+}
+
+.nav__link {
+  position: relative;
+  padding-bottom: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Same grow-from-the-left line as the footer links; always shown on the current page. */
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease-in;
+}
+
+.nav__link--current::after,
+a.nav__link:hover::after,
+a.nav__link:focus-visible::after {
+  transform: scaleX(1);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav__link--soon {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__link::after {
+    transition: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 .tagline {
@@ -208,6 +284,50 @@ a {
   color: var(--row-accent, inherit);
 }
 
+/* Linked rows: a ↗ arrow grows in after the tags on hover, so external links read as such. */
+.project__end {
+  display: inline-flex;
+  align-items: center;
+}
+
+.project__arrow {
+  width: 0;
+  height: 0.7em;
+  margin-left: 0;
+  opacity: 0;
+  background-color: currentColor;
+  -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+  mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+  rotate: -45deg;
+  translate: -0.3em 0.3em;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease, translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+a.project:hover .project__arrow,
+a.project:focus-visible .project__arrow {
+  width: 0.7em;
+  margin-left: 0.4em;
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* No hover on touch screens: show the arrow all the time. */
+@media (hover: none) {
+  .project__arrow {
+    width: 0.7em;
+    margin-left: 0.4em;
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project__arrow {
+    transition: opacity 0.2s ease;
+  }
+}
+
 .project:focus-visible {
   outline: 1px solid var(--color-bg);
   outline-offset: 4px;
@@ -264,21 +384,57 @@ div.project {
   opacity: 0.4;
 }
 
-/* Pre-footer and footer: back to the OS-mode colours, like the hero. ------- */
+/* Footer: back to the OS-mode colours, like the hero. Holds the "Let's build something
+   great" call to action, the studio details and the wordmark. -------------------------- */
 
-.prefooter {
+/* Footer reveal: the wrapper holds the footer's place in the page and clips it, while the
+   footer itself is fixed to the bottom of the viewport, so the page above slides off it. */
+.footer-reveal {
+  position: relative;
+  height: 80svh;
+  clip-path: inset(0);
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80svh;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  gap: 32px;
+  background-color: var(--color-bg);
+  /* Same top spacing as the projects section. */
+  padding: var(--projects-padding-y) var(--gutter) var(--distributor-padding);
+  font-family: var(--font-small);
+  font-size: var(--small-size);
+  line-height: 140%;
+}
+
+/* Screens too short for the footer: drop the reveal and let it scroll normally. */
+@media (max-height: 560px) {
+  .footer-reveal {
+    height: auto;
+    clip-path: none;
+  }
+
+  .footer {
+    position: static;
+    height: auto;
+    min-height: 80svh;
+  }
+}
+
+.footer__intro {
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  /* Same top spacing as the projects section above it. */
-  padding: var(--projects-padding-y) var(--gutter);
+  gap: 16px;
 }
 
-.prefooter__cta {
-  margin-top: 16px;
-}
-
-.prefooter__heading {
+.footer__heading {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--heading-size);
@@ -286,7 +442,7 @@ div.project {
   line-height: 0.9;
 }
 
-.prefooter__cta {
+.footer__cta {
   display: inline-flex;
   align-items: center;
   gap: 16px;
@@ -297,7 +453,7 @@ div.project {
   text-decoration: none;
 }
 
-.prefooter__arrow {
+.footer__arrow {
   width: 24px;
   height: 24px;
   background-color: currentColor;
@@ -306,18 +462,14 @@ div.project {
   transition: transform 0.3s ease;
 }
 
-.prefooter__cta:hover .prefooter__arrow {
+.footer__cta:hover .footer__arrow {
   transform: translateX(6px);
 }
 
-.footer {
+.footer__end {
   display: flex;
   flex-flow: column;
   gap: 32px;
-  padding: var(--distributor-padding) var(--gutter);
-  font-family: var(--font-small);
-  font-size: var(--small-size);
-  line-height: 140%;
 }
 
 .footer__row {
@@ -334,7 +486,7 @@ div.project {
 .footer__contact {
   display: flex;
   flex-flow: column;
-  gap: 0.35em; /* room for the link underline between the two lines */
+  /* No gap: same line spacing as the text on the left, so both blocks line up. */
 }
 
 .footer__contact div {
@@ -349,17 +501,17 @@ div.project {
 
 /* Text links: a 1px line grows in from the left on hover and shrinks back on the way out
    (same motion as the ProLog site). */
-.footer a {
+.footer__contact a {
   position: relative;
   text-decoration: none;
 }
 
-.footer a::after {
+.footer__contact a::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -0.25em;
+  bottom: -0.05em;
   height: 1px;
   background-color: currentColor;
   transform: scaleX(0);
@@ -367,14 +519,14 @@ div.project {
   transition: transform 0.2s ease-in;
 }
 
-.footer a:hover::after,
-.footer a:focus-visible::after {
+.footer__contact a:hover::after,
+.footer__contact a:focus-visible::after {
   transform: scaleX(1);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer a::after {
+  .footer__contact a::after {
     transition: none;
   }
 }

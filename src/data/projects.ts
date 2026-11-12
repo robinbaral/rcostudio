@@ -1,4 +1,4 @@
-// The "Explore Projects" list, in display order. Add a project by adding an entry.
+// The "Selected Projects" list, in display order. Add a project by adding an entry.
 //
 // - preview: image in public/assets/work/. Use a new filename when replacing an image:
 //   /assets/ is cached for a year (vercel.json), so a reused name keeps showing the old one.
@@ -27,14 +27,14 @@ export const projects: Project[] = [
     name: "CrissCross",
     tags: "Web, App",
     href: "https://www.crisscrosswords.app",
-    preview: "/assets/work/crisscross-desktop.webp",
+    preview: "/assets/work/crisscross-tiles.webp",
     accent: "#dab6fc",
   },
   {
     name: "ProLog",
     tags: "Branding, Web",
     href: "https://www.prolog.ag",
-    preview: "/assets/work/prolog-desktop.webp",
+    preview: "/assets/work/prolog-hero.webp",
     accent: "#ff4713",
   },
   {
@@ -53,7 +53,7 @@ export const projects: Project[] = [
     name: "Schlosskirche",
     tags: "Web",
     href: "https://www.foerderverein-schlosskirche.de",
-    preview: "/assets/work/schlosskirche-desktop.webp",
+    preview: "/assets/work/schlosskirche-hero.webp",
   },
   {
     name: "Pindrop",
@@ -63,7 +63,7 @@ export const projects: Project[] = [
     preview: "/assets/work/pindrop-app.webp",
     portrait: true,
   },
-  { name: "Solarkraftwerk", tags: "Branding", preview: "/assets/work/solarkraftwerk-cards.webp" },
+  { name: "Solarkraftwerk", tags: "Branding", preview: "/assets/work/solarkraftwerk-desktop.webp" },
   {
     name: "Helga Digel",
     tags: "Web, Print",
