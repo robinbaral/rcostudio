@@ -13,7 +13,7 @@ export interface Service {
 
 // The left column: a note and a quiet, contextual contact line (drafts, see notes/copy.md).
 export const servicesNote =
-  "Not every project needs every step. Some start with strategy, others go straight to a prototype. We'll work out the right mix together.";
+  "Not every project needs every step. Some start with strategy, others go straight to a prototype, and sometimes we join your team for a while. We'll work out the right mix together.";
 export const servicesContact = { lead: "Not sure where yours starts?", link: "Get in touch" };
 
 export const services: Service[] = [
