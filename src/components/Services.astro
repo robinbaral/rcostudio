@@ -215,6 +215,15 @@ const pad = (n: number) => String(n).padStart(2, "0");
       font-size: 0.5em;
     }
 
+    /* The lead sits closer to its name; the items keep the full 40px gap below the lead. */
+    .service {
+      gap: 16px;
+    }
+
+    .service__items {
+      margin-top: 24px;
+    }
+
     .service__lead {
       max-width: none;
       font-size: 24px;
