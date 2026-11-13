@@ -20,19 +20,19 @@ export const services: Service[] = [
     id: "strategy",
     name: "Strategy",
     lead: "We work out what the project needs to do.",
-    text: "Your goals set the direction, and the design follows from them. We find the big idea behind the work: one clear message, carried through colour, type and layout, so every part of the project pulls the same way.",
+    text: "Your goals set the direction, and the design follows from them. We find the big idea behind the work: one clear message, carried through, so every part of the project pulls the same way.",
   },
   {
     id: "design",
     name: "Design",
     lead: "We shape the idea, then the details.",
-    text: "Moodboards give everyone a shared picture of the direction before anything gets designed. From there, a concept takes one idea and works it through into real design choices, down to interfaces that look right and are easy to use. Landing pages and whole sites can also be built with no-code tools.",
+    text: "Before anything gets designed, we get everyone on board and agree on a shared picture of the direction. From there, a concept takes one idea and works it through into real design choices, down to interfaces that look right and are easy to use.",
   },
   {
     id: "prototyping",
     name: "Prototyping",
     lead: "We try ideas early, on something real.",
-    text: "Clickable prototypes in the browser or on a phone let you click through an idea rather than imagine it, and improve it with each round of feedback. We use your actual words and images, on the screens people will use, so decisions are made on the real thing.",
+    text: "Prototypes in the browser or on a phone let you click through an idea rather than imagine it, and improve it with each round of feedback. We use your actual words and images, on the screens people will use, so decisions are made on the real thing.",
   },
   {
     id: "development",
@@ -44,6 +44,6 @@ export const services: Service[] = [
     id: "product",
     name: "Product",
     lead: "We look after products once they're live, and help them grow.",
-    text: "We work with start-ups and teams that already have a product in place, picking up where things stand and helping build it out. We keep track of what's next, weigh it against your goals and plan each release with you. New features are added step by step to a core that can carry them, every release is tested first, and maintenance, updates and support keep things running.",
+    text: "We work with start-ups and teams that already have a product in place. We keep track of what's next, weigh it against your goals and plan each release with you. New features are added step by step to a core that can carry them.",
   },
 ];

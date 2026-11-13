@@ -115,9 +115,13 @@ import { services, servicesNote, servicesContact } from "../data/services";
     padding-block: var(--projects-padding-y);
   }
 
+  /* The same measure as the Profile text above (58ch at 20px), so lead and paragraph run as
+     wide as that text at every window size: the column's width, up to that measure. */
   .service {
     display: flex;
     flex-direction: column;
+    max-width: 58ch;
+    font-size: 20px;
   }
 
   .service + .service {
@@ -138,7 +142,6 @@ import { services, servicesNote, servicesContact } from "../data/services";
      service's lead lines up with the note, and each lead reads as the opening line of its
      paragraph rather than a second heading. Keep the two in step. */
   .service__lead {
-    max-width: min(66.667%, 720px);
     margin: 20px 0 0;
     font-family: var(--font-sans);
     font-size: clamp(22px, 1.9vw, 30px);
@@ -152,7 +155,6 @@ import { services, servicesNote, servicesContact } from "../data/services";
   /* One paragraph per service, read as running text rather than separate blocks (Robin):
      a comfortable measure, lined up under the lead. */
   .service__text {
-    max-width: min(66.667%, 720px);
     margin: 16px 0 0;
     font-size: 20px;
     line-height: 1.5;
