@@ -272,57 +272,27 @@ html {
 /* Hovering a row tints only that row, in a colour taken from its thumbnail (set by
    js/preview.js as --row-accent). Other rows stay as they are. Coming-soon rows keep
    their grey and only show the thumbnail. */
-.project:not(.project--soon):hover {
+.project:not(.project--soon):hover,
+.project:not(.project--soon):focus-visible {
   color: var(--row-accent, inherit);
 }
 
-/* Linked rows: a ↗ arrow grows in after the tags on hover, so external links read as such. */
-.project__end {
-  display: inline-flex;
-  align-items: center;
+/* Rows are buttons that open the project drawer: reset the button look. */
+button.project {
+  width: 100%;
+  margin: 0;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
 }
 
-.project__arrow {
-  width: 0;
-  height: 0.7em;
-  margin-left: 0;
-  opacity: 0;
-  background-color: currentColor;
-  -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
-  mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
-  rotate: -45deg;
-  translate: -0.3em 0.3em;
-  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.2s ease, translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-a.project:hover .project__arrow,
-a.project:focus-visible .project__arrow {
-  width: 0.7em;
-  margin-left: 0.4em;
-  opacity: 1;
-  translate: 0 0;
-}
-
-/* No hover on touch screens: show the arrow all the time. */
-@media (hover: none) {
-  .project__arrow {
-    width: 0.7em;
-    margin-left: 0.4em;
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .project__arrow {
-    transition: opacity 0.2s ease;
-  }
-}
-
+/* No outline on the rows (Robin); keyboard focus shows as the row's hover colour instead
+   (above), so it's still visible where you are. */
 .project:focus-visible {
-  outline: 1px solid var(--color-bg);
-  outline-offset: 4px;
+  outline: none;
 }
 
 /* Cursor-following screenshot; only shown on devices that can hover. */
@@ -344,7 +314,7 @@ a.project:focus-visible .project__arrow {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.14);
   transform: scale(0.92);
   transition: transform 0.3s ease;
 }
@@ -352,10 +322,6 @@ a.project:focus-visible .project__arrow {
 /* Phone screenshots (apps without a site) are tall. */
 .preview--portrait {
   width: clamp(160px, 14vw, 220px);
-}
-
-div.project {
-  cursor: default;
 }
 
 .preview.is-visible {

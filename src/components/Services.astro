@@ -5,7 +5,6 @@
 // Below 992px it's one column and nothing sticks.
 import { services, servicesNote, servicesContact } from "../data/services";
 
-const pad = (n: number) => String(n).padStart(2, "0");
 ---
 
 <section class="services" id="services" aria-labelledby="services-heading">
@@ -20,22 +19,15 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
   <div class="services__list">
     {
-      services.map((s, i) => (
+      services.map((s) => (
         <article class="service" id={`service-${s.id}`} aria-labelledby={`service-${s.id}-name`}>
           <h3 class="service__name" id={`service-${s.id}-name`}>
-            <span class="service__num">{pad(i + 1)}</span>
             {s.name}
           </h3>
-          <p class="service__lead">
-            {s.emphasis && <span class="service__emphasis">{s.emphasis} </span>}
-            {s.lead}
-          </p>
+          <p class="service__lead">{s.lead}</p>
           <ul class="service__items">
             {s.items.map((item) => (
-              <li class="service__item">
-                <h4 class="service__item-title">{item.title}</h4>
-                <p class="service__item-text">{item.text}</p>
-              </li>
+              <li class="service__item">{item}</li>
             ))}
           </ul>
         </article>
@@ -83,8 +75,11 @@ const pad = (n: number) => String(n).padStart(2, "0");
   }
 
   /* A large, light paragraph in the body font, like a quiet statement. */
+  /* It runs about halfway into the column gap, so it can be wider than the left column without
+     moving the column (which lines up with Profile and the stack). */
   .services__note {
-    max-width: 22ch;
+    width: calc(100% + clamp(24px, 3vw, 60px));
+    max-width: 26ch;
     margin: 32px 0 0;
     font-family: var(--font-sans);
     font-size: clamp(22px, 1.9vw, 30px);
@@ -124,10 +119,8 @@ const pad = (n: number) => String(n).padStart(2, "0");
     padding-block: var(--projects-padding-y);
   }
 
+  /* No numbers: not every project goes through every step (see the note on the left). */
   .service__name {
-    display: flex;
-    align-items: baseline;
-    gap: 24px;
     margin: 0;
     font-family: var(--font-heading);
     font-size: var(--heading-size);
@@ -135,25 +128,6 @@ const pad = (n: number) => String(n).padStart(2, "0");
     line-height: 0.9;
   }
 
-  .service__num {
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .service__lead {
-    /* Two thirds of the column (capped at two thirds of the items' 1080px). */
-    max-width: min(66.667%, 720px);
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--muted);
-  }
-
-  .service__emphasis {
-    color: var(--ink);
-  }
 
   .service__items {
     display: grid;
@@ -166,24 +140,29 @@ const pad = (n: number) => String(n).padStart(2, "0");
     list-style: none;
   }
 
+  /* No rule above each item (Robin): the gap between rows is enough. */
   .service__item {
-    padding-top: 20px;
-    border-top: 1px solid var(--rule);
+    padding-top: 0;
   }
 
-  .service__item-title {
-    margin: 0 0 12px;
+  .service__lead {
+    /* Two thirds of the column (capped at two thirds of the items' 1080px). Pulled up towards
+       its heading (16px instead of the 40px between the other parts), so they read as a pair. */
+    max-width: min(66.667%, 720px);
+    margin: -24px 0 0;
     font-family: var(--font-heading);
-    font-size: 20px;
+    font-size: 32px;
     font-weight: 700;
     line-height: 1.2;
+    color: var(--muted);
   }
 
-  .service__item-text {
-    margin: 0;
-    font-size: 17px;
-    line-height: 145%;
-    color: var(--muted);
+  /* One short paragraph per point, a little larger than the old copy lines now that there
+     are no titles above them. */
+  .service__item {
+    font-size: 18px;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--ink) 80%, var(--color-fg));
   }
 
   /* --- Smaller screens: one column, nothing sticks ---------------------------------------- */
@@ -199,20 +178,14 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
   @media screen and (max-width: 767px) {
     .services__note {
+      width: auto;
       max-width: none;
       font-size: 22px;
     }
 
-    /* The number sits on its own line above the name, and the name is smaller, so long names
-       like "Prototyping" and "Development" fit a phone screen. */
+    /* A smaller name, so long ones like "Prototyping" and "Development" fit a phone screen. */
     .service__name {
-      flex-direction: column;
-      gap: 8px;
       font-size: 44px;
-    }
-
-    .service__num {
-      font-size: 0.5em;
     }
 
     /* The lead sits closer to its name; the items keep the full 40px gap below the lead. */
@@ -226,6 +199,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
     .service__lead {
       max-width: none;
+      margin-top: -12px;
       font-size: 24px;
     }
 

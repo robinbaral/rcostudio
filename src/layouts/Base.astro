@@ -44,7 +44,7 @@ const schema = {
           itemOffered: {
             "@type": "Service",
             name: s.name,
-            description: [s.emphasis, s.lead].filter(Boolean).join(" "),
+            description: s.lead,
           },
         })),
       },

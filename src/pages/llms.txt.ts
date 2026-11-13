@@ -4,6 +4,7 @@ import type { APIRoute } from "astro";
 import { profile } from "../data/profile";
 import { services, servicesNote } from "../data/services";
 import { projects } from "../data/projects";
+import { stack } from "../data/stack";
 
 const site = "https://rcostudio.nz";
 
@@ -15,16 +16,14 @@ export const GET: APIRoute = () => {
     "",
     `${profile.opening} ${profile.rest}`,
     "",
-    `${profile.setup.title}: ${profile.setup.text}`,
+    `${profile.setup.title}: ${profile.setup.text.join(" ")}`,
     "",
     "## Services",
     "",
     servicesNote,
     "",
     ...services.flatMap((s) => [
-      `- ${s.name}: ${[s.emphasis, s.lead].filter(Boolean).join(" ")} ${s.items
-        .map((i) => `${i.title} (${i.text.replace(/\.$/, "")})`)
-        .join("; ")}.`,
+      `- ${s.name}: ${s.lead} ${s.items.join(" ")}`,
     ]),
     "",
     "## Selected projects",
@@ -33,6 +32,10 @@ export const GET: APIRoute = () => {
       const kind = p.soon ? "coming soon" : p.tags;
       return p.href ? `- [${p.name}](${p.href}): ${kind}` : `- ${p.name}: ${kind}`;
     }),
+    "",
+    "## Everyday stack",
+    "",
+    ...stack.map((g) => `- ${g.name}: ${g.tools.join(", ")}`),
     "",
     "## Contact",
     "",

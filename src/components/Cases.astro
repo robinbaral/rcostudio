@@ -30,26 +30,25 @@ const cards = [
 </section>
 
 <style>
-  /* Inverted like Services, so the dark footer underneath still reveals with contrast. */
+  /* The page's own colours, the other way round from Services above, so the change of colour
+     marks the new section (no rule needed). The Everyday Stack below is inverted again. */
   .cases {
-    --ink: var(--color-bg);
-    --block: color-mix(in srgb, var(--color-bg) 8%, var(--color-fg));
-    --rule: color-mix(in srgb, var(--color-bg) 20%, var(--color-fg));
+    --ink: var(--color-fg);
+    --block: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
+    --rule: color-mix(in srgb, var(--color-fg) 20%, var(--color-bg));
     display: flex;
     flex-direction: column;
     gap: var(--projects-padding-y);
     padding: 0 var(--gutter) var(--projects-padding-y);
-    background-color: var(--color-fg);
+    background-color: var(--color-bg);
     color: var(--ink);
     transition:
       background-color 0.2s,
       color 0.2s;
   }
 
-  /* A rule between Services and Cases, inset like the ones inside Services. */
   .cases__head {
     padding-top: var(--projects-padding-y);
-    border-top: 1px solid var(--rule);
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -67,7 +66,7 @@ const cards = [
   .cases__note {
     margin: 0;
     font-size: 18px;
-    color: color-mix(in srgb, var(--color-bg) 55%, var(--color-fg));
+    color: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
   }
 
   .cases__grid {

@@ -1,0 +1,710 @@
+---
+// One drawer for all projects: slides in from the right on desktop, up from the bottom as a
+// full-width sheet on phones. Every project's content is in the HTML (one <article> each), so
+// search engines see it; the script shows the one that was clicked.
+//
+// Phones use the "page mode" from the Colombo food menu: once the sheet is up, the rest of
+// the page is hidden and the drawer becomes the page, so it scrolls on under Safari's
+// translucent address bar instead of stopping above it.
+import { projects, projectId, projectLinkLabel } from "../data/projects";
+---
+
+<dialog class="project-drawer" id="project-drawer" data-project-drawer>
+  <div class="project-drawer__panel" tabindex="-1" autofocus>
+    <!-- Just the close button, floating top right; the title is part of each project below. -->
+    <div class="project-drawer__head">
+      <button type="button" class="project-drawer__close" aria-label="Close" data-project-close>
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="project-drawer__body">
+      {
+        projects.map((p) => (
+          <article class="project-detail" data-project={projectId(p)} hidden>
+            <h2 class="project-detail__title" id={`project-title-${projectId(p)}`}>{p.name}</h2>
+            {p.video ? (
+              <div class="project-detail__media project-video" data-video>
+                <video
+                  class="project-video__desktop"
+                  src={p.video.desktop}
+                  poster={p.video.poster}
+                  muted
+                  playsinline
+                  preload="none"
+                  aria-label={`${p.name}, scrolling through the website`}
+                />
+                <div class="project-video__phone">
+                  <video src={p.video.mobile} poster={p.video.mobilePoster} muted playsinline preload="none" aria-hidden="true" />
+                </div>
+              </div>
+            ) : !p.portrait || p.drawerImage ? (
+              // The images as blocks, one below the other, each on the grey panel; a phone view
+              // of the same section overlaps its corner where there is one (galleryMobile).
+              <div class="project-detail__media project-shots">
+                {[p.drawerImage ?? p.preview, ...(p.gallery ?? [])].map((src, i) => (
+                  <figure class:list={["project-gallery", { "project-gallery--phone": p.galleryMobile?.[i] }]}>
+                    <div class="project-gallery__frame">
+                      <img
+                        class="project-gallery__img"
+                        src={src}
+                        alt={i === 0 ? `${p.name}, website` : ""}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    {p.galleryMobile?.[i] && (
+                      <div class="project-gallery__phone" aria-hidden="true">
+                        <img class="project-gallery__img" src={p.galleryMobile[i]} alt="" loading="lazy" decoding="async" />
+                      </div>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            ) : (
+              <div class:list={["project-detail__media", { "project-detail__media--portrait": p.portrait }]}>
+                <img src={p.preview} alt={`${p.name}, preview`} loading="lazy" decoding="async" />
+              </div>
+            )}
+
+            <div class="project-detail__summary">
+              {[p.summary].flat().map((para) => <p>{para}</p>)}
+            </div>
+
+            <div class="project-detail__services">
+              <h3 class="project-detail__label">Services</h3>
+              <ul>
+                {p.services.map((s) => <li>{s}</li>)}
+              </ul>
+            </div>
+
+            {p.href && !p.soon ? (
+              <div class="project-detail__links">
+                <a class="project-detail__link" href={p.href} target="_blank" rel="noopener">
+                  {projectLinkLabel(p)}
+                  <span class="project-detail__arrow" aria-hidden="true" />
+                </a>
+                {p.appStore && (
+                  <a class="project-detail__link" href={p.appStore} target="_blank" rel="noopener">
+                    Download on the App Store
+                    <span class="project-detail__arrow" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+            ) : (
+              p.soon && <p class="project-detail__soon">Coming soon</p>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("[data-project-drawer]");
+
+  if (dialog) {
+    const root = document.documentElement;
+    const panel = dialog.querySelector<HTMLElement>(".project-drawer__panel")!;
+    const body = dialog.querySelector<HTMLElement>(".project-drawer__body")!;
+    const details = dialog.querySelectorAll<HTMLElement>("[data-project]");
+    const phone = window.matchMedia("(max-width: 767px)");
+    // The page scrolls smoothly (html { scroll-behavior }), but these jumps must be instant.
+    const jump = (top: number) => window.scrollTo({ top, behavior: "instant" });
+    let pageY = 0;
+    let opener: HTMLElement | null = null;
+
+    // A direct child of <body>, so page mode can hide everything else in one rule.
+    document.body.append(dialog);
+
+    // Page mode, phones only (see the note at the top). Safari also clips the top layer, where a
+    // modal dialog lives, to the visible area, so in page mode the dialog is closed and shown as
+    // an ordinary element on the page instead.
+    // The sheet is always light, so in page mode the browser's theme colour turns white too
+    // (it's dark in dark mode), and goes back when the sheet closes.
+    const themeMetas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
+    const themeColors = Array.from(themeMetas, (m) => m.content);
+    const setTheme = (light: boolean) =>
+      themeMetas.forEach((m, i) => (m.content = light ? "#ffffff" : themeColors[i]));
+
+    const inPageMode = () => root.classList.contains("project-page");
+    const isOpen = () => dialog.open || inPageMode();
+
+    const enterPageMode = () => {
+      if (!dialog.open || dialog.classList.contains("is-closing") || !phone.matches) return;
+      const y = body.scrollTop;
+      root.classList.add("project-page");
+      setTheme(true);
+      dialog.close();
+      body.scrollTop = 0;
+      jump(y);
+      panel.focus({ preventScroll: true });
+    };
+
+    // Back to a modal over the page, at the same place in the drawer and the page.
+    const leavePageMode = () => {
+      if (!inPageMode()) return;
+      const y = window.scrollY;
+      root.classList.remove("project-page");
+      setTheme(false);
+      dialog.showModal();
+      body.scrollTop = y;
+      jump(pageY);
+    };
+
+    // Reduced motion keeps scroll videos on their first frame (the poster).
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Scroll videos: desktop and phone start together and restart together when the desktop
+    // one ends, so they stay in step. Reduced motion keeps the first frames (the posters).
+    const stopVideos = () => dialog.querySelectorAll("video").forEach((v) => v.pause());
+    const startVideos = (detail: HTMLElement) => {
+      stopVideos();
+      const [desktop, phone] = Array.from(detail.querySelectorAll<HTMLVideoElement>("[data-video] video"));
+      if (!desktop || still.matches) return;
+      const both = [desktop, phone].filter(Boolean);
+      const restart = () => both.forEach((v) => { v.currentTime = 0; v.play().catch(() => {}); });
+      desktop.onended = restart;
+      both.forEach((v) => (v.preload = "auto"));
+      restart();
+    };
+
+    const show = (id: string) => {
+      details.forEach((d) => {
+        d.hidden = d.dataset.project !== id;
+        if (!d.hidden) startVideos(d);
+      });
+      // The dialog is named by the title of the project it shows.
+      dialog.setAttribute("aria-labelledby", `project-title-${id}`);
+    };
+
+    const open = (id: string, from: HTMLElement) => {
+      if (isOpen()) return;
+      opener = from;
+      show(id);
+      pageY = window.scrollY;
+      document.querySelector(".preview")?.classList.remove("is-visible");
+      dialog.showModal();
+      body.scrollTop = 0;
+      Promise.all(dialog.getAnimations().map((a) => a.finished)).then(enterPageMode, () => {});
+    };
+
+    // Plays the way out (down on phones, right elsewhere) before the dialog actually closes.
+    // Without an animation (reduced motion) it closes straight away.
+    const close = () => {
+      if (!isOpen() || dialog.classList.contains("is-closing")) return;
+      leavePageMode();
+      dialog.classList.add("is-closing");
+      const done = () => {
+        dialog.classList.remove("is-closing");
+        dialog.close();
+        stopVideos();
+        opener?.focus({ preventScroll: true });
+      };
+      Promise.all(dialog.getAnimations().map((a) => a.finished)).then(done, done);
+    };
+
+    // Turning a phone or resizing past the breakpoint swaps between the two modes.
+    phone.addEventListener("change", () => (phone.matches ? enterPageMode() : leavePageMode()));
+
+    document.querySelectorAll<HTMLElement>("[data-project-open]").forEach((button) =>
+      button.addEventListener("click", () => open(button.dataset.projectOpen!, button)),
+    );
+    dialog.querySelector("[data-project-close]")?.addEventListener("click", close);
+
+    // A click on the backdrop (the dialog itself, outside the panel) closes it.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) close();
+    });
+
+    // Escape animates out too; in page mode the dialog isn't modal, so it's caught here.
+    dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      close();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && inPageMode()) close();
+    });
+  }
+</script>
+
+<style>
+  :global(body:has(.project-drawer[open])) {
+    overflow: hidden;
+  }
+
+  /* Half the screen on the right, a little wider on tablets, capped so lines stay readable. */
+  /* Always light, whatever the OS mode: the site's light colours, set locally. */
+  .project-drawer {
+    --color-fg: #141414;
+    --color-bg: #ffffff;
+    color-scheme: light;
+    --muted: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+    --rule: color-mix(in srgb, var(--color-fg) 15%, var(--color-bg));
+    --pad: 32px;
+    width: min(max(50vw, 34rem), 46rem);
+    max-width: 100%;
+    height: 100%;
+    max-height: none;
+    margin: 0 0 0 auto;
+    padding: 0;
+    color: var(--color-fg);
+    background-color: var(--color-bg);
+    border: 0;
+    box-shadow: -8px 0 40px rgb(0 0 0 / 0.2);
+  }
+
+  /* In: moves off quickly and settles softly, like a native drawer or sheet. */
+  .project-drawer[open] {
+    animation: project-drawer-in 0.45s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  /* Out: shorter, and picks up speed as it leaves. */
+  .project-drawer[open].is-closing {
+    animation-name: project-drawer-out;
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .project-drawer::backdrop {
+    background-color: rgb(20 20 20 / 0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  .project-drawer__panel {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    outline: none;
+  }
+
+  /* Floats over the top right corner, so the title can sit in the sheet itself. */
+  .project-drawer__panel {
+    position: relative;
+  }
+
+  .project-drawer__head {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    padding: 24px calc(var(--pad) - 8px) 0 0;
+  }
+
+  .project-detail__title {
+    margin: 0;
+    padding-right: 48px;
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.05;
+  }
+
+  /* A light disc behind the cross, so it stays visible over images while scrolling. */
+  .project-drawer__close {
+    display: flex;
+    padding: 8px;
+    color: inherit;
+    background-color: var(--color-bg);
+    border-radius: 50%;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .project-drawer__body {
+    flex: 1;
+    padding: calc(var(--pad) * 2) var(--pad) var(--pad);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .project-detail {
+    display: flex;
+    flex-flow: column;
+    gap: 32px;
+  }
+
+  .project-detail[hidden] {
+    display: none;
+  }
+
+  .project-detail__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Each image block: a quiet grey panel, so white pages don't run into the white sheet, with
+     the shot in an inset 16:10 frame. */
+  .project-gallery {
+    padding: 5%;
+    background-color: color-mix(in srgb, var(--color-fg) 6%, var(--color-bg));
+  }
+
+  .project-gallery__frame {
+    position: relative;
+    /* Its own stacking context, so the active shot's z-index stays inside the frame and can't
+       land above the phone frame that overlaps it. */
+    isolation: isolate;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-fg) 10%, transparent),
+      0 10px 30px rgb(0 0 0 / 0.08);
+  }
+
+  /* With phone shots: the desktop frame narrows to make room, and the phone overlaps its
+     bottom right corner, like the frames in the ProLog video. */
+  .project-gallery--phone {
+    position: relative;
+    padding: 5% 5% 7%;
+  }
+
+  .project-gallery--phone .project-gallery__frame {
+    width: 82%;
+  }
+
+  .project-gallery__phone {
+    position: absolute;
+    z-index: 1; /* always above the desktop frame it overlaps */
+    isolation: isolate;
+    right: 5%;
+    bottom: 7%;
+    width: 21%;
+    aspect-ratio: 390 / 844;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    border: 3px solid #141414;
+    border-radius: clamp(14px, 2.4vw, 26px);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
+  }
+
+  /* The images, stacked with a small gap. */
+  .project-shots {
+    display: flex;
+    flex-flow: column;
+    gap: 16px;
+  }
+
+  .project-gallery {
+    margin: 0;
+  }
+
+  .project-gallery__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+
+
+
+
+  /* Scroll video: framed on a quiet grey panel, so the white pages don't run into the white
+     sheet. The desktop recording sits inset with a hairline edge; the phone overlaps its
+     bottom right corner, inside the panel. */
+  .project-video {
+    position: relative;
+    padding: 5% 5% 7%;
+    background-color: color-mix(in srgb, var(--color-fg) 6%, var(--color-bg));
+  }
+
+  .project-video__desktop {
+    display: block;
+    width: 82%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-fg) 10%, transparent),
+      0 10px 30px rgb(0 0 0 / 0.08);
+  }
+
+  .project-video__phone {
+    position: absolute;
+    right: 5%;
+    bottom: 7%;
+    width: 21%;
+    aspect-ratio: 390 / 844;
+    overflow: hidden;
+    background-color: #141414;
+    border: 3px solid #141414;
+    border-radius: clamp(14px, 2.4vw, 26px);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
+  }
+
+  .project-video__phone video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  /* Phone screenshots: centred on a quiet panel instead of filling the width. */
+  .project-detail__media--portrait {
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+    background-color: color-mix(in srgb, var(--color-fg) 6%, var(--color-bg));
+  }
+
+  .project-detail__media--portrait img {
+    width: auto;
+    max-width: 100%;
+    max-height: 60vh;
+  }
+
+  /* The site's copy font (as in the Profile's "Small by design" text), one or more paragraphs. */
+  .project-detail__summary {
+    display: flex;
+    flex-flow: column;
+    gap: 0.8em;
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .project-detail__summary p {
+    margin: 0;
+  }
+
+  .project-detail__services {
+    padding-top: 8px;
+  }
+
+  .project-detail__label {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .project-detail__services ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  /* Website link, with the App Store link to its right where there is one. */
+  .project-detail__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+  }
+
+  .project-detail__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    align-self: flex-start;
+    font-size: 18px;
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  .project-detail__arrow {
+    width: 0.7em;
+    height: 0.7em;
+    background-color: currentColor;
+    -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    rotate: -45deg;
+    transition: translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .project-detail__link:hover .project-detail__arrow {
+    translate: 0.1em -0.1em;
+  }
+
+  .project-detail__soon {
+    margin: 0;
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  /*
+   * Phones: a full-screen sheet that slides up, with no dimmed backdrop. The sheet covers the
+   * page anyway, and in iOS Safari a dark backdrop shows through the translucent toolbar.
+   */
+  @media screen and (max-width: 767px) {
+    .project-drawer {
+      width: 100%;
+      box-shadow: none;
+    }
+
+    .project-drawer[open] {
+      animation-name: project-sheet-in;
+    }
+
+    .project-drawer[open].is-closing {
+      animation-name: project-sheet-out;
+    }
+
+    .project-drawer::backdrop {
+      background: none;
+      backdrop-filter: none;
+    }
+
+    /* Page mode (see the script): the drawer is the page, so it scrolls behind Safari's toolbar. */
+    :global(html.project-page body > :not(.project-drawer)) {
+      display: none !important;
+    }
+
+    /* Closed but shown as an ordinary part of the page. The dialog's own box goes too
+       (display: contents): Safari clips a dialog to the visible area even then. */
+    :global(html.project-page) .project-drawer {
+      display: contents;
+    }
+
+    /* The page behind is light too, so overscroll and Safari's toolbar match the sheet. */
+    :global(html.project-page),
+    :global(html.project-page body) {
+      background-color: #ffffff;
+    }
+
+    :global(html.project-page) .project-drawer__panel {
+      height: auto;
+      min-height: 100lvh;
+      color: var(--color-fg);
+      background-color: var(--color-bg);
+    }
+
+    /* The close button stays put while the page scrolls (a zero-height sticky row). */
+    :global(html.project-page) .project-drawer__head {
+      position: sticky;
+      display: flex;
+      justify-content: flex-end;
+      height: 0;
+      padding: 0;
+    }
+
+    :global(html.project-page) .project-drawer__close {
+      margin: 16px calc(var(--pad) - 8px) 0 0;
+    }
+
+    :global(html.project-page) .project-drawer__body {
+      flex: none;
+      overflow: visible;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .project-drawer {
+      --pad: 20px;
+    }
+
+    .project-detail__title {
+      font-size: 32px;
+    }
+
+    .project-detail__summary {
+      font-size: 17px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-drawer[open],
+    .project-drawer[open].is-closing {
+      animation: none;
+    }
+  }
+
+  /*
+   * Desktop: a wide panel centred in the window that slides up from the bottom and runs off
+   * the bottom edge (no bottom corners), with the page dimmed around it. Inside, the text sits
+   * on the left with the services beside it, and the images run full width below.
+   */
+  @media screen and (min-width: 1024px) {
+    .project-drawer {
+      --pad: clamp(40px, 4vw, 64px);
+      width: min(1240px, calc(100vw - 2 * var(--gutter)));
+      height: calc(100dvh - clamp(24px, 4vh, 40px));
+      margin: auto auto 0;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -10px 40px rgb(0 0 0 / 0.12);
+    }
+
+    .project-drawer[open] {
+      animation-name: project-sheet-in;
+      animation-duration: 0.55s;
+    }
+
+    .project-drawer[open].is-closing {
+      animation-name: project-sheet-out;
+      animation-duration: 0.3s;
+    }
+
+    .project-drawer__head {
+      padding: 24px 24px 0 0;
+    }
+
+    .project-detail {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-areas:
+        "title services"
+        "summary services"
+        "links services"
+        "media media";
+      align-items: start;
+      gap: 28px clamp(48px, 6vw, 96px);
+    }
+
+    .project-detail__title {
+      grid-area: title;
+      font-size: 48px;
+    }
+
+    .project-detail__summary {
+      grid-area: summary;
+    }
+
+    .project-detail__services {
+      grid-area: services;
+      margin-top: 8px;
+    }
+
+    .project-detail__links,
+    .project-detail__soon {
+      grid-area: links;
+    }
+
+    .project-detail__media {
+      grid-area: media;
+      margin-top: 24px;
+    }
+  }
+
+  @keyframes project-sheet-in {
+    from { transform: translateY(100%); }
+    to { transform: none; }
+  }
+
+  @keyframes project-sheet-out {
+    to { transform: translateY(100%); }
+  }
+
+  @keyframes project-drawer-in {
+    from { transform: translateX(100%); }
+    to { transform: none; }
+  }
+
+  @keyframes project-drawer-out {
+    to { transform: translateX(100%); }
+  }
+</style>

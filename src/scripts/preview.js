@@ -1,4 +1,7 @@
-// Project rows: a desktop screenshot follows the cursor while hovering a row.
+// Project rows: a desktop screenshot follows the cursor while hovering a row. Entering a row
+// always shows its first image; once the mouse moves sideways, its position along the row
+// picks from the row's images (data-previews: the preview, then the gallery), first on the
+// far left, last on the far right.
 (function () {
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
@@ -139,8 +142,37 @@
     else if (!raf) raf = requestAnimationFrame(tick);
   }
 
+  var SCRUB_AFTER = 24; // px of sideways movement before scrubbing takes over from the first image
+  var list = [], shown = 0, enterX = 0, scrubbing = false;
+
+  function show(i) {
+    if (i === shown) return;
+    shown = i;
+    img.src = list[i];
+  }
+
+  function scrub(row, e) {
+    if (list.length < 2) return;
+    if (!scrubbing) {
+      if (Math.abs(e.clientX - enterX) < SCRUB_AFTER) return;
+      scrubbing = true;
+    }
+    var r = row.getBoundingClientRect();
+    var t = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 0.9999);
+    show(Math.floor(t * list.length));
+  }
+
   rows.forEach(function (row) {
     row.addEventListener("mouseenter", function (e) {
+      list = (row.dataset.previews || row.dataset.preview).split(",");
+      shown = 0;
+      enterX = e.clientX;
+      scrubbing = false;
+      // Warm the rest of this row's images, so scrubbing doesn't wait on the network.
+      if (!row._warmed) {
+        row._warmed = true;
+        list.slice(1).forEach(function (src) { new Image().src = src; });
+      }
       img.src = row.dataset.preview;
       preview.classList.toggle("preview--portrait", row.dataset.previewShape === "portrait");
       fit();
@@ -148,7 +180,10 @@
       if (!preview.classList.contains("is-visible")) { x = tx; y = ty; preview.style.transform = "translate3d(" + x + "px," + y + "px,0)"; }
       preview.classList.add("is-visible");
     });
-    row.addEventListener("mousemove", move);
+    row.addEventListener("mousemove", function (e) {
+      move(e);
+      scrub(row, e);
+    });
     row.addEventListener("mouseleave", function () { preview.classList.remove("is-visible"); });
   });
 })();

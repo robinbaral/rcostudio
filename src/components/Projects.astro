@@ -1,38 +1,40 @@
 ---
-import { projects } from "../data/projects";
+// Selected Projects: each row is a button that opens the project's drawer (ProjectDrawer).
+// On desktop a screenshot follows the cursor while hovering a row (scripts/preview.js).
+import { projects, projectId } from "../data/projects";
+import ProjectDrawer from "./ProjectDrawer.astro";
 ---
 
 <section class="projects" id="projects" aria-labelledby="projects-heading">
   <h2 class="projects__heading" id="projects-heading">Selected Projects</h2>
   <ul class="projects__list">
     {
-      projects.map((p) => {
-        const Tag = p.href ? "a" : "div";
-        const link = p.href ? { href: p.href, target: "_blank", rel: "noopener" } : {};
-        return (
-          <li>
-            <Tag
-              class:list={["project", { "project--soon": p.soon }]}
-              {...link}
-              data-preview={p.preview}
-              data-preview-shape={p.portrait ? "portrait" : undefined}
-              data-accent={typeof p.accent === "string" ? p.accent : undefined}
-              data-accent-on-dark={typeof p.accent === "object" ? p.accent.onDark : undefined}
-              data-accent-on-light={typeof p.accent === "object" ? p.accent.onLight : undefined}
-            >
-              <span class="project__name">{p.name}</span>
-              <span class="project__end">
-                <span class="project__tags">{p.tags}</span>
-                {p.href && <span class="project__arrow" aria-hidden="true" />}
-              </span>
-            </Tag>
-          </li>
-        );
-      })
+      projects.map((p) => (
+        <li>
+          <button
+            type="button"
+            class:list={["project", { "project--soon": p.soon }]}
+            aria-haspopup="dialog"
+            aria-controls="project-drawer"
+            data-project-open={projectId(p)}
+            data-preview={p.preview}
+            data-previews={[p.preview, ...(p.gallery ?? [])].join(",")}
+            data-preview-shape={p.portrait ? "portrait" : undefined}
+            data-accent={typeof p.accent === "string" ? p.accent : undefined}
+            data-accent-on-dark={typeof p.accent === "object" ? p.accent.onDark : undefined}
+            data-accent-on-light={typeof p.accent === "object" ? p.accent.onLight : undefined}
+          >
+            <span class="project__name">{p.name}</span>
+            <span class="project__tags">{p.tags}</span>
+          </button>
+        </li>
+      ))
     }
   </ul>
 </section>
 
 <div class="preview" aria-hidden="true"><img class="preview__img" alt="" /></div>
+
+<ProjectDrawer />
 
 <script src="../scripts/preview.js"></script>
