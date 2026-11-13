@@ -5,7 +5,8 @@
 // - Drag / swipe (mouse + touch), modelled on the Tommy Pickett album stack: the front card
 //   follows sideways with a tilt; past 18% of its width it's thrown out to that side and the
 //   stack moves on, otherwise it springs back. A tap counts as "next".
-// - Touch screens keep a fixed round button on the card; keyboard users get the arrow keys.
+// - Touch tablets keep a fixed round button on the card (phones don't: tap or swipe); keyboard
+//   users get the arrow keys.
 // The project link is the name in the caption, since clicking the stack shuffles it.
 import Nav from "./Nav.astro";
 import { projects } from "../data/projects";
@@ -424,15 +425,9 @@ const sizes = await Promise.all(
       width: min(92cqw, 140cqh);
     }
 
+    /* No round arrow on phones: a tap or swipe on the stack moves it on. */
     .stack__next {
-      width: 52px;
-      height: 52px;
-      translate: 20% 0;
-    }
-
-    .stack__next .stack__arrow {
-      width: 18px;
-      height: 18px;
+      display: none;
     }
 
     .stack-hero__caption {
