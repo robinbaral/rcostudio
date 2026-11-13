@@ -203,6 +203,18 @@ const pad = (n: number) => String(n).padStart(2, "0");
       font-size: 22px;
     }
 
+    /* The number sits on its own line above the name, and the name is smaller, so long names
+       like "Prototyping" and "Development" fit a phone screen. */
+    .service__name {
+      flex-direction: column;
+      gap: 8px;
+      font-size: 44px;
+    }
+
+    .service__num {
+      font-size: 0.5em;
+    }
+
     .service__lead {
       max-width: none;
       font-size: 24px;
