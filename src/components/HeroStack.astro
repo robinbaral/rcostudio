@@ -13,18 +13,27 @@ import { projects } from "../data/projects";
 import path from "node:path";
 import sharp from "sharp";
 
-// Where each card sits, front (0) to back. Cards further back reuse the last slot, hidden.
-const slots = [
-  { x: 0, y: 0, r: -1 },
-  { x: 5, y: -5, r: 2.5 },
-  { x: -6, y: -3, r: -3.5 },
-  { x: 4, y: 5, r: 4.5 },
-  { x: -5, y: 6, r: -5.5 },
-];
+// How many cards show at once (front to back); the rest wait hidden at the back.
+const VISIBLE = 5;
+// Each card keeps its own place and leans to its own side (alternating, so neighbours differ).
+// Only the angle depends on where it is in the stack: about 8° at the back and 1.2° at the
+// front, on a curve, so each step towards straight is a little bigger than the one before
+// (about 0.4°, 1.3°, 2.1°, then 3° onto the top). Neighbouring cards turn by different
+// amounts, and the front card makes the biggest move as it arrives. So moving on throws the
+// front card out and turns the others slightly towards straight, never past it (Robin: calm,
+// but not static).
+const poses = projects.map((_, i) => ({
+  x: (i % 2 ? 1 : -1) * (1.5 + ((i * 37) % 40) / 10), // ±1.5 to 5.4% of the card's width
+  y: ((i * 53) % 90) / 10 - 4.5, // -4.5 to 4.4% of its height
+  side: i % 2 ? 1 : -1,
+  v: ((i * 29) % 10) / 20, // a little variation per card, 0 to 0.45°
+}));
+const tilt = (i: number, pos: number) =>
+  poses[i].side * (1.2 + poses[i].v + 6.8 * (1 - ((VISIBLE - 1 - Math.min(pos, VISIBLE - 1)) / (VISIBLE - 1)) ** 2));
 const slotStyle = (i: number) => {
-  const s = slots[Math.min(i, slots.length - 1)];
+  const s = { ...poses[i], r: tilt(i, i) };
   return `--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;z-index:${projects.length - i};${
-    i >= slots.length ? "opacity:0;" : ""
+    i >= VISIBLE ? "opacity:0;" : ""
   }`;
 };
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -44,18 +53,29 @@ const sizes = await Promise.all(
   <Nav live={["profile", "services"]} />
   <h1 class="visually-hidden">R&amp;Co. Studio</h1>
   <p class="stack-hero__intro">
-    A digital-first design studio that helps growing businesses find clarity. Shaped by 20+ years
+    A digital-first design studio that helps businesses find clarity. Shaped by 20+ years
     of experience in strategy, branding, and design.
   </p>
 
   <div class="stack-hero__stage">
+    {/* Page load: the cards stay hidden until the script below deals them in, once every
+        image is ready. This runs before the stack's markup on purpose: Safari draws the page
+        while it's still reading it, so a script after the stack came too late and the whole
+        stack flashed up in place first. Without JavaScript or with reduced motion the cards
+        simply sit in place. */}
+    <script is:inline>
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("stack-deal");
+      }
+    </script>
     <div
       class="stack"
       role="region"
       aria-roledescription="carousel"
       aria-label="Selected projects. Use the arrow keys to move through them."
       tabindex="0"
-      data-slots={JSON.stringify(slots)}
+      data-poses={JSON.stringify(poses)}
+      data-visible={VISIBLE}
     >
       {
         projects.map((p, i) => (
@@ -72,8 +92,8 @@ const sizes = await Promise.all(
               alt=""
               width={sizes[i].width}
               height={sizes[i].height}
-              loading={i < 4 ? "eager" : "lazy"}
-              decoding="async"
+              loading="eager"
+              fetchpriority={i < VISIBLE ? "high" : "auto"}
               draggable="false"
             />
           </div>
@@ -110,6 +130,9 @@ const sizes = await Promise.all(
 <style>
   .stack-hero {
     --stack-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    /* For cards settling into place: a touch of overshoot (about 4%) before they come to rest,
+       so the stack feels a little alive without bouncing around. */
+    --stack-settle: cubic-bezier(0.3, 1.35, 0.5, 1);
     --wordmark-h: calc((100vw - 2 * var(--gutter)) * 217.957 / 1664);
     position: relative;
     display: grid;
@@ -144,7 +167,6 @@ const sizes = await Promise.all(
     -webkit-user-select: none;
     user-select: none;
   }
-
   .stack {
     position: relative;
     width: min(58cqw, 128cqh, 720px);
@@ -214,12 +236,13 @@ const sizes = await Promise.all(
     aspect-ratio: var(--ar);
     overflow: hidden;
     border-radius: 6px;
-    background-color: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
+    /* No fill behind the image: on a tilted, rounded card a fill shows through the image's
+       anti-aliased edge as a dark hairline. */
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
     /* --nx/--ny: a small nudge from the script, so a back card never shows as a thin sliver. */
     transform: translate(-50%, -50%) translate(calc(var(--x) + var(--dx, 0px) + var(--nx, 0px)), calc(var(--y) + var(--ny, 0px))) rotate(calc(var(--r) + var(--dr, 0deg)));
     transition:
-      transform 0.7s var(--stack-ease),
+      transform 0.75s var(--stack-settle),
       opacity 0.4s ease;
   }
 
@@ -247,6 +270,52 @@ const sizes = await Promise.all(
   .stack__card.is-leaving {
     transform: translate(-50%, -50%) translate(calc(var(--out, 1) * (60cqw + 60%)), -3%) rotate(calc(var(--r) + var(--out, 1) * 4deg));
     transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  /* Page load: until the deal is over, each card's own place is a full screen width off to
+     the right (the hero clips the overflow), so nothing shows while the images load. This is
+     the cards' real resting place for now, not just the animation's first frame: Safari draws
+     a frame or more without the animation when one starts, and with the cards resting in the
+     stack that showed the whole stack in place before it jumped off screen. The separate
+     translate and rotate properties sit on top of the card's transform, so the stack's own
+     layout stays untouched. */
+  :global(:root.stack-deal) .stack__card {
+    translate: calc(100vw + 100%) -3%;
+    rotate: 8deg;
+  }
+
+  /* The deal: each card comes in from off screen and stays put at the end ("both": off screen
+     until its turn, in place once it's done). The script then drops the off-screen place and
+     the animation together, once the front card has landed. A gentler overshoot than a
+     shuffle: the overshoot is a share of the distance travelled, and this is a long way. */
+  @keyframes stack-deal {
+    from {
+      translate: calc(100vw + 100%) -3%;
+      rotate: 8deg;
+    }
+    to {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+  }
+
+  .stack.is-dealing .stack__card {
+    animation: stack-deal 0.5s cubic-bezier(0.25, 1.1, 0.5, 1) both;
+  }
+
+  /* One by one, 200ms apart, back card first: the first five cards are the visible stack at
+     load (VISIBLE in the frontmatter), card 1 in front. */
+  .stack.is-dealing .stack__card:nth-child(5) { animation-delay: 0s; }
+  .stack.is-dealing .stack__card:nth-child(4) { animation-delay: 0.2s; }
+  .stack.is-dealing .stack__card:nth-child(3) { animation-delay: 0.4s; }
+  .stack.is-dealing .stack__card:nth-child(2) { animation-delay: 0.6s; }
+  .stack.is-dealing .stack__card:nth-child(1) { animation-delay: 0.8s; }
+
+  /* The round button only shows once the front card has landed. */
+  :global(:root.stack-deal) .stack__next,
+  .stack.is-dealing .stack__next {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .stack__next {
@@ -448,7 +517,14 @@ const sizes = await Promise.all(
 <script>
   const stack = document.querySelector<HTMLElement>(".stack");
   if (stack) {
-    const slots: { x: number; y: number; r: number }[] = JSON.parse(stack.dataset.slots ?? "[]");
+    const poses: { x: number; y: number; side: number; v: number }[] = JSON.parse(stack.dataset.poses ?? "[]");
+    const VISIBLE = Number(stack.dataset.visible ?? 5);
+    // The same angle rule as on the server (see the note at the top).
+    const pose = (i: number, pos: number) => ({
+      x: poses[i].x,
+      y: poses[i].y,
+      r: poses[i].side * (1.2 + poses[i].v + 6.8 * (1 - ((VISIBLE - 1 - Math.min(pos, VISIBLE - 1)) / (VISIBLE - 1)) ** 2)),
+    });
     const cards = Array.from(stack.querySelectorAll<HTMLElement>(".stack__card"));
     const button = stack.querySelector<HTMLButtonElement>(".stack__next")!;
     const cursor = document.querySelector<HTMLElement>(".stack-cursor")!;
@@ -467,15 +543,15 @@ const sizes = await Promise.all(
     const place = () => {
       order.forEach((cardIndex, pos) => {
         const card = cards[cardIndex];
-        const s = slots[Math.min(pos, slots.length - 1)];
+        const s = pose(cardIndex, pos);
         card.style.setProperty("--x", `${s.x}%`);
         card.style.setProperty("--y", `${s.y}%`);
         card.style.setProperty("--r", `${s.r}deg`);
         card.style.zIndex = String(cards.length - pos);
-        card.style.opacity = pos >= slots.length ? "0" : "";
+        card.style.opacity = pos >= VISIBLE ? "0" : "";
         card.classList.toggle("is-front", pos === 0);
       });
-      avoidSlivers();
+      applyNudges();
       const front = cards[order[0]];
       stack.style.setProperty("--front-w", `${front.offsetWidth}px`);
       stack.style.setProperty("--front-h", `${front.offsetHeight}px`);
@@ -497,10 +573,25 @@ const sizes = await Promise.all(
     // measure how far each visible point lies from the cards in front; an edge that shows at
     // all but never more than MIN_EDGE wide is a sliver. The card then gets the smallest nudge
     // (--nx/--ny) that leaves none. Worked out from the cards' resting places, not mid-move.
-    const MIN_EDGE = 16; // px
+    // At least 2.5% of the card's width (about 8px on a phone), at most 16px on larger screens:
+    // the cards' offsets scale with their size, so a fixed 16px can't be met on small cards.
+    let MIN_EDGE = 16; // px, set from the card size in avoidSlivers
     type Pt = { x: number; y: number };
+    // Each card's exact size, not offsetWidth/offsetHeight (rounded to whole pixels): half a
+    // pixel is the difference between a hidden corner and a hairline. Measured once per layout
+    // (cleared on resize).
+    const sizes = new Map<HTMLElement, { w: number; h: number }>();
+    const sizeOf = (card: HTMLElement) => {
+      let size = sizes.get(card);
+      if (!size) {
+        const cs = getComputedStyle(card);
+        size = { w: parseFloat(cs.width), h: parseFloat(cs.height) };
+        sizes.set(card, size);
+      }
+      return size;
+    };
     const corners = (card: HTMLElement, s: { x: number; y: number; r: number }, nx: number, ny: number): Pt[] => {
-      const w = card.offsetWidth, h = card.offsetHeight;
+      const { w, h } = sizeOf(card);
       const a = (s.r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
       const cx = (s.x / 100) * w + nx, cy = (s.y / 100) * h + ny;
       return [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => ({
@@ -515,42 +606,153 @@ const sizes = await Promise.all(
     };
     // Distance from a point to a convex outline: 0 inside, else to the nearest edge.
     const polyDist = (p: Pt, poly: Pt[]) => {
-      let inside = true, d = Infinity;
-      for (let i = 0; i < 4; i++) {
+      let inside = true;
+      for (let i = 0; i < 4 && inside; i++) {
         const a = poly[i], b = poly[(i + 1) % 4];
         if ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x) < 0) inside = false;
-        d = Math.min(d, segDist(p, a, b));
       }
-      return inside ? 0 : d;
+      if (inside) return 0;
+      let d = Infinity;
+      for (let i = 0; i < 4; i++) d = Math.min(d, segDist(p, poly[i], poly[(i + 1) % 4]));
+      return d;
     };
-    const SAMPLES = 24;
-    const hasSliver = (poly: Pt[], front: Pt[][]) => {
+    const SAMPLES = 48; // points per edge for the cycle-wide pass
+    const FINE = 120; // points per edge for the current arrangement
+    // How bad the slivers on a card are: for each edge that shows but too thinly, how far it
+    // falls short of MIN_EDGE. 0 means none.
+    // Kept fast, as it runs hundreds of thousands of times when the nudges are worked out (it
+    // took 0.6 to 4s in Chrome and held up the page-load deal in Safari). An edge that shows
+    // at least MIN_EDGE wide at any point can't be a sliver, whatever the finer search would
+    // add, so sampling stops there; firstOnly stops at the first sliver, for hasSliver. Both
+    // give the same answers as checking everything.
+    const sliverScore = (poly: Pt[], front: Pt[][], samples = SAMPLES, firstOnly = false) => {
+      let score = 0;
       for (let i = 0; i < 4; i++) {
         const a = poly[i], b = poly[(i + 1) % 4];
-        let widest = 0;
-        for (let k = 0; k <= SAMPLES; k++) {
-          const t = k / SAMPLES, p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-          widest = Math.max(widest, Math.min(...front.map((f) => polyDist(p, f))));
+        const p = { x: 0, y: 0 };
+        const width = (t: number) => {
+          p.x = a.x + (b.x - a.x) * t;
+          p.y = a.y + (b.y - a.y) * t;
+          let m = Infinity;
+          for (let f = 0; f < front.length && m > 0; f++) m = Math.min(m, polyDist(p, front[f]));
+          return m;
+        };
+        let widest = 0, at = 0;
+        for (let k = 0; k <= samples && widest < MIN_EDGE; k++) {
+          const w = width(k / samples);
+          if (w > widest) [widest, at] = [w, k / samples];
         }
-        if (widest > 0.5 && widest < MIN_EDGE) return true;
+        if (widest >= MIN_EDGE) continue;
+        // A wedge's widest point can fall between samples: home in on it around the widest one.
+        if (widest > 0) {
+          let lo = Math.max(0, at - 1 / samples), hi = Math.min(1, at + 1 / samples);
+          for (let n = 0; n < 24; n++) {
+            const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+            if (width(m1) < width(m2)) lo = m1;
+            else hi = m2;
+          }
+          widest = Math.max(widest, width((lo + hi) / 2));
+        }
+        if (widest > 0.5 && widest < MIN_EDGE) {
+          score += MIN_EDGE - widest;
+          if (firstOnly) return score;
+        }
       }
-      return false;
+      return score;
     };
+    const hasSliver = (poly: Pt[], front: Pt[][], samples = SAMPLES) => sliverScore(poly, front, samples, true) > 0;
     // Nudges to try, smallest first (a 2px grid up to 40px each way).
     const NUDGES: Pt[] = [];
     for (let x = -40; x <= 40; x += 2) for (let y = -40; y <= 40; y += 2) NUDGES.push({ x, y });
     NUDGES.sort((p, q) => Math.hypot(p.x, p.y) - Math.hypot(q.x, q.y));
-    const avoidSlivers = () => {
+    // One fixed nudge per card, good for the whole cycle: the order is always a rotation of the
+    // cards, so each card only ever has the same few neighbours in front of it. Nothing moves
+    // when the stack moves on; the nudges are only worked out again when the window resizes.
+    // The fixed nudges (worked out for the whole cycle below) and a small extra correction for
+    // the current arrangement: the angles change a little per position, so one fixed nudge can't
+    // always suit every pairing. Where it doesn't, the card shifts by at most 10px more, along
+    // with its turn towards straight.
+    let fixed: Pt[] = cards.map(() => ({ x: 0, y: 0 }));
+    const EXTRA: Pt[] = [];
+    for (let x = -10; x <= 10; x += 1) for (let y = -10; y <= 10; y += 1) EXTRA.push({ x, y });
+    EXTRA.sort((p, q) => Math.hypot(p.x, p.y) - Math.hypot(q.x, q.y));
+    const applyNudges = () => {
       const front: Pt[][] = [];
-      order.slice(0, slots.length).forEach((cardIndex, pos) => {
-        const card = cards[cardIndex];
-        const s = slots[pos];
-        let n: Pt = { x: 0, y: 0 };
-        if (front.length) n = NUDGES.find((d) => !hasSliver(corners(card, s, d.x, d.y), front)) ?? n;
+      order.slice(0, VISIBLE).forEach((i, pos) => {
+        const card = cards[i], base = fixed[i], s = pose(i, pos);
+        let n = base;
+        // Checked more finely than the cycle-wide pass: only five cards, and a hairline near a
+        // corner can fall between coarser samples.
+        if (front.length && hasSliver(corners(card, s, base.x, base.y), front, FINE)) {
+          const score = (d: Pt) => sliverScore(corners(card, s, base.x + d.x, base.y + d.y), front, FINE);
+          // Small corrections first; only if none works, the wider search. If nothing is clean,
+          // the nudge whose thinnest strip comes closest to a proper edge.
+          let e = EXTRA.find((d) => score(d) === 0) ?? NUDGES.find((d) => score(d) === 0);
+          if (!e) {
+            let best = Infinity;
+            for (const d of [...EXTRA, ...NUDGES]) {
+              const v = score(d);
+              if (v < best) [best, e] = [v, d];
+            }
+          }
+          if (e) n = { x: base.x + e.x, y: base.y + e.y };
+        }
         card.style.setProperty("--nx", `${n.x}px`);
         card.style.setProperty("--ny", `${n.y}px`);
         front.push(corners(card, s, n.x, n.y));
       });
+    };
+
+    const avoidSlivers = () => {
+      sizes.clear();
+      MIN_EDGE = Math.max(8, Math.min(16, cards[0].offsetWidth * 0.025));
+      const n = cards.length;
+      const nudges: Pt[] = cards.map(() => ({ x: 0, y: 0 }));
+      const outline = ([i, pos]: number[]) => corners(cards[i], pose(i, pos), nudges[i].x, nudges[i].y);
+      // For card i: one entry per position it can be seen in, with the cards in front of it
+      // then, as [card, position] pairs (their angle depends on their position).
+      const frontSets = cards.map((_, i) => {
+        const sets: { pos: number; front: number[][] }[] = [];
+        for (let pos = 1; pos < Math.min(VISIBLE, n); pos++) {
+          const first = (i - pos + n) % n; // the front card of that rotation
+          sets.push({ pos, front: Array.from({ length: pos }, (_, k) => [(first + k) % n, k]) });
+        }
+        return sets;
+      });
+      for (let round = 0; round < 12; round++) {
+        let changed = false;
+        cards.forEach((card, i) => {
+          const sets = frontSets[i].map(({ pos, front }) => ({ pos, front: front.map(outline) }));
+          // How many of this card's positions would show a sliver with nudge d, counting only
+          // up to `limit` (a nudge that reaches it can't be the better one).
+          const misses = (d: Pt, limit = Infinity) => {
+            let m = 0;
+            for (const { pos, front } of sets) {
+              if (hasSliver(corners(card, pose(i, pos), d.x, d.y), front) && ++m >= limit) break;
+            }
+            return m;
+          };
+          const now = misses(nudges[i]);
+          if (now === 0) return;
+          // The smallest nudge with no slivers, or failing that, the one with the fewest.
+          let best = nudges[i], bestMisses = now;
+          for (const d of NUDGES) {
+            const m = misses(d, bestMisses);
+            if (m < bestMisses) {
+              best = d;
+              bestMisses = m;
+              if (m === 0) break;
+            }
+          }
+          if (best !== nudges[i]) {
+            nudges[i] = best;
+            changed = true;
+          }
+        });
+        if (!changed) break;
+      }
+      fixed = nudges;
+      applyNudges();
     };
 
     const clearDrag = (card: HTMLElement) => {
@@ -705,7 +907,16 @@ const sizes = await Promise.all(
 
     // The stack resizes with the window; keep the button on the front card's edge.
     let sliverFrame = 0;
+    // The observer also fires once when it starts watching. That first call is skipped: the
+    // nudges were just worked out below, and running the heavy sliver pass again on the first
+    // frame blocked Safari's main thread for about 1.5s, right as the cards were dealt in, so
+    // they all landed at once.
+    let firstResize = true;
     new ResizeObserver(() => {
+      if (firstResize) {
+        firstResize = false;
+        return;
+      }
       const front = cards[order[0]];
       stack.style.setProperty("--front-w", `${front.offsetWidth}px`);
       stack.style.setProperty("--front-h", `${front.offsetHeight}px`);
@@ -714,6 +925,44 @@ const sizes = await Promise.all(
       sliverFrame = requestAnimationFrame(avoidSlivers);
     }).observe(stack);
 
+    avoidSlivers();
     place();
+
+    // --- Page load: deal the cards in from the right ---------------------------------------
+    // The cards wait off screen (see :root.stack-deal in the styles). The whole stack waits
+    // until every card's image has loaded and decoded (all of them, not
+    // just the visible five, and all loaded eagerly: about 700KB together), so no card comes
+    // in blank or fills in late. 6s at most, in case one never arrives. Then the cards are
+    // dealt in one after another, back card first, so the front card lands last, on top. The
+    // motion and the stagger are all CSS (.is-dealing and @keyframes stack-deal); the script
+    // only starts it. Shuffling waits until the front card has landed.
+    const root = document.documentElement;
+    if (root.classList.contains("stack-deal")) {
+      busy = true;
+      const loaded = (img: HTMLImageElement) =>
+        (img.complete
+          ? Promise.resolve()
+          : new Promise((resolve) => {
+              img.addEventListener("load", resolve, { once: true });
+              img.addEventListener("error", resolve, { once: true });
+            })
+        ).then(() => img.decode().catch(() => {}));
+      const ready = Promise.all(cards.map((card) => loaded(card.querySelector("img")!)));
+      const timeout = new Promise((resolve) => window.setTimeout(resolve, 6000));
+      Promise.race([ready, timeout]).then(() => {
+        stack.classList.add("is-dealing");
+        const front = cards[order[0]];
+        const done = (e: AnimationEvent) => {
+          if (e.target !== front) return;
+          front.removeEventListener("animationend", done);
+          // Every card now rests in place through the animation's end state; dropping that and
+          // the off-screen place together leaves them exactly where they are.
+          root.classList.remove("stack-deal");
+          stack.classList.remove("is-dealing");
+          busy = false;
+        };
+        front.addEventListener("animationend", done);
+      });
+    }
   }
 </script>
