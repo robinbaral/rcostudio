@@ -6,8 +6,8 @@ export interface Service {
   id: string;
   name: string;
   lead: string;
-  // One short paragraph per point (drafts, see notes/copy.md).
-  items: string[];
+  // One paragraph per service (draft, see notes/copy.md).
+  text: string;
 }
 
 // The left column: a note and a quiet, contextual contact line (drafts, see notes/copy.md).
@@ -20,49 +20,30 @@ export const services: Service[] = [
     id: "strategy",
     name: "Strategy",
     lead: "We work out what the project needs to do.",
-    items: [
-      "We find the big idea: one clear message, carried through colour, type and layout.",
-      "Your goals set the direction, and the design follows from them.",
-    ],
+    text: "Your goals set the direction, and the design follows from them. We find the big idea behind the work: one clear message, carried through colour, type and layout, so every part of the project pulls the same way.",
   },
   {
     id: "design",
     name: "Design",
     lead: "We shape the idea, then the details.",
-    items: [
-      "Moodboards give everyone a shared picture of the direction, before anything gets designed.",
-      "Concepts take one idea and work it through into design choices.",
-      "Interfaces and digital design that look right and are easy to use.",
-      "Landing pages and sites built with no-code tools.",
-    ],
+    text: "Moodboards give everyone a shared picture of the direction before anything gets designed. From there, a concept takes one idea and works it through into real design choices, down to interfaces that look right and are easy to use. Landing pages and whole sites can also be built with no-code tools.",
   },
   {
     id: "prototyping",
     name: "Prototyping",
     lead: "We try ideas early, on something real.",
-    items: [
-      "Clickable prototypes in the browser or on a phone, to click through rather than imagine, and to improve with each round of feedback.",
-      "Real content on real devices: your actual words and images, on the screens people will use.",
-    ],
+    text: "Clickable prototypes in the browser or on a phone let you click through an idea rather than imagine it, and improve it with each round of feedback. We use your actual words and images, on the screens people will use, so decisions are made on the real thing.",
   },
   {
     id: "development",
     name: "Development",
     lead: "We build it properly, made to last.",
-    items: [
-      "We refine the chosen concept together, through feedback.",
-      "We build what we design: sites and apps that are fast, accessible and easy to look after.",
-    ],
+    text: "We refine the chosen concept together, through feedback, then build what we design. The result is a site or app that's fast, accessible and easy to look after.",
   },
   {
     id: "product",
     name: "Product",
     lead: "We look after products once they're live, and help them grow.",
-    items: [
-      "Start-ups and teams with a product already in place: we pick up where things stand and help build it out.",
-      "We keep track of what's next, weigh it against your goals and plan each release with you.",
-      "New features, added step by step to a core that can carry them.",
-      "Testing before every release, plus maintenance, updates and support, so things keep running.",
-    ],
+    text: "We work with start-ups and teams that already have a product in place, picking up where things stand and helping build it out. We keep track of what's next, weigh it against your goals and plan each release with you. New features are added step by step to a core that can carry them, every release is tested first, and maintenance, updates and support keep things running.",
   },
 ];

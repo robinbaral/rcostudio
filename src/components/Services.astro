@@ -25,11 +25,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
             {s.name}
           </h3>
           <p class="service__lead">{s.lead}</p>
-          <ul class="service__items">
-            {s.items.map((item) => (
-              <li class="service__item">{item}</li>
-            ))}
-          </ul>
+          <p class="service__text">{s.text}</p>
         </article>
       ))
     }
@@ -80,7 +76,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
   .services__note {
     width: calc(100% + clamp(24px, 3vw, 60px));
     max-width: 26ch;
-    margin: 32px 0 0;
+    margin: 20px 0 0; /* the same as .service__lead, so they line up */
     font-family: var(--font-sans);
     font-size: clamp(22px, 1.9vw, 30px);
     font-weight: 500;
@@ -92,7 +88,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
 
   /* The contact line: small and muted, the link only marked by an underline. */
   .services__contact {
-    margin: 32px 0 0;
+    margin: 24px 0 0;
     font-size: 16px;
     line-height: 1.4;
     color: var(--muted);
@@ -112,11 +108,20 @@ import { services, servicesNote, servicesContact } from "../data/services";
   }
 
   /* --- Right: the services, one after another --------------------------------------------- */
+  /* Even spacing (Robin: it looked scattered): each service is one tight block (name, lead,
+     paragraph), with the same gap between services all the way down. The list's top padding
+     matches the left column's, so the first name lines up with "Services". */
+  .services__list {
+    padding-block: var(--projects-padding-y);
+  }
+
   .service {
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    padding-block: var(--projects-padding-y);
+  }
+
+  .service + .service {
+    margin-top: 80px;
   }
 
   /* No numbers: not every project goes through every step (see the note on the left). */
@@ -129,40 +134,30 @@ import { services, servicesNote, servicesContact } from "../data/services";
   }
 
 
-  .service__items {
-    display: grid;
-    /* Always two equal columns (one on phones); capped so lines stay readable. */
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 1080px;
-    gap: 40px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  /* No rule above each item (Robin): the gap between rows is enough. */
-  .service__item {
-    padding-top: 0;
-  }
-
+  /* The lead: styled and spaced exactly like the note on the left (Robin), so the first
+     service's lead lines up with the note, and each lead reads as the opening line of its
+     paragraph rather than a second heading. Keep the two in step. */
   .service__lead {
-    /* Two thirds of the column (capped at two thirds of the items' 1080px). Pulled up towards
-       its heading (16px instead of the 40px between the other parts), so they read as a pair. */
     max-width: min(66.667%, 720px);
-    margin: -24px 0 0;
-    font-family: var(--font-heading);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
+    margin: 20px 0 0;
+    font-family: var(--font-sans);
+    font-size: clamp(22px, 1.9vw, 30px);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: -0.005em;
     color: var(--muted);
+    text-wrap: pretty;
   }
 
-  /* One short paragraph per point, a little larger than the old copy lines now that there
-     are no titles above them. */
-  .service__item {
-    font-size: 18px;
-    line-height: 1.45;
+  /* One paragraph per service, read as running text rather than separate blocks (Robin):
+     a comfortable measure, lined up under the lead. */
+  .service__text {
+    max-width: min(66.667%, 720px);
+    margin: 16px 0 0;
+    font-size: 20px;
+    line-height: 1.5;
     color: color-mix(in srgb, var(--ink) 80%, var(--color-fg));
+    text-wrap: pretty;
   }
 
   /* --- Smaller screens: one column, nothing sticks ---------------------------------------- */
@@ -188,24 +183,20 @@ import { services, servicesNote, servicesContact } from "../data/services";
       font-size: 44px;
     }
 
-    /* The lead sits closer to its name; the items keep the full 40px gap below the lead. */
-    .service {
-      gap: 24px;
-    }
-
-    .service__items {
-      margin-top: 16px;
+    .service + .service {
+      margin-top: 56px;
     }
 
     .service__lead {
       max-width: none;
-      margin-top: -12px;
-      font-size: 24px;
+      margin-top: 16px;
+      font-size: 22px;
     }
 
-    .service__items {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 28px;
+    .service__text {
+      max-width: none;
+      margin-top: 12px;
+      font-size: 18px;
     }
   }
 </style>

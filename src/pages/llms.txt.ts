@@ -23,7 +23,7 @@ export const GET: APIRoute = () => {
     servicesNote,
     "",
     ...services.flatMap((s) => [
-      `- ${s.name}: ${s.lead} ${s.items.join(" ")}`,
+      `- ${s.name}: ${s.lead} ${s.text}`,
     ]),
     "",
     "## Selected projects",
