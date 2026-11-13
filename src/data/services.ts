@@ -12,7 +12,7 @@ export interface Service {
 
 // The left column: a note and a quiet, contextual contact line (drafts, see notes/copy.md).
 export const servicesNote =
-  "Not every project needs every step. Some start with strategy, others go straight to a prototype, and sometimes we work with your team. We'll work out the right mix together.";
+  "Not every project needs every step. Some start with strategy, others go straight to a prototype or pick up a product that's already running, and sometimes we work with your team. We'll work out the right mix together.";
 export const servicesContact = { lead: "Not sure where yours starts?", link: "Get in touch" };
 
 export const services: Service[] = [
@@ -33,7 +33,7 @@ export const services: Service[] = [
       "Moodboards give everyone a shared picture of the direction, before anything gets designed.",
       "Concepts take one idea and work it through into design choices.",
       "Interfaces and digital design that look right and are easy to use.",
-      "Landing pages and sites built with no-code tools, where that's the right fit.",
+      "Landing pages and sites built with no-code tools.",
     ],
   },
   {
@@ -52,6 +52,17 @@ export const services: Service[] = [
     items: [
       "We refine the chosen concept together, through feedback.",
       "We build what we design: sites and apps that are fast, accessible and easy to look after.",
+    ],
+  },
+  {
+    id: "product",
+    name: "Product",
+    lead: "We look after products once they're live, and help them grow.",
+    items: [
+      "Start-ups and teams with a product already in place: we pick up where things stand and help build it out.",
+      "We keep track of what's next, weigh it against your goals and plan each release with you.",
+      "New features, added step by step to a core that can carry them.",
+      "Testing before every release, plus maintenance, updates and support, so things keep running.",
     ],
   },
 ];
