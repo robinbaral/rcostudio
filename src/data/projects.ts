@@ -1,3 +1,8 @@
+import type { ComponentProps } from "astro/types";
+import type CaseBoard from "../components/cases/CaseBoard.astro";
+
+type BoardProps = ComponentProps<typeof CaseBoard>;
+
 // The "Selected Projects" list, in display order. Add a project by adding an entry.
 // Each row opens a drawer (src/components/ProjectDrawer.astro) with the preview image, the
 // summary, the services and a link out.
@@ -18,6 +23,9 @@
 //   like site screenshots. The preview above them stays framed; "all" lets it fill its block
 //   too (when the preview is a composed board as well). galleryFramed lists images that stay
 //   framed anyway (site screenshots among boards).
+// - galleryBoard: a case board (src/components/cases/CaseBoard.astro, same props) shown after
+//   the gallery, edge to edge. Its background is the --board token, so it follows dark mode,
+//   where a board saved as one image keeps its light background.
 // - drawerImage: a 16:10 image to open the drawer with instead of the preview (for portrait
 //   previews, which don't fit the frame). The hover keeps the preview.
 // - galleryMobile: phone shots of the same sections, in the same order as [preview,
@@ -59,6 +67,7 @@ export interface Project {
   gallery?: string[];
   galleryBleed?: boolean | "all";
   galleryFramed?: string[];
+  galleryBoard?: BoardProps;
   drawerImage?: string;
   galleryMobile?: string[];
   video?: { desktop: string; mobile: string; poster: string; mobilePoster: string };
@@ -114,7 +123,24 @@ export const projects: Project[] = [
     href: "https://www.prolog.ag",
     caseStudy: "/cases/prolog",
     preview: "work/prolog-hero.png",
-    gallery: ["work/prolog-section-1.png", "work/prolog-section-2.png", "work/prolog-section-3.png", "work/prolog-section-4.png"],
+    gallery: [
+      "work/prolog-section-1.png",
+      "work/prolog-section-2.png",
+      "work/prolog-section-3.png",
+      "work/prolog-section-4.png",
+    ],
+    // The page concepts board from the case (article, sector and audit pages), drawn the same
+    // way, so its background follows dark mode. The middle page sits lower, as on the first
+    // version of the board (Robin liked the uneven tops).
+    galleryBoard: {
+      folder: "cases/prolog/boards/prolog-page-concepts",
+      alt: "Three page designs side by side: a blog article, a page for public administration and an audit page",
+      phoneRows: [[0, 2]],
+      crop: 2,
+      phoneCrop: 1.5,
+      drops: [0, 3.75, 0],
+      gap: 3.1,
+    },
     accent: "#ff4713",
     summary: [
       "ProLog is a log management system from Germany that runs entirely offline, made for companies working to GDPR, ISO 27001 and NIS2.",

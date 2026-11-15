@@ -176,12 +176,14 @@ const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
       </p>
     </div>
 
-    {/* Three tall pages cut from the top, running off the bottom of the board; two on phones. */}
+    {/* Three tall pages cut from the top, running off the bottom of the board, the middle one
+        lower; two on phones. The project drawer shows the same board (projects.ts). */}
     <CaseBoard
       folder="cases/prolog/boards/prolog-page-concepts"
       phoneRows={[[0, 2]]}
       crop={2}
       phoneCrop={1.5}
+      drops={[0, 3.75, 0]}
       pad={6.9}
       gap={3.1}
       alt="Three page designs side by side: a blog article, a page for public administration and an audit page"

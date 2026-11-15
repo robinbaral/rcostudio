@@ -14,7 +14,8 @@ import { inFolder, shots } from "../../lib/shots";
 interface Props {
   folder: string; // in src/assets/, e.g. "cases/crisscross/boards/crisscross-paywalls"
   alt: string; // the whole board, for screen readers
-  caption: string;
+  caption?: string; // none in the project drawer
+  class?: string; // figure classes instead of the article's (the project drawer's gallery)
   rows?: number[][]; // desktop: pieces by index (0-based) per row; default one row of all
   phoneRows?: number[][]; // phones; default: the desktop rows split by phoneCols
   phoneCols?: number; // default 3
@@ -24,11 +25,12 @@ interface Props {
   tilt?: boolean; // each piece turned and nudged a little (fixed per piece)
   crop?: number; // cut each piece to this height/width ratio from the top, running off the board's bottom edge
   phoneCrop?: number; // the same on phones (default: crop)
+  drops?: number[]; // per piece (by index): pushed down by this % of the board's width, for uneven tops
   gap?: number; // between pieces, % of the board's width (default 2.6)
   pad?: number; // around the pieces, % of the board's width (default 5)
 }
 
-const { folder, alt, caption, scale = false, even = false, shadow, tilt = false, crop, phoneCrop, gap = 2.6, pad = 5 } = Astro.props;
+const { folder, alt, caption, scale = false, even = false, shadow, tilt = false, crop, phoneCrop, drops = [], gap = 2.6, pad = 5 } = Astro.props;
 const names = inFolder(folder);
 if (!names.length) throw new Error(`No board pieces in src/assets/${folder}`);
 const img = await shots(names, 960);
@@ -72,7 +74,7 @@ const sameOnPhones = JSON.stringify(rows) === JSON.stringify(phoneRows);
 const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set--wide", ...desktop }, { cls: "case-board__set--phone", ...phone }];
 ---
 
-<figure class="article__media case-board-figure">
+<figure class={Astro.props.class ?? "article__media case-board-figure"}>
   <div
     class:list={["case-board", { "case-board--crop": crop, [`case-board--${shadow}`]: shadow }]}
     style={`--gap:${gap};--pad:${pad};${crop ? `--crop:${crop};--crop-phone:${phoneCrop ?? crop};` : ""}`}
@@ -87,7 +89,7 @@ const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set
               {row.map(({ i, share, sizes }) => (
                 <div
                   class="case-board__piece"
-                  style={`--share:${share};${tilt ? `--r:${turns[i].r}deg;--y:${turns[i].y}%;` : ""}`}
+                  style={`--share:${share};${tilt ? `--r:${turns[i].r}deg;--y:${turns[i].y}%;` : ""}${drops[i] ? `--drop:${drops[i]};` : ""}`}
                 >
                   <img
                     src={pieces[i].src}
@@ -107,7 +109,7 @@ const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set
       ))
     }
   </div>
-  <figcaption>{caption}</figcaption>
+  {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
 <style>
@@ -141,7 +143,9 @@ const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set
   .case-board__piece {
     flex: 0 0 calc((100% - (var(--most) - 1) * var(--gap) * 1cqw) * var(--share));
     min-width: 0;
-    transform: rotate(var(--r, 0deg)) translateY(var(--y, 0%));
+    /* --drop moves a piece down without changing the row, so cropped pages still run off the
+       bottom edge. */
+    transform: rotate(var(--r, 0deg)) translateY(calc(var(--y, 0%) + var(--drop, 0) * 1cqw));
   }
 
   .case-board__piece img {

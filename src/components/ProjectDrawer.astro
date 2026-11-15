@@ -8,6 +8,7 @@
 // translucent address bar instead of stopping above it.
 import { projects, projectId, projectLinkLabel } from "../data/projects";
 import { shots } from "../lib/shots";
+import CaseBoard from "./cases/CaseBoard.astro";
 
 // Every image the drawers show, built from its source (src/lib/shots.ts).
 const img = await shots(projects.flatMap((p) => [p.preview, p.drawerImage, ...(p.gallery ?? []), ...(p.galleryMobile ?? [])]));
@@ -74,6 +75,7 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
                     )}
                   </figure>
                 ))}
+                {p.galleryBoard && <CaseBoard {...p.galleryBoard} class="project-gallery project-gallery--board" />}
               </div>
             ) : (
               <div class:list={["project-detail__media", { "project-detail__media--portrait": p.portrait }]}>
@@ -385,6 +387,20 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
     box-shadow: none;
   }
 
+  /* A case board (galleryBoard): its own panel, edge to edge like the boards above. Its
+     figure is CaseBoard's, outside this component's scope, so these rules are global. */
+  :global(.project-gallery--board) {
+    margin: 0;
+  }
+
+  /* Padding as the gallery's 5% (of the block's own width), so the outer pages line up with
+     the framed shots above. CaseBoard's own padding is in cqw, which on the board itself
+     resolves against an outer container, not the board. */
+  :global(.project-gallery--board .case-board) {
+    padding: 5% 5% 0;
+    border-radius: 0;
+  }
+
   /* With phone shots: the desktop frame narrows to make room, and the phone overlaps its
      bottom right corner, like the frames in the ProLog video. */
   .project-gallery--phone {
@@ -685,6 +701,7 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
     .project-shots > .project-gallery:first-child { order: 1; }
     .project-detail__summary { order: 2; }
     .project-shots > .project-gallery { order: 3; }
+    .project-shots > :global(.project-gallery--board) { order: 3; }
     .project-detail__services { order: 4; }
     .project-detail__links,
     .project-detail__soon { order: 5; }
