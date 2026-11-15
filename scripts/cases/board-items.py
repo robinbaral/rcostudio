@@ -7,12 +7,13 @@
 #   colour, shadowed or not (the colour times k, with no sharp step between neighbours),
 #   reached from the edge of the element's box. Old baked-in shadows go with it; CSS draws
 #   its own. Pixels along the edge are part element, part board: they get partial alpha and
-#   their element colour back, so there's no light fringe on a dark background.
+#   their element colour back, so there's no light fringe on a dark background. A last pass
+#   (defringe) catches board colour still left solid along dark outlines.
 # - Tommy Pickett's covers and posters come straight from the project files (no shadow to
 #   remove), as JPGs.
 # Pencil sketches on graph paper stay single images (paper is the medium there).
 # Usage: python3 scripts/cases/board-items.py [board ...]   (from rco-website/; default: all)
-import subprocess, sys, tempfile
+import subprocess, sys, tempfile, warnings
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -118,9 +119,51 @@ def cut(rgb, B, blur=0.0):
     colour = rgb.copy()
     safe = np.maximum(alpha, 1e-3)[..., None]
     colour[band] = np.clip((rgb[band] - (1 - alpha[band])[:, None] * Bk[band]) / safe[band], 0, 255)
+    colour, alpha = defringe(colour, alpha, B)
     rgba = np.dstack([colour, alpha * 255]).round().astype(np.uint8)
     ys, xs = np.where(alpha > 0.02)
     return rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+
+
+def defringe(colour, alpha, B, ring=3):
+    """Board colour left along the outline, mostly beside dark edges (phone frames, icon
+    outlines), where the cut keeps a pixel or two of light board as solid: a jagged light rim
+    on a dark board. Each pixel within `ring` px of the outside is seen as it was on the board,
+    then split again into the element colour just inside it (spread outwards from the solid
+    core) and board, which sets its alpha. Only where that element colour is dark: light
+    elements (white screens, pastel themes) are cut cleanly already."""
+    out = alpha < 0.02
+    grow = lambda m, r: np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(2 * r + 1))) > 0
+    band = grow(out, ring) & ~out
+    seen = alpha[..., None] * colour + (1 - alpha[..., None]) * B  # as on the board
+    # Element colour for the band: the solid core's colours, spread out a pixel at a time.
+    inner = np.where(band[..., None], np.nan, colour.astype(float))
+    inner[out] = np.nan
+    for _ in range(ring + 2):
+        todo = np.isnan(inner[..., 0]) & band
+        if not todo.any():
+            break
+        pad = np.pad(inner, ((1, 1), (1, 1), (0, 0)), constant_values=np.nan)
+        stack = np.stack([pad[1 + dy:pad.shape[0] - 1 + dy, 1 + dx:pad.shape[1] - 1 + dx]
+                          for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx])
+        with np.errstate(invalid="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)  # all-empty neighbourhoods
+            mean = np.nanmean(stack, axis=0)
+        inner[todo] = mean[todo]
+    I = inner
+    diff = I - B
+    span = (diff ** 2).sum(2)
+    # Only beside dark element colours, where a light rim shows; light elements were cut
+    # cleanly already, and splitting their faint edge against the board adds a grey line.
+    dark = (np.nan_to_num(I, nan=255.0) @ [0.299, 0.587, 0.114]) < 110
+    ok = band & ~np.isnan(span) & (span > 40 ** 2) & dark
+    with np.errstate(invalid="ignore", divide="ignore"):
+        a = np.clip(((seen - B) * diff).sum(2) / span, 0, 1)
+    alpha = alpha.copy()
+    colour = colour.copy()
+    alpha[ok] = a[ok]
+    colour[ok] = I[ok]
+    return colour, alpha
 
 
 def from_board(case, board, tol=14, margin=40, blur=0.0):
