@@ -74,12 +74,12 @@ export const projects: Project[] = [
     services: ["Brand", "Web design", "Development", "Content management", "Online shop"],
   },
   {
-    // Coming soon: no image yet, so no hover preview and no hero card. Summary is a draft.
+    // Coming soon: no image yet, so no hover preview and no hero card. No summary for now
+    // (Robin, 2026-11-16).
     name: "Pop Drop",
     tags: "Coming soon",
     soon: true,
-    summary:
-      "A merge-the-balls drop game for iPhone: a native version of Eli Piilonen's PICO-8 game Marble Merger.",
+    summary: [],
     services: ["App design", "iOS development"],
   },
   {
