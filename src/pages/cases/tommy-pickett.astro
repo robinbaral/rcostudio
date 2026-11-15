@@ -10,7 +10,7 @@
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
-import CaseFigure from "../../components/cases/CaseFigure.astro";
+import CaseBoard from "../../components/cases/CaseBoard.astro";
 import { shots } from "../../lib/shots";
 // Tommy's own icons and links, as in the Follow / Listen row of the tommypickett.com hero.
 import Facebook from "../../assets/cases/tommy-pickett/icons/facebook.svg";
@@ -20,7 +20,10 @@ import DistroKid from "../../assets/cases/tommy-pickett/icons/distrokid.svg";
 import "../../styles/case.css";
 
 const c = (name: string) => `cases/tommy-pickett/tommy-pickett-${name}.png`;
-const img = await shots(["hero", "card", "covers", "covers-phone", "posters", "posters-phone", "live-desktop", "live-phone"].map(c));
+const img = await shots(["hero", "card", "live-desktop", "live-phone"].map(c));
+// Covers and posters: separate images on the board colour (CaseBoard), from the project files
+// (scripts/cases/board-items.py).
+const b = (name: string) => `cases/tommy-pickett/boards/tommy-pickett-${name}`;
 const shot = (name: string) => img.get(c(name))!;
 const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
 
@@ -36,7 +39,6 @@ const listen = [
 
 <Base
   noindex
-  themeColor="#ffffff"
   path="/cases/tommy-pickett"
   pageTitle="Tommy Pickett"
   pageDescription="Album covers, tour posters, a website and release support for Tommy Pickett, a singer-songwriter on Waiheke Island, New Zealand."
@@ -91,23 +93,15 @@ const listen = [
       </p>
     </div>
 
-    <figure class="article__media">
-      <picture>
-        <source media="(max-width: 767px)" srcset={shot("covers-phone").srcset} sizes={FULL} />
-        <img
-          class="article__image"
-          src={shot("covers").src}
-          srcset={shot("covers").srcset}
-          sizes={FULL}
-          width={shot("covers").width}
-          height={shot("covers").height}
-          alt="Three album covers: Streetlights, Rivertown and Dive Deep"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <figcaption>Streetlights, Rivertown and Dive Deep.</figcaption>
-    </figure>
+    <CaseBoard
+      folder={b("covers")}
+      phoneRows={[[0, 1], [2]]}
+      shadow="box"
+      pad={10.4}
+      gap={3.8}
+      alt="Three album covers: Streetlights, Rivertown and Dive Deep"
+      caption="Streetlights, Rivertown and Dive Deep."
+    />
 
     <div class="article__body">
       <h2>On the road</h2>
@@ -121,23 +115,15 @@ const listen = [
       </p>
     </div>
 
-    <figure class="article__media">
-      <picture>
-        <source media="(max-width: 767px)" srcset={shot("posters-phone").srcset} sizes={FULL} />
-        <img
-          class="article__image"
-          src={shot("posters").src}
-          srcset={shot("posters").srcset}
-          sizes={FULL}
-          width={shot("posters").width}
-          height={shot("posters").height}
-          alt="Four tour posters, one for each year from 2023 to 2026"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <figcaption>Tour posters from four years.</figcaption>
-    </figure>
+    <CaseBoard
+      folder={b("posters")}
+      phoneRows={[[0, 1], [2, 3]]}
+      shadow="box"
+      pad={8.3}
+      gap={2.8}
+      alt="Four tour posters, one for each year from 2023 to 2026"
+      caption="Tour posters from four years."
+    />
 
     <div class="article__body">
       <p>
@@ -147,12 +133,15 @@ const listen = [
       </p>
     </div>
 
-    <CaseFigure
-      name={c("venues")}
-      phone={c("venues-phone")}
+    <CaseBoard
+      folder={b("venues")}
+      phoneRows={[[0, 1, 2], [3, 4, 5]]}
+      shadow="box"
+      tilt
+      pad={6.25}
+      gap={2.5}
       alt="Six posters from one tour, each with a different date and venue"
       caption="One tour, a poster for every stop."
-      wide
     />
 
     <div class="article__body">

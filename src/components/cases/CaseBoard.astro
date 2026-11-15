@@ -1,0 +1,194 @@
+---
+// A case board built from separate images on a CSS background: the screens, icons, slides or
+// posters of one exploration, in rows. The background is a token (--board, global.css), so it
+// follows light and dark mode, and phones get their own rows with fewer pieces, larger.
+// The pieces are made by scripts/cases/board-items.py into src/assets/<folder>/.
+//
+// Rows: in each row a piece's share of the width is its aspect ratio, so pieces of different
+// shapes (phones and an iPad) stand at the same height. With `scale`, the share is the piece's
+// own pixel width instead, so devices keep their real sizes against each other (the pieces
+// were cut at one scale). Every piece gets the same share of the width wherever it sits, so a
+// shorter row is centred with its pieces at the same size as in the fullest row.
+import { inFolder, shots } from "../../lib/shots";
+
+interface Props {
+  folder: string; // in src/assets/, e.g. "cases/crisscross/boards/crisscross-paywalls"
+  alt: string; // the whole board, for screen readers
+  caption: string;
+  rows?: number[][]; // desktop: pieces by index (0-based) per row; default one row of all
+  phoneRows?: number[][]; // phones; default: the desktop rows split by phoneCols
+  phoneCols?: number; // default 3
+  scale?: boolean; // keep the pieces' relative sizes (devices to scale)
+  even?: boolean; // every piece the same width (grids of near-identical pieces, like slides)
+  shadow?: "box" | "drop"; // soft shadow: box for flat rectangles (posters), drop for shapes
+  tilt?: boolean; // each piece turned and nudged a little (fixed per piece)
+  crop?: number; // cut each piece to this height/width ratio from the top, running off the board's bottom edge
+  phoneCrop?: number; // the same on phones (default: crop)
+  gap?: number; // between pieces, % of the board's width (default 2.6)
+  pad?: number; // around the pieces, % of the board's width (default 5)
+}
+
+const { folder, alt, caption, scale = false, even = false, shadow, tilt = false, crop, phoneCrop, gap = 2.6, pad = 5 } = Astro.props;
+const names = inFolder(folder);
+if (!names.length) throw new Error(`No board pieces in src/assets/${folder}`);
+const img = await shots(names, 960);
+const pieces = names.map((n) => img.get(n)!);
+const all = pieces.map((_, i) => i);
+const rows = Astro.props.rows ?? [all];
+const phoneCols = Astro.props.phoneCols ?? 3;
+const phoneRows =
+  Astro.props.phoneRows ??
+  rows.flat().reduce<number[][]>((acc, i, n) => (n % phoneCols ? acc[acc.length - 1].push(i) : acc.push([i]), acc), []);
+
+// A piece's weight in its row: aspect ratio (same height) or pixel width (to scale). Cropped
+// pieces count at their cropped shape.
+const weight = (i: number) => {
+  const p = pieces[i];
+  if (scale) return p.width;
+  if (even) return 1;
+  return crop ? 1 / crop : p.width / p.height;
+};
+
+// Fixed turns and nudges, the same on every build (a small seeded random, as on the poster
+// boards before).
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const turns = pieces.map(() => ({ r: (rnd() * 7 - 3.5).toFixed(2), y: (rnd() * 10 - 5).toFixed(1) }));
+
+// Each piece's share of the fullest row (by weight), and how many gaps that row has.
+const layout = (set: number[][], full: string) => {
+  const total = Math.max(...set.map((r) => r.reduce((s, i) => s + weight(i), 0)));
+  const most = Math.max(...set.map((r) => r.length));
+  return {
+    most,
+    rows: set.map((r) =>
+      r.map((i) => ({ i, share: (weight(i) / total).toFixed(5), sizes: `calc(${full} * ${((weight(i) / total) * 0.9).toFixed(3)})` })),
+    ),
+  };
+};
+const desktop = layout(rows, "(100vw - 64px)");
+const phone = layout(phoneRows, "(100vw - 40px)");
+const sameOnPhones = JSON.stringify(rows) === JSON.stringify(phoneRows);
+const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set--wide", ...desktop }, { cls: "case-board__set--phone", ...phone }];
+---
+
+<figure class="article__media case-board-figure">
+  <div
+    class:list={["case-board", { "case-board--crop": crop, [`case-board--${shadow}`]: shadow }]}
+    style={`--gap:${gap};--pad:${pad};${crop ? `--crop:${crop};--crop-phone:${phoneCrop ?? crop};` : ""}`}
+    role="img"
+    aria-label={alt}
+  >
+    {
+      sets.map((set) => (
+        <div class:list={["case-board__set", set.cls]} style={`--most:${set.most}`}>
+          {set.rows.map((row) => (
+            <div class:list={["case-board__row", { "case-board__row--scale": scale }]}>
+              {row.map(({ i, share, sizes }) => (
+                <div
+                  class="case-board__piece"
+                  style={`--share:${share};${tilt ? `--r:${turns[i].r}deg;--y:${turns[i].y}%;` : ""}`}
+                >
+                  <img
+                    src={pieces[i].src}
+                    srcset={pieces[i].srcset}
+                    sizes={sizes}
+                    width={pieces[i].width}
+                    height={pieces[i].height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+  <figcaption>{caption}</figcaption>
+</figure>
+
+<style>
+  .case-board {
+    container-type: inline-size;
+    display: block;
+    padding: calc(var(--pad) * 1cqw);
+    background-color: var(--board);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .case-board__set {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--gap) * 1cqw);
+  }
+
+  .case-board__row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--gap) * 1cqw);
+  }
+
+  /* Devices to scale stand on one line. */
+  .case-board__row--scale {
+    align-items: flex-end;
+  }
+
+  .case-board__piece {
+    flex: 0 0 calc((100% - (var(--most) - 1) * var(--gap) * 1cqw) * var(--share));
+    min-width: 0;
+    transform: rotate(var(--r, 0deg)) translateY(var(--y, 0%));
+  }
+
+  .case-board__piece img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .case-board--box .case-board__piece img {
+    box-shadow: 0 1.2cqw 3cqw rgb(0 0 0 / 0.22);
+  }
+
+  .case-board--drop .case-board__piece img {
+    filter: drop-shadow(0 0.8cqw 1.6cqw rgb(0 0 0 / 0.2));
+  }
+
+  /* Tall pages, cut from the top and running off the bottom of the board. */
+  .case-board--crop {
+    padding-bottom: 0;
+  }
+
+  .case-board--crop .case-board__row {
+    align-items: flex-start;
+  }
+
+  .case-board--crop .case-board__piece img {
+    aspect-ratio: 1 / var(--crop);
+    object-fit: cover;
+    object-position: top;
+  }
+
+  /* Phones get their own rows where the board has them. */
+  .case-board__set--phone {
+    display: none;
+  }
+
+  @media screen and (max-width: 767px) {
+    .case-board__set--wide {
+      display: none;
+    }
+
+    .case-board__set--phone {
+      display: flex;
+    }
+
+    .case-board--crop .case-board__piece img {
+      aspect-ratio: 1 / var(--crop-phone);
+    }
+  }
+</style>

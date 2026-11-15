@@ -30,6 +30,8 @@ try {
 
   await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: scale, mobile });
   if (mobile) await send("Emulation.setUserAgentOverride", { userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" });
+  // SCHEME=dark or light: the page's prefers-color-scheme (default: the browser's, light).
+  if (process.env.SCHEME) await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: process.env.SCHEME }] });
   await send("Page.enable");
   await send("Page.navigate", { url });
   await sleep(5000); console.error("loaded");
@@ -71,7 +73,7 @@ try {
           const want = ${JSON.stringify(item.text.toLowerCase())};
           const marked = document.querySelector("[data-cap-target]");
           if (marked) marked.removeAttribute("data-cap-target");
-          const hits = marked ? [marked] : [...document.querySelectorAll("h1,h2,h3,h4,h5,p,span,div,a")].filter((e) => e.children.length < 3 && (e.textContent || "").toLowerCase().includes(want) && e.offsetHeight > 0);
+          const hits = marked ? [marked] : [...document.querySelectorAll("h1,h2,h3,h4,h5,p,span,div,a,figcaption")].filter((e) => e.children.length < 3 && (e.textContent || "").toLowerCase().includes(want) && e.offsetHeight > 0);
           if (!hits.length) return -1;
           const hit = hits[${item.nth || 0}];
           let block = null;

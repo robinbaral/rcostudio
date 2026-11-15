@@ -1,5 +1,6 @@
 ---
-// Selected Work: each row is a button that opens the project's drawer (ProjectDrawer).
+// Selected Work: each row is a button that opens the project's drawer (ProjectDrawer), except
+// coming-soon rows, which are plain lines.
 // On desktop a screenshot follows the cursor while hovering a row (scripts/preview.js), and a
 // small row of thumbnails, one per image, appears after the name, marking which image the
 // preview shows as the cursor moves along the row.
@@ -22,9 +23,16 @@ const images = (p: (typeof projects)[number]) => (p.soon ? [] : [p.preview, ...(
     {
       projects.map((p) => (
         <li>
+          {p.soon ? (
+            // Coming soon: a plain line, no drawer (Robin, 2026-11-16).
+            <div class="project project--soon">
+              <span class="project__name">{p.name}</span>
+              <span class="project__tags">{p.tags}</span>
+            </div>
+          ) : (
           <button
             type="button"
-            class:list={["project", { "project--soon": p.soon }]}
+            class="project"
             aria-haspopup="dialog"
             aria-controls="project-drawer"
             data-project-open={projectId(p)}
@@ -55,6 +63,7 @@ const images = (p: (typeof projects)[number]) => (p.soon ? [] : [p.preview, ...(
             </span>
             <span class="project__tags">{p.tags}</span>
           </button>
+          )}
         </li>
       ))
     }

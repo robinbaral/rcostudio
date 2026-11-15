@@ -30,7 +30,7 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
 
     <div class="project-drawer__body">
       {
-        projects.map((p) => (
+        projects.filter((p) => !p.soon).map((p) => (
           <article class="project-detail" data-project={projectId(p)} hidden>
             <h2 class="project-detail__title" id={`project-title-${projectId(p)}`}>{p.name}</h2>
             {p.video ? (
@@ -141,12 +141,12 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
     // Page mode, phones only (see the note at the top). Safari also clips the top layer, where a
     // modal dialog lives, to the visible area, so in page mode the dialog is closed and shown as
     // an ordinary element on the page instead.
-    // The sheet is always light, so in page mode the browser's theme colour turns white too
-    // (it's dark in dark mode), and goes back when the sheet closes.
+    // In page mode the browser's theme colour takes the sheet's colour (the page colour,
+    // light or dark), and goes back when the sheet closes.
     const themeMetas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
     const themeColors = Array.from(themeMetas, (m) => m.content);
     const setTheme = (light: boolean) =>
-      themeMetas.forEach((m, i) => (m.content = light ? "#ffffff" : themeColors[i]));
+      themeMetas.forEach((m, i) => (m.content = light ? getComputedStyle(dialog).backgroundColor : themeColors[i]));
 
     const inPageMode = () => root.classList.contains("project-page");
     const isOpen = () => dialog.open || inPageMode();
@@ -255,12 +255,11 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
   }
 
   /* Half the screen on the right, a little wider on tablets, capped so lines stay readable. */
-  /* Always light, whatever the OS mode: the site's light colours, set locally. */
+  /* In the page's colours: light, or dark when the OS is (global.css). */
   .project-drawer {
-    --color-fg: #141414;
-    --color-bg: #ffffff;
-    color-scheme: light;
-    --muted: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+    --color-fg: var(--page-fg);
+    --color-bg: var(--page-bg);
+    --muted: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
     --rule: color-mix(in srgb, var(--color-fg) 15%, var(--color-bg));
     --pad: 32px;
     width: min(max(50vw, 34rem), 46rem);
@@ -640,10 +639,10 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
       display: contents;
     }
 
-    /* The page behind is light too, so overscroll and Safari's toolbar match the sheet. */
+    /* The page behind takes the sheet's colour, so overscroll and Safari's toolbar match it. */
     :global(html.project-page),
     :global(html.project-page body) {
-      background-color: #ffffff;
+      background-color: var(--page-bg);
     }
 
     :global(html.project-page) .project-drawer__panel {

@@ -118,6 +118,12 @@
     im.src = row.dataset.preview;
   });
 
+  // The list follows the OS mode (light or dark): pick the colours again when it switches,
+  // once the section's own colour transition (0.2s) has finished.
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+    window.setTimeout(paint, 250);
+  });
+
 
   function target(e) {
     var w = preview.offsetWidth, h = preview.offsetHeight;

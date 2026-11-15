@@ -14,41 +14,36 @@
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
-import CaseFigure from "../../components/cases/CaseFigure.astro";
+import CaseBoard from "../../components/cases/CaseBoard.astro";
 import { shots } from "../../lib/shots";
 import "../../styles/case.css";
 
 const c = (name: string) => `cases/crisscross/crisscross-${name}.png`;
-// Images set by hand below; the process boards go through CaseFigure.
-const img = await shots(["hero", "studio-sketches", "studio-sketches-phone", "device-lineup", "device-lineup-phone"].map(c));
+// Images set by hand below (the hero, the sketches on graph paper); the boards go through CaseBoard.
+const img = await shots(["hero", "studio-sketches", "studio-sketches-phone"].map(c));
 const shot = (name: string) => img.get(c(name))!;
 const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
 
-// Figures between the text: the composed boards carry their own background. "wide" boards
-// (rows of phone screens) switch on phones to a <name>-phone version with fewer screens in
-// fewer columns (scripts/cases/case-phone-boards.py).
-const figure = (name: string, alt: string, caption: string, wide = false) => ({
-  name: c(name),
-  phone: wide ? c(`${name}-phone`) : undefined,
-  alt,
-  caption,
-  wide,
-});
-const figures = {
-  evolution: figure("puzzle-screens", "Six versions of the puzzle screen, from a plain grid of letter tiles to a late draft with clue bar and mascot, the first three as grey wireframes", "The puzzle screen, from the first grid of tiles to one of the final drafts.", true),
-  themes: figure("theme-range", "Six colour themes of the same puzzle: lavender with yellow tiles, white with rainbow tiles, peach, pale pink, then navy and red on dark", "Theme explorations, from soft light themes to dark ones at the edges of legibility.", true),
-  icons: figure("app-icons-rounded", "Sixteen app icon drafts in different colours, from a letter tile to a crossword grid", "App icon explorations. Several became alternate icons players unlock.", true),
-  medals: figure("medal-editor-v4", "Five versions of the medal editor with a kaleidoscope drawing and a row of tools, ending on the finished editor in a blue theme", "The medal editor: drawing tools, slices and mirroring.", true),
-  studio: figure("puzzle-studio", "Puzzle Studio showing the Animals topic: its word list with clues, puzzle counts for British and American English, and tabs for grids, audio and flashcards", "Puzzle Studio: one topic's words and clues, in both spellings, with its grids, audio and flashcards a tab away."),
-  achievements: figure("badges", "Eighteen achievement badges with hexagonal rings: one for each kind of achievement, then the rings growing over higher levels", "Achievement badges and how their rings grow, refined over many rounds of testing across the themes.", true),
-  purchase: figure("paywalls", "Five versions of the paywall for unlocking puzzle packs", "Paywall explorations, from a plain list of prices to the pack itself.", true),
-  cards: figure("home-cards", "Four home screen layouts with daily challenges, recently played topics and puzzle packs: three iPhone drafts and the finished iPad mini home screen in landscape, all in the yellow Highlighter theme", "Home screen structures: cards for challenges, topics and packs.", true),
+// Boards between the text: separate images on the board colour (CaseBoard), so they follow
+// light and dark mode and phones get fewer, larger pieces (rows by index, in the order the
+// pieces were cut: rows, then left to right). Pieces from scripts/cases/board-items.py.
+const b = (name: string) => `cases/crisscross/boards/crisscross-${name}`;
+const ROW = { pad: 4.8, gap: 1.6 }; // spacing of the original Figma boards
+const boards = {
+  evolution: { folder: b("puzzle-screens"), ...ROW, phoneRows: [[0, 3, 5]], alt: "Six versions of the puzzle screen, from a plain grid of letter tiles to a late draft with clue bar and mascot, the first three as grey wireframes", caption: "The puzzle screen, from the first grid of tiles to one of the final drafts." },
+  themes: { folder: b("theme-range"), ...ROW, phoneRows: [[0, 1, 5]], alt: "Six colour themes of the same puzzle: lavender with yellow tiles, white with rainbow tiles, peach, pale pink, then navy and red on dark", caption: "Theme explorations, from soft light themes to dark ones at the edges of legibility." },
+  icons: { folder: b("app-icons-rounded"), ...ROW, rows: [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]], phoneRows: [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7]], alt: "Sixteen app icon drafts in different colours, from a letter tile to a crossword grid", caption: "App icon explorations. Several became alternate icons players unlock." },
+  medals: { folder: b("medal-editor-v4"), ...ROW, phoneRows: [[0, 1, 4]], alt: "Five versions of the medal editor with a kaleidoscope drawing and a row of tools, ending on the finished editor in a blue theme", caption: "The medal editor: drawing tools, slices and mirroring." },
+  studio: { folder: b("puzzle-studio"), pad: 4.8, alt: "Puzzle Studio showing the Animals topic: its word list with clues, puzzle counts for British and American English, and tabs for grids, audio and flashcards", caption: "Puzzle Studio: one topic's words and clues, in both spellings, with its grids, audio and flashcards a tab away." },
+  achievements: { folder: b("badges"), ...ROW, rows: [[0, 1, 2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15, 16, 17]], phoneRows: [[0, 1, 2, 3], [4, 5, 6, 7], [11, 12, 13, 14]], alt: "Eighteen achievement badges with hexagonal rings: one for each kind of achievement, then the rings growing over higher levels", caption: "Achievement badges and how their rings grow, refined over many rounds of testing across the themes." },
+  purchase: { folder: b("paywalls"), ...ROW, phoneRows: [[0, 2, 4]], alt: "Five versions of the paywall for unlocking puzzle packs", caption: "Paywall explorations, from a plain list of prices to the pack itself." },
+  cards: { folder: b("home-cards"), ...ROW, phoneRows: [[0, 1, 2], [3]], alt: "Four home screen layouts with daily challenges, recently played topics and puzzle packs: three iPhone drafts and the finished iPad mini home screen in landscape, all in the yellow Highlighter theme", caption: "Home screen structures: cards for challenges, topics and packs." },
+  devices: { folder: b("device-lineup"), scale: true, shadow: "drop" as const, pad: 6, gap: 3, phoneRows: [[0, 1], [2]], alt: "A puzzle screen on iPhone, iPhone Duo closed, an iPad in landscape with the board and letters side by side, and iPhone Duo open, shown at their real relative sizes", caption: "iPhone, iPhone Duo closed, iPad in landscape and iPhone Duo open, to scale." },
 };
----
+------
 
 <Base
   noindex
-  themeColor="#ffffff"
   path="/cases/crisscross"
   pageTitle="CrissCross"
   pageDescription="CrissCross, a crossword and spelling app for children on iPhone and iPad: the app, the puzzle authoring tool behind it, a word set in British and American English, and the move to larger screens."
@@ -102,7 +97,7 @@ const figures = {
       </p>
     </div>
 
-    <CaseFigure {...figures.evolution} />
+    <CaseBoard {...boards.evolution} />
 
     <div class="article__body">
       <h2>Play, not pressure</h2>
@@ -118,8 +113,8 @@ const figures = {
       </p>
     </div>
 
-    <CaseFigure {...figures.themes} />
-    <CaseFigure {...figures.icons} />
+    <CaseBoard {...boards.themes} />
+    <CaseBoard {...boards.icons} />
 
     <div class="article__body">
       <p>
@@ -138,8 +133,8 @@ const figures = {
       </p>
     </div>
 
-    <CaseFigure {...figures.medals} />
-    <CaseFigure {...figures.achievements} />
+    <CaseBoard {...boards.medals} />
+    <CaseBoard {...boards.achievements} />
 
     <div class="article__body">
       <h2>Small things to discover</h2>
@@ -169,8 +164,8 @@ const figures = {
       </p>
     </div>
 
-    <CaseFigure {...figures.purchase} />
-    <CaseFigure {...figures.cards} />
+    <CaseBoard {...boards.purchase} />
+    <CaseBoard {...boards.cards} />
 
     <div class="article__body">
       <h2>Puzzle Studio</h2>
@@ -187,7 +182,7 @@ const figures = {
       </p>
     </div>
 
-    <CaseFigure {...figures.studio} />
+    <CaseBoard {...boards.studio} />
 
     <figure class="article__media">
       <picture>
@@ -246,23 +241,7 @@ const figures = {
       </p>
     </div>
 
-    <figure class="article__media">
-      <picture>
-        <source media="(max-width: 767px)" srcset={shot("device-lineup-phone").srcset} sizes={FULL} />
-        <img
-          class="article__image"
-          src={shot("device-lineup").src}
-          srcset={shot("device-lineup").srcset}
-          sizes={FULL}
-          width={shot("device-lineup").width}
-          height={shot("device-lineup").height}
-          alt="A puzzle screen on iPhone, iPhone Duo closed, an iPad in landscape with the board and letters side by side, and iPhone Duo open, shown at their real relative sizes"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <figcaption>iPhone, iPhone Duo closed, iPad in landscape and iPhone Duo open, to scale.</figcaption>
-    </figure>
+    <CaseBoard {...boards.devices} />
 
     <div class="article__body">
       <h2>A website you can play</h2>

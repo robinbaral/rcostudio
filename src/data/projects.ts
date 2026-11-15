@@ -45,6 +45,8 @@ export interface Project {
   name: string;
   tags: string;
   preview?: string;
+  // false: the preview stays out of the hero stack (hover and drawer still use it).
+  heroCard?: boolean;
   summary: string | string[];
   services: string[];
   href?: string;
@@ -205,6 +207,7 @@ export const projects: Project[] = [
     // the light grey of the App Store board: logo lockup and phone, the phone cut off at the
     // bottom as in the original.
     preview: "work/pindrop-og.png",
+    heroCard: false, // the stack shows the red phone card instead (Robin, 2026-11-16)
     // Then the website (top of the page, captured at 2x), the three App Store screens side by
     // side (06_Production/App Store in the Pindrop folder) and six plain screens from Figma
     // as phones, three per board (scripts/cases/pindrop-boards.py), plus a card on the app's red

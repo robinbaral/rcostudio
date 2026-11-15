@@ -38,14 +38,29 @@
   font-display: swap;
 }
 
+/* Colours: light by default, all dark when the OS is set to dark (Robin, 2026-11-15). The
+   page pair (--page-fg / --page-bg) follows the OS; --color-fg / --color-bg are what each
+   part draws with. Sections drawn as the inverse of the page (.projects, .services, .stack)
+   swap the pair back (below), so every section matches the page in both modes. Only the
+   footer stays dark either way. */
 :root {
-  --color-fg: #ffffff;
-  --color-bg: #141414;
+  --ink-dark: #141414;
+  --paper-light: #ffffff;
+  --page-fg: var(--ink-dark);
+  --page-bg: var(--paper-light);
+  --color-fg: var(--page-fg);
+  --color-bg: var(--page-bg);
+  /* The panel behind case boards (CaseBoard): the warm grey of the old board images, and a
+     step lighter than the dark page in dark mode. */
+  --board: #f2f1ee;
+  /* Secondary (grey) text: this share of the text colour, mixed with the background. 62% on
+     white is about 5:1, above AA's 4.5:1; dark mode keeps its lighter 55%, about 6:1. */
+  --muted-share: 62%;
   --color-accent: #ff4713;
   --font-sans: "General Sans", Arial, sans-serif;
   --font-heading: "Die Grotesk B", var(--font-sans); /* was: var(--font-sans) */
   --font-small: var(--font-sans); /* was: "Die Grotesk A", var(--font-sans) */
-  color-scheme: dark;
+  color-scheme: light;
 
   --distributor-padding: 32px;
   --gutter: var(--distributor-padding); /* left/right page margin */
@@ -53,6 +68,35 @@
   --heading-size: 64px;
   --tagline-size: 40px; /* hero statement */
   --small-size: 20px; /* footer */
+}
+
+/* Dark mode: the sections on a near-black grey, a step lighter than the footer's #141414, so
+   the footer still stands apart (Robin, 2026-11-15). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-fg: var(--paper-light);
+    --page-bg: #1f1f1f;
+    --board: #2b2a28;
+    --muted-share: 55%;
+    color-scheme: dark;
+  }
+}
+
+/* Drawn as the inverse of the page (background from --color-fg): swapped back here, so they
+   follow the page. */
+.projects,
+.services,
+.stack {
+  --color-fg: var(--page-bg);
+  --color-bg: var(--page-fg);
+}
+
+/* The footer is dark in both modes. */
+.footer-reveal {
+  --color-fg: var(--paper-light);
+  --color-bg: var(--ink-dark);
+  color-scheme: dark;
+  color: var(--color-fg);
 }
 
 @media screen and (max-width: 991px) {
@@ -266,7 +310,7 @@ html {
 }
 
 .projects {
-  /* Inverse of the hero: swaps the OS-mode colours. */
+  /* Drawn as the inverse of the page; the pair is swapped back at the top of this file. */
   --rule: color-mix(in srgb, var(--color-bg) 40%, transparent);
   background-color: var(--color-fg);
   color: var(--color-bg);
@@ -277,8 +321,11 @@ html {
   padding: var(--projects-padding-y) var(--gutter);
 }
 
+/* Shifted down by a quarter of the section's spacing: the same amount added above and taken
+   from the gap to the list, so it sits closer to the list it heads (Robin, 2026-11-15). */
 .projects__heading {
-  margin: 0;
+  --shift: calc(var(--projects-padding-y) * 0.25);
+  margin: var(--shift) 0 calc(var(--shift) * -1);
   font-family: var(--font-heading);
   font-size: var(--heading-size);
   font-weight: 700;
@@ -428,8 +475,11 @@ button.project {
   }
 }
 
+/* Coming soon: a plain line, not a button (Projects.astro), so nothing to click. Faded, but
+   still 3:1 against the background (large text). */
 .project--soon {
-  opacity: 0.4;
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* Footer: back to the OS-mode colours, like the hero. Holds the "Let's build something

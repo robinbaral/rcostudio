@@ -24,14 +24,15 @@ const { opening, rest, setup } = profile;
 
 <style>
   .profile {
-    --muted: color-mix(in srgb, var(--color-fg) 50%, var(--color-bg));
+    --muted: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
     --rule: color-mix(in srgb, var(--color-fg) 20%, var(--color-bg));
     display: flex;
     flex-direction: column;
     gap: var(--projects-padding-y);
     margin: 0 var(--gutter);
+    /* No rule on top: the project list's last line already closes the section above (Robin,
+       2026-11-16). */
     padding-block: var(--projects-padding-y) calc(var(--projects-padding-y) * 2);
-    border-top: 1px solid var(--rule);
   }
 
   /* Large type across most of the width. */

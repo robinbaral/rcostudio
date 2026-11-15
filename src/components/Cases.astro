@@ -85,7 +85,7 @@ const img = await shots(cases.map((c) => c.image));
      marks the new section (no rule needed). The Everyday Stack below is inverted again. */
   .cases {
     --ink: var(--color-fg);
-    --muted: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+    --muted: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
     display: flex;
     flex-direction: column;
     gap: var(--projects-padding-y);
@@ -97,8 +97,12 @@ const img = await shots(cases.map((c) => c.image));
       color 0.2s;
   }
 
+  /* Shifted down like the Selected Work heading: a quarter of the section spacing added above
+     and taken from the gap below, so it sits closer to the cards (Robin, 2026-11-16). */
   .cases__head {
-    padding-top: var(--projects-padding-y);
+    --shift: calc(var(--projects-padding-y) * 0.25);
+    padding-top: calc(var(--projects-padding-y) + var(--shift));
+    margin-bottom: calc(var(--shift) * -1);
   }
 
   .cases__title {

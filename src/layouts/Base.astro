@@ -9,10 +9,9 @@ interface Props {
   pageTitle?: string;
   pageDescription?: string;
   // Browser bar colour on phones: the colour at the top of the page (dark by default).
-  themeColor?: string;
   path?: string;
 }
-const { noindex = false, themeColor = "#141414", pageTitle, pageDescription, path = "/" } = Astro.props;
+const { noindex = false, pageTitle, pageDescription, path = "/" } = Astro.props;
 
 const name = "R&Co. Studio";
 // No locale in the title: clients can be anywhere. No bullet separators (Robin).
@@ -100,7 +99,9 @@ const schema = {
     <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/favicon-512.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
 
-    <meta name="theme-color" content={themeColor} />
+    {/* The browser bar takes the page colour: light, or dark in dark mode (global.css). */}
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f1f1f" />
 
     <link rel="preload" href="/assets/fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
 

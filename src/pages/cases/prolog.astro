@@ -14,6 +14,7 @@ import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
 import ProLogHero from "../../components/cases/ProLogHero.astro";
+import CaseBoard from "../../components/cases/CaseBoard.astro";
 import { shots } from "../../lib/shots";
 import "../../styles/case.css";
 
@@ -29,7 +30,7 @@ const steps = [
 
 const img = await shots([
   ...steps.map((s) => s.src),
-  ...["prolog-slides", "prolog-slides-phone", "prolog-logo-sketches", "prolog-logo-sketches-phone", "prolog-page-concepts", "prolog-page-concepts-phone", "prolog-live-desktop", "prolog-live-phone"].map(c),
+  ...["prolog-logo-sketches", "prolog-logo-sketches-phone", "prolog-live-desktop", "prolog-live-phone"].map(c),
 ]);
 const shot = (name: string) => img.get(c(name))!;
 const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
@@ -37,7 +38,6 @@ const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
 
 <Base
   noindex
-  themeColor="#ffffff"
   path="/cases/prolog"
   pageTitle="ProLog"
   pageDescription="A new website for ProLog, makers of offline log management in Germany: from the first briefing call to a Webflow site connected to their CRM."
@@ -79,23 +79,18 @@ const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
       </p>
     </div>
 
-    <figure class="article__media">
-      <picture>
-        <source media="(max-width: 767px)" srcset={shot("prolog-slides-phone").srcset} sizes={FULL} />
-        <img
-          class="article__image"
-          src={shot("prolog-slides").src}
-          srcset={shot("prolog-slides").srcset}
-          sizes={FULL}
-          width={shot("prolog-slides").width}
-          height={shot("prolog-slides").height}
-          alt="Thirty-five slides from the kickoff presentation laid out in a grid"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <figcaption>The kickoff presentation: brief, strategy, logo and first drafts.</figcaption>
-    </figure>
+    {/* Separate slides on the board colour (CaseBoard): seven to a row, five on phones. */}
+    <CaseBoard
+      folder="cases/prolog/boards/prolog-slides"
+      rows={[0, 7, 14, 21, 28].map((n) => Array.from({ length: 7 }, (_, k) => n + k))}
+      phoneCols={5}
+      even
+      shadow="box"
+      pad={3}
+      gap={1.2}
+      alt="Thirty-five slides from the kickoff presentation laid out in a grid"
+      caption="The kickoff presentation: brief, strategy, logo and first drafts."
+    />
 
     <div class="article__body">
       <h2>A mark for every size</h2>
@@ -181,23 +176,17 @@ const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
       </p>
     </div>
 
-    <figure class="article__media">
-      <picture>
-        <source media="(max-width: 767px)" srcset={shot("prolog-page-concepts-phone").srcset} sizes={FULL} />
-        <img
-          class="article__image article__image--capped"
-          src={shot("prolog-page-concepts").src}
-          srcset={shot("prolog-page-concepts").srcset}
-          sizes={FULL}
-          width={shot("prolog-page-concepts").width}
-          height={shot("prolog-page-concepts").height}
-          alt="Three page designs side by side: a blog article, a page for public administration and an audit page"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-      <figcaption>Concepts for an article, a sector page and an audit page.</figcaption>
-    </figure>
+    {/* Three tall pages cut from the top, running off the bottom of the board; two on phones. */}
+    <CaseBoard
+      folder="cases/prolog/boards/prolog-page-concepts"
+      phoneRows={[[0, 2]]}
+      crop={2}
+      phoneCrop={1.5}
+      pad={6.9}
+      gap={3.1}
+      alt="Three page designs side by side: a blog article, a page for public administration and an audit page"
+      caption="Concepts for an article, a sector page and an audit page."
+    />
 
     <div class="article__body">
       <h2>Connected from day one</h2>

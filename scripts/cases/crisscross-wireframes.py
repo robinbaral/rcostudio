@@ -2,8 +2,8 @@
 # tones, black lines, white screens with a thin outline), so the row reads from early
 # structure to the finished, coloured screens. Reads the untouched colour board from
 # "03_Working files/crisscross-puzzle-screens-colour.png" and writes
-# src/assets/cases/crisscross/crisscross-puzzle-screens.png; run case-phone-boards.py after
-# it for the phone version. Screens listed in SWAPS are replaced first by a newer export from
+# src/assets/cases/crisscross/crisscross-puzzle-screens.png; run board-items.py after it to
+# cut the screens apart for the case page. Screens listed in SWAPS are replaced first by a newer export from
 # the CrissCross Figma file (also in "03_Working files/"), fitted into the old screen's shape.
 # Usage: python3 scripts/cases/crisscross-wireframes.py   (from rco-website/)
 from pathlib import Path

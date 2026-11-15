@@ -24,7 +24,7 @@ const VISIBLE = 5;
 // The cards: each project's preview in list order, plus any extra `stack` images, dealt in one
 // after each of the projects that follow their own (projects.ts).
 // Projects without a preview (a coming-soon project with no image yet) have no card of their own.
-const deck = projects.map((p) => (p.preview ? [{ project: p, image: p.preview, tags: p.tags }] : []));
+const deck = projects.map((p) => (p.preview && p.heroCard !== false ? [{ project: p, image: p.preview, tags: p.tags }] : []));
 projects.forEach((p, i) =>
   (p.stack ?? []).forEach(({ image, tags }, k) =>
     deck[Math.min(i + 1 + k, deck.length - 1)].push({ project: p, image, tags }),
@@ -489,7 +489,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
 
   a.stack-hero__project[href]:hover,
   a.stack-hero__project[href]:focus-visible {
-    color: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+    color: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
   }
 
   /* No link (coming soon, no public site): plain text, no arrow. */
@@ -498,7 +498,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
   }
 
   .stack-hero__tags {
-    opacity: 0.5;
+    opacity: 0.62; /* 0.5 fell short of AA on white */
   }
 
   .stack-hero__ext {

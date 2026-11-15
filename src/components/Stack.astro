@@ -53,7 +53,7 @@ import { stack, awards } from "../data/stack";
   .stack {
     --ink: var(--color-bg);
     --paper: var(--color-fg);
-    --muted: color-mix(in srgb, var(--ink) 50%, var(--paper));
+    --muted: color-mix(in srgb, var(--ink) var(--muted-share), var(--paper));
     --rule: color-mix(in srgb, var(--ink) 20%, var(--paper));
     display: flex;
     flex-flow: column;
@@ -69,6 +69,13 @@ import { stack, awards } from "../data/stack";
     display: grid;
     grid-template-columns: clamp(300px, 26vw, 460px) minmax(0, 1fr);
     column-gap: clamp(48px, 6vw, 120px);
+  }
+
+  /* Shifted down like the Selected Work heading: a quarter of the section spacing added above
+     and taken from the gap below, so it sits closer to the list it heads (Robin, 2026-11-16). */
+  .stack > .stack__head {
+    --shift: calc(var(--projects-padding-y) * 0.25);
+    margin: var(--shift) 0 calc(var(--shift) * -1);
   }
 
   .stack__title {

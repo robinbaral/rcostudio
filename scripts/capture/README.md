@@ -9,7 +9,7 @@ Playwright's headless shell, `~/Library/Caches/ms-playwright/chromium_headless_s
   `{name, at, fit: 1}` to frame the largest block under the screen centre at offset `at`.
   Options: `keepFixed` (keep fixed headers), `alignTop`, `pad`, `bg`, `halves` (two half-height
   shots, for pages that hang Chrome on a full 2x frame; join them afterwards). Env: `PREP`
-  (JS run after load, e.g. hide cookie banners), `NOWALK` (skip the scroll through the page),
+  (JS run after load, e.g. hide cookie banners), `SCHEME` (`dark` or `light`), `NOWALK` (skip the scroll through the page),
   `PORT`, `TIMEOUT`.
 - `node cap.mjs full <url> <tiledir> [mobile]` then `python3 tiles.py <tiledir> <out.png>
   <height>`: a full-page capture at 1x, stitched from viewport tiles.

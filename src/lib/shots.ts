@@ -25,6 +25,16 @@ export interface Shot {
   height: number;
 }
 
+// Every image in a folder of src/assets/ ("cases/prolog/boards/prolog-slides"), sorted by
+// name, as names for shot(). The case boards keep their pieces this way (CaseBoard).
+export function inFolder(folder: string): string[] {
+  const prefix = `/src/assets/${folder.replace(/\/$/, "")}/`;
+  return Object.keys(sources)
+    .filter((k) => k.startsWith(prefix) && !k.slice(prefix.length).includes("/"))
+    .sort()
+    .map((k) => k.slice("/src/assets/".length));
+}
+
 export function source(name: string): ImageMetadata | undefined {
   return sources[`/src/assets/${name}`]?.default;
 }

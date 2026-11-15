@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "rcostudio",
+	// Robin's personal Cloudflare account, not RFG (FG work).
+	"account_id": "02160e7ee5cca4e6b463bab8ac43d6ca",
+	"compatibility_date": "2026-11-15",
+	// The static Astro build, served through a small Worker (worker/index.ts) that adds
+	// noindex on every address except rcostudio.nz (the workers.dev address, preview URLs).
+	// Pages are built as files (astro.config.mjs: build.format "file"), so addresses have no
+	// trailing slash, as they did on Vercel: /cases/prolog, not /cases/prolog/.
+	"main": "./worker/index.ts",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"html_handling": "auto-trailing-slash",
+		"run_worker_first": true
+	},
+	"observability": { "enabled": true }
+}

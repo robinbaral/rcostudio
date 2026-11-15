@@ -36,7 +36,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
   /* Inverted like the projects list: OS-mode colours swapped. */
   .services {
     --ink: var(--color-bg);
-    --muted: color-mix(in srgb, var(--color-bg) 50%, var(--color-fg));
+    --muted: color-mix(in srgb, var(--color-bg) var(--muted-share), var(--color-fg));
     --rule: color-mix(in srgb, var(--color-bg) 20%, var(--color-fg));
     display: grid;
     /* The left column is sized to its content, not a share of the screen, so wide screens

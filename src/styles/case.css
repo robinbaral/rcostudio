@@ -1,25 +1,19 @@
 /* Case pages (src/pages/cases/): the light head, the article in the site's two columns, image
    galleries and the device panel. Shared by every case. */
-/* Light head: the nav and the heading on white, running straight into the article. The
-     footer stays dark, as on the homepage. */
+/* The head: the nav and the heading on the page colour (light, or dark in dark mode),
+     running straight into the article. The footer stays dark, as on the homepage. */
   .case-head {
-    --color-fg: #141414;
-    --color-bg: #ffffff;
-    color-scheme: light;
     padding: var(--distributor-padding) var(--gutter) 0;
     color: var(--color-fg);
     background-color: var(--color-bg);
   }
 
   /* --- The article: the site's two columns, text in the second (as About and Services) ---- */
-  /* The article on white, between the dark head and the dark footer. */
+  /* The article on the page colour, above the dark footer. */
   .article {
-    --color-fg: #141414;
-    --color-bg: #ffffff;
-    color-scheme: light;
     background-color: var(--color-bg);
     color: var(--color-fg);
-    --muted: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
+    --muted: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
     --rule: color-mix(in srgb, var(--color-fg) 15%, var(--color-bg));
     --panel: color-mix(in srgb, var(--color-fg) 6%, var(--color-bg));
     --cols: clamp(300px, 26vw, 460px) minmax(0, 1fr);
@@ -107,20 +101,13 @@
     color: var(--muted);
   }
 
-  /* Composed images (slides, sketches, page concepts) carry their own background. */
+  /* Composed images (the sketches on graph paper, heroes) carry their own background; the
+     boards are separate pieces on the board colour (CaseBoard). */
   .article__image {
     display: block;
     width: 100%;
     height: auto;
     border-radius: 6px;
-  }
-
-  /* The page concepts run off the bottom anyway, so on big screens the bottom is cropped
-     to keep the slide within one screen. */
-  .article__image--capped {
-    max-height: 88svh;
-    object-fit: cover;
-    object-position: top;
   }
 
   /* --- Gallery: each shot inset on a grey panel, framed like the project drawers ---------- */
@@ -308,25 +295,6 @@
       gap: 10px;
     }
   }
-
-/* Wide boards (rows of phone screens): full width on larger screens; on phones they keep a
-   readable size and scroll sideways inside the figure. */
-@media screen and (max-width: 767px) {
-  .article__scroll {
-    overflow-x: auto;
-    scrollbar-width: none;
-    border-radius: 6px;
-  }
-
-  .article__scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .article__image--wide {
-    width: 760px;
-    max-width: none;
-  }
-}
 
 /* An opening image: full width, the height following 16:9 until it reaches 70% of the
    screen or 760px, as the ProLog hero does; the image is cropped to fill. */
