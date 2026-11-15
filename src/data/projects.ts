@@ -301,9 +301,6 @@ export const projects: Project[] = [
     name: "Design Week PF",
     tags: "Branding",
     preview: "work/design-week.png",
-    // The roll-up banner mockup, on its own grey, fills its block.
-    gallery: ["work/design-week-banner.png"],
-    galleryBleed: true,
     // Context from Robin (2026-11-15): the organisers approached him; a pitch to the city
     // centre's retailers, never carried out. Summary is a draft.
     summary: [
