@@ -1,0 +1,240 @@
+---
+// ProLog case hero: the log stream from the prolog.ag hero (decorative lines scrolling up in
+// small bursts, as the site's code background does), with the ProLog logo on top. No
+// spotlight or custom cursor. Fills the article width at 16:9, with the height capped so it fits
+// a desktop screen; 4:5 on phones. Paused off screen; still with reduced motion.
+---
+
+<div class="pl-hero-wrap">
+<figure class="pl-hero" data-pl-hero>
+  <div class="pl-hero__stream" aria-hidden="true"><div class="pl-hero__lines" data-pl-lines></div></div>
+  <img
+    class="pl-hero__logo"
+    src="/assets/cases/prolog/prolog-lockup.svg"
+    alt="ProLog, IT security made in Germany"
+    width="720"
+    height="211"
+  />
+</figure>
+</div>
+
+<script>
+  const LOG_ENTRIES: [number, string][] = [
+    [10, "vmhost-03 winlogbeat: EventID=4624 LogonType=3 TargetUser=monitor IpAddress=10.98.3.7 LogonProcess=Kerberos Success ProcessName=C:\\Windows\\System32\\lsass.exe"],
+    [38, "vmhost-03 sshd[27706]: Failed password for invalid user root from 172.16.8.3 port 8766 ssh2 [preauth]"],
+    [32, "switch-c3 opcua: session=6c0fd1b0 node=ns=2;s=Plant/Line3/Temp value=50.08 quality=GOOD sourceTimestamp=2026-04-18T22:36:22Z"],
+    [35, "fw-muc-01 firewalld: policy=zone-dmz action=DROP SRC=192.168.40.12 DST=172.16.8.3 PROTO=TCP SPT=15531 DPT=22 WINDOW=65535 IN=eth0 OUT=eth1 LEN=60 TTL=64 ID=54348"],
+    [42, "switch-c3 systemd[1]: Started prolog-ingest.service — ProLog offline ingest daemon (build 2026.2.1)."],
+    [17, "srv-ber-07 auditd: type=SYSCALL msg=audit(1776508616.482:3288): arch=c000003e syscall=2 success=yes exit=3 a0=34dc668d comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [13, "prx-03 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=admin WorkstationName=ICS-PLC-14 SubStatus=0xC0000064"],
+    [22, "ics-plc-14 prolog-chain[8880]: block sealed idx=78387 BLAKE3=29472f5a6e7d1cd4c6f9f8be95a3f481 prev=60ab9f96c10e anchor_ts=2026-04-18T22:36:32Z"],
+    [24, "ics-plc-14 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [44, "dmz-edge-02 snmpd: trap linkDown ifIndex=20 ifDescr=GigabitEthernet0/30 adminDown ifAlias=\"uplink-core\""],
+    [43, "prx-03 prolog-chain[5776]: block sealed idx=75202 SHA3-512=25de8019cbaba1c70cd643de6221043a prev=a7932ebd09d8 anchor_ts=2026-04-18T22:36:11Z"],
+    [47, "fw-muc-01 prolog-chain[7195]: block sealed idx=30522 SHA3-512=8298398fbdb842ff2317d8d005386f74 prev=0d781ec189db anchor_ts=2026-04-18T22:36:07Z"],
+    [49, "switch-c3 dhcpd: DHCPACK on 172.16.8.3 to 37:d8:ce:11:25:1d (SRV-MON2) via eth0 lease=86400s"],
+    [34, "fw-muc-01 named: client @17b33a86 172.16.8.3#5394 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [13, "fw-muc-01 kernel: [91481.581492] audit: backlog=31 lost=0 rate=386/s audit_backlog_limit=8192"],
+    [11, "nas-01 dhcpd: DHCPACK on 10.14.2.88 to d9:59:e8:88:d9:99 (SRV-LT09) via eth0 lease=86400s"],
+    [12, "dc-fra-1 named: client @5395d1f1 10.0.1.1#24665 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [24, "prx-03 kernel: [64226.741748] audit: backlog=92 lost=0 rate=231/s audit_backlog_limit=8192"],
+    [30, "dmz-edge-02 named: client @ebd98f92 10.98.3.7#45747 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [3, "ot-gw-11 opcua: session=f690f5e2 node=ns=2;s=Plant/Line3/Temp value=71.62 quality=GOOD sourceTimestamp=2026-04-18T22:36:51Z"],
+    [5, "dc-fra-1 prolog-evidence: wrote /etc/shadow/a8b88f.evd size=8166735B BLAKE3=fdffde2280a8abf035d690a1 retention=2555d compression=zstd"],
+    [7, "dc-fra-1 sudo: k.müller : TTY=pts/1 PWD=/home/svc_siem USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [15, "dmz-edge-02 sshd[26086]: Accepted publickey for svc_siem from 172.16.8.3 port 53694 ssh2: ED25519 SHA256:ab76418cf47fbb8f, auth_method=publickey"],
+    [25, "vmhost-03 named: client @92829b79 10.98.3.7#3058 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [18, "nas-01 dhcpd: DHCPACK on 10.14.2.88 to 44:5c:92:84:bd:fe (NB-AUDIT3) via eth0 lease=86400s"],
+    [12, "nas-01 sudo: j.weber : TTY=pts/3 PWD=/home/admin USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [6, "nas-01 sshd[3274]: Accepted publickey for j.weber from 10.98.3.7 port 15796 ssh2: ED25519 SHA256:d89bf2f1e5fdd309, auth_method=publickey"],
+    [5, "dc-fra-1 named: client @73c1700b 10.14.2.88#26731 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [16, "srv-ber-07 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=ot-readonly WorkstationName=FW-MUC-01 SubStatus=0xC0000064"],
+    [15, "srv-ber-07 prolog-evidence: wrote /var/log/audit/audit.log/8d5388.evd size=3538607B BLAKE3=7eadcc3fda1ceca7fcb94079 retention=2555d compression=zstd"],
+    [8, "fw-muc-01 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [3, "srv-ber-07 kernel: [75488.224363] audit: backlog=79 lost=0 rate=707/s audit_backlog_limit=8192"],
+    [20, "prx-03 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [37, "dmz-edge-02 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=root WorkstationName=PRX-03 SubStatus=0xC0000064"],
+    [13, "ot-gw-11 prolog-ingest: received batch=608 src=10.0.44.9 lines=1111 bytes=3915116 sig=0efffda5a2 ok queue=ingest-eu1 lag_ms=30"],
+    [40, "switch-c3 snmpd: trap linkDown ifIndex=16 ifDescr=GigabitEthernet0/6 adminDown ifAlias=\"uplink-core\""],
+    [40, "vmhost-03 prolog-evidence: wrote /mnt/evidence/ec5cbc.evd size=6503729B BLAKE3=8a7f9a42102f01af08485891 retention=2555d compression=zstd"],
+    [5, "ot-gw-11 winlogbeat: EventID=4624 LogonType=3 TargetUser=monitor IpAddress=10.0.1.1 LogonProcess=Kerberos Success ProcessName=C:\\Windows\\System32\\lsass.exe"],
+    [12, "fw-muc-01 sudo: k.müller : TTY=pts/2 PWD=/home/svc_backup USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [3, "dc-fra-1 auditd: type=SYSCALL msg=audit(1776508616.274:5582): arch=c000003e syscall=2 success=yes exit=3 a0=933e166f comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [40, "nas-01 prolog-anomaly: ALERT rule=BRUTE_FORCE src=10.0.44.9 attempts=21 window=5m severity=high action=auto-block ttl=900s"],
+    [28, "dmz-edge-02 prolog-chain[3409]: block sealed idx=89053 BLAKE3=93d5400ddffe918836c1d97cc89dbf32 prev=db09de92fdc4 anchor_ts=2026-04-18T22:36:26Z"],
+    [18, "dmz-edge-02 kernel: [57298.756332] audit: backlog=91 lost=0 rate=749/s audit_backlog_limit=8192"],
+    [25, "switch-c3 sudo: root : TTY=pts/3 PWD=/home/ot-readonly USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [44, "dmz-edge-02 sshd[5124]: Failed password for invalid user svc_siem from 192.168.7.221 port 37640 ssh2 [preauth]"],
+    [49, "fw-muc-01 winlogbeat: EventID=4624 LogonType=3 TargetUser=ot-readonly IpAddress=10.98.3.7 LogonProcess=Kerberos Success ProcessName=C:\\Windows\\System32\\lsass.exe"],
+    [0, "dc-fra-1 snmpd: trap linkDown ifIndex=31 ifDescr=GigabitEthernet0/3 adminDown ifAlias=\"uplink-core\""],
+    [16, "ot-gw-11 kernel: [8563.882662] audit: backlog=59 lost=0 rate=588/s audit_backlog_limit=8192"],
+    [10, "ics-plc-14 prolog-chain[607]: block sealed idx=32676 SHA3-512=90113d780e3e88645713078a380a4412 prev=43020b048f59 anchor_ts=2026-04-18T22:36:44Z"],
+    [48, "switch-c3 prolog-evidence: wrote /var/lib/prolog/chain/174407.evd size=3760750B BLAKE3=7fe1b39dfdae49763e12624f retention=2555d compression=zstd"],
+    [2, "srv-ber-07 prolog-anomaly: ALERT rule=BRUTE_FORCE src=10.0.44.9 attempts=29 window=5m severity=high action=auto-block ttl=900s"],
+    [21, "dmz-edge-02 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [38, "nas-01 auditd: type=SYSCALL msg=audit(1776508616.528:2634): arch=c000003e syscall=2 success=yes exit=3 a0=7e23aad1 comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [7, "prx-03 opcua: session=011e296c node=ns=2;s=Plant/Line3/Temp value=81.53 quality=GOOD sourceTimestamp=2026-04-18T22:36:47Z"],
+    [28, "fw-muc-01 dhcpd: DHCPACK on 10.0.1.1 to 4f:cb:d3:0c:e9:47 (WKST-4471) via eth0 lease=86400s"],
+    [7, "dc-fra-1 firewalld: policy=zone-dmz action=DROP SRC=172.16.8.3 DST=192.168.7.221 PROTO=TCP SPT=18609 DPT=502 WINDOW=65535 IN=eth0 OUT=eth1 LEN=60 TTL=64 ID=16140"],
+    [26, "nas-01 prolog-evidence: wrote /etc/shadow/944be9.evd size=4165640B SHA-256=8ccec3b5c7147c033c3580c0 retention=2555d compression=zstd"],
+    [6, "nas-01 dhcpd: DHCPACK on 10.14.2.88 to 28:23:63:de:85:be (WKST-4471) via eth0 lease=86400s"],
+    [32, "srv-ber-07 sudo: svc_backup : TTY=pts/0 PWD=/home/root USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [39, "ot-gw-11 prolog-chain[7438]: block sealed idx=93315 BLAKE3=23831bceaa0d3273e7fdf94f755bc6b6 prev=71156bbb9c68 anchor_ts=2026-04-18T22:36:15Z"],
+    [4, "switch-c3 named: client @8fb6f811 10.98.3.7#17601 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [11, "prx-03 systemd[1]: Started prolog-ingest.service — ProLog offline ingest daemon (build 2026.2.1)."],
+    [15, "prx-03 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=j.weber WorkstationName=OT-GW-11 SubStatus=0xC0000064"],
+    [7, "fw-muc-01 sudo: admin : TTY=pts/2 PWD=/home/svc_backup USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [7, "switch-c3 sudo: k.müller : TTY=pts/3 PWD=/home/root USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [25, "fw-muc-01 auditd: type=SYSCALL msg=audit(1776508616.944:4723): arch=c000003e syscall=2 success=yes exit=3 a0=61091dd9 comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [22, "dc-fra-1 sshd[2656]: Failed password for invalid user ot-readonly from 10.98.3.7 port 13326 ssh2 [preauth]"],
+    [42, "fw-muc-01 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=root WorkstationName=FW-MUC-01 SubStatus=0xC0000064"],
+    [44, "prx-03 kernel: [62783.170451] audit: backlog=3 lost=0 rate=265/s audit_backlog_limit=8192"],
+    [9, "ics-plc-14 prolog-anomaly: ALERT rule=BRUTE_FORCE src=10.0.12.4 attempts=24 window=5m severity=high action=auto-block ttl=900s"],
+    [7, "srv-ber-07 prolog-anomaly: ALERT rule=BRUTE_FORCE src=172.16.8.3 attempts=13 window=5m severity=high action=auto-block ttl=900s"],
+    [39, "srv-ber-07 dhcpd: DHCPACK on 10.14.2.88 to 99:bc:8c:d9:07:fd (WKST-7715) via eth0 lease=86400s"],
+    [35, "nas-01 opcua: session=48d86bb8 node=ns=2;s=Plant/Line3/Temp value=56.77 quality=GOOD sourceTimestamp=2026-04-18T22:36:19Z"],
+    [11, "nas-01 auditd: type=SYSCALL msg=audit(1776508616.263:6293): arch=c000003e syscall=2 success=yes exit=3 a0=9db404c1 comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [26, "vmhost-03 prolog-anomaly: ALERT rule=BRUTE_FORCE src=10.0.44.9 attempts=34 window=5m severity=high action=auto-block ttl=900s"],
+    [16, "vmhost-03 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [49, "vmhost-03 winlogbeat: EventID=4624 LogonType=3 TargetUser=ot-readonly IpAddress=10.98.3.7 LogonProcess=Kerberos Success ProcessName=C:\\Windows\\System32\\lsass.exe"],
+    [6, "fw-muc-01 prolog-evidence: wrote /opt/prolog/spool/f4ee2a.evd size=582160B SHA-256=9f2074c29f495301511ddbab retention=2555d compression=zstd"],
+    [9, "dmz-edge-02 sudo: j.weber : TTY=pts/0 PWD=/home/ot-readonly USER=root COMMAND=/usr/bin/prolog-cli verify --since=24h --collection=prod-eu1 --format=json"],
+    [29, "fw-muc-01 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=admin WorkstationName=DC-FRA-1 SubStatus=0xC0000064"],
+    [34, "ot-gw-11 modbusd: unit=17 fc=3 addr=40001 timeout retry=2 exception=0x0B(GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)"],
+    [27, "prx-03 opcua: session=e1dbc500 node=ns=2;s=Plant/Line3/Temp value=47.21 quality=GOOD sourceTimestamp=2026-04-18T22:36:27Z"],
+    [9, "fw-muc-01 sshd[32081]: Failed password for invalid user root from 10.0.44.9 port 8114 ssh2 [preauth]"],
+    [27, "dmz-edge-02 firewalld: policy=zone-dmz action=DROP SRC=10.98.3.7 DST=10.0.12.4 PROTO=TCP SPT=30546 DPT=3389 WINDOW=65535 IN=eth0 OUT=eth1 LEN=60 TTL=64 ID=45741"],
+    [23, "dc-fra-1 snmpd: trap linkDown ifIndex=9 ifDescr=GigabitEthernet0/16 adminDown ifAlias=\"uplink-core\""],
+    [27, "ics-plc-14 winlogbeat: EventID=4625 FailureReason=0xC000006A TargetUser=ot-readonly WorkstationName=OT-GW-11 SubStatus=0xC0000064"],
+    [39, "fw-muc-01 sshd[37758]: Accepted publickey for svc_backup from 192.168.7.221 port 56060 ssh2: ED25519 SHA256:66bfe0c1a878e6aa, auth_method=publickey"],
+    [46, "switch-c3 dhcpd: DHCPACK on 10.0.44.9 to 61:7f:dc:4c:4d:dd (NB-AUDIT3) via eth0 lease=86400s"],
+    [15, "dmz-edge-02 systemd[1]: Started prolog-ingest.service — ProLog offline ingest daemon (build 2026.2.1)."],
+    [28, "ot-gw-11 kernel: [55252.911907] audit: backlog=34 lost=0 rate=654/s audit_backlog_limit=8192"],
+    [8, "switch-c3 firewalld: policy=zone-dmz action=DROP SRC=172.16.8.3 DST=10.0.1.1 PROTO=TCP SPT=44639 DPT=443 WINDOW=65535 IN=eth0 OUT=eth1 LEN=60 TTL=64 ID=12082"],
+    [45, "nas-01 auditd: type=SYSCALL msg=audit(1776508616.335:4318): arch=c000003e syscall=2 success=yes exit=3 a0=e89df0a9 comm=\"prolog-ingest\" exe=\"/usr/bin/prolog-ingest\" key=\"prolog_audit\""],
+    [46, "dmz-edge-02 sshd[15988]: Failed password for invalid user svc_backup from 10.0.44.9 port 39112 ssh2 [preauth]"],
+    [1, "fw-muc-01 kernel: [83656.175061] audit: backlog=188 lost=0 rate=510/s audit_backlog_limit=8192"],
+    [10, "fw-muc-01 winlogbeat: EventID=4624 LogonType=3 TargetUser=root IpAddress=10.0.12.4 LogonProcess=Kerberos Success ProcessName=C:\\Windows\\System32\\lsass.exe"],
+    [37, "srv-ber-07 prolog-ingest: received batch=675 src=192.168.7.221 lines=2789 bytes=7979010 sig=8488647a53 ok queue=ingest-eu1 lag_ms=196"],
+    [9, "vmhost-03 prolog-ingest: received batch=705 src=192.168.40.12 lines=291 bytes=8824182 sig=fd324ee66f ok queue=ingest-eu1 lag_ms=159"],
+    [3, "prx-03 prolog-anomaly: ALERT rule=BRUTE_FORCE src=172.16.8.3 attempts=45 window=5m severity=high action=auto-block ttl=900s"],
+    [45, "ics-plc-14 named: client @589bd63f 172.16.8.3#42740 query: prolog.local IN A + (10.0.0.53) (view=internal)"],
+    [37, "srv-ber-07 sshd[40702]: Accepted publickey for svc_siem from 10.0.12.4 port 1328 ssh2: ED25519 SHA256:fcd968dfed10673b, auth_method=publickey"],
+  ];
+
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const stamp = (d: Date) =>
+    `${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, " ")} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  document.querySelectorAll<HTMLElement>("[data-pl-hero]").forEach((hero) => {
+    const layer = hero.querySelector<HTMLElement>("[data-pl-lines]")!;
+    // The newest line is stamped "now"; earlier ones count back by their offsets.
+    const now = Date.now();
+    const lines = LOG_ENTRIES.map(([s, rest]) => `${stamp(new Date(now - s * 1000))} ${rest}`);
+    layer.innerHTML = [...lines, ...lines].map((l) => `<div>${esc(l)}</div>`).join("");
+
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let total = 0, step = 0, target = 0, pos = 0, timer = 0, frame = 0, running = false;
+    const measure = () => {
+      total = layer.scrollHeight / 2;
+      step = (layer.firstElementChild as HTMLElement).offsetHeight;
+    };
+
+    // New lines arrive in irregular bursts with short quiet gaps, like a real log.
+    const next = () => {
+      const r = Math.random();
+      let delay = 220 + Math.random() * 580, count = 1;
+      if (r > 0.5 && r < 0.72) delay = 25 + Math.random() * 65;
+      else if (r >= 0.72 && r < 0.88) { delay = 350 + Math.random() * 550; count = 2 + Math.floor(Math.random() * 2); }
+      else if (r >= 0.88) delay = 700 + Math.random() * 1100;
+      timer = window.setTimeout(() => {
+        target += count * step;
+        while (target >= total) { target -= total; pos -= total; }
+        next();
+      }, delay);
+    };
+    const render = () => {
+      pos += (target - pos) * 0.16;
+      layer.style.transform = `translateY(${-pos}px)`;
+      frame = requestAnimationFrame(render);
+    };
+
+    const start = () => { if (running) return; running = true; measure(); next(); frame = requestAnimationFrame(render); };
+    const stop = () => { running = false; clearTimeout(timer); cancelAnimationFrame(frame); };
+    new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop())).observe(hero);
+    new ResizeObserver(measure).observe(layer);
+  });
+</script>
+
+<style>
+  @font-face {
+    font-family: "JetBrains Mono";
+    src: url("/assets/fonts/jetbrains-mono-400.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  /* Full width always; the height follows 16:9 until it reaches 70% of the screen or 760px,
+     so large desktops get a wider, calmer frame rather than a taller one. */
+  .pl-hero-wrap {
+    container-type: inline-size;
+  }
+
+  .pl-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    height: max(320px, min(56.25cqw, 70svh, 760px));
+    overflow: hidden;
+    background-color: #141414;
+    border-radius: 6px;
+  }
+
+  /* The stream fades in from the left, as on the Open Graph image, so the logo sits on calm
+     ground; lines run off the right edge. */
+  .pl-hero__stream {
+    position: absolute;
+    inset: 0 0 0 30%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 35%);
+    mask-image: linear-gradient(to right, transparent, #000 35%);
+    pointer-events: none;
+  }
+
+  .pl-hero__lines {
+    padding: 0 1em;
+    font: 400 clamp(9px, 0.74vw, 14px) / 1.85 "JetBrains Mono", "Courier New", monospace;
+    white-space: nowrap;
+    color: rgb(255 255 255 / 0.075);
+    will-change: transform;
+    user-select: none;
+  }
+
+  .pl-hero__logo {
+    position: relative;
+    width: clamp(240px, 42%, 560px);
+    height: auto;
+  }
+
+  @media screen and (max-width: 767px) {
+    .pl-hero {
+      height: min(125cqw, 84svh);
+    }
+
+    .pl-hero__stream {
+      left: 0;
+    }
+
+    .pl-hero__lines {
+      color: rgb(255 255 255 / 0.06);
+    }
+
+    .pl-hero__logo {
+      width: 78%;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-// Profile: the profile text from notes/copy.md as a large
+// About (the Profile component): the profile text from notes/copy.md as a large
 // statement across most of the width, opening line in full ink and the rest muted. Below it,
 // a short "Small by design" note on the setup behind the studio. Copy in notes/copy.md.
 import { profile } from "../data/profile";
@@ -7,8 +7,8 @@ import { profile } from "../data/profile";
 const { opening, rest, setup } = profile;
 ---
 
-<section class="profile" id="profile" aria-labelledby="profile-heading">
-  <h2 class="visually-hidden" id="profile-heading">Profile</h2>
+<section class="profile" id="about" aria-labelledby="about-heading">
+  <h2 class="visually-hidden" id="about-heading">About</h2>
 
   <p class="profile__statement">
     <span class="profile__opening">{opening}</span>{" "}{rest}

@@ -10,8 +10,7 @@
 // The project link is the name in the caption, since clicking the stack shuffles it.
 import Nav from "./Nav.astro";
 import { projects } from "../data/projects";
-import path from "node:path";
-import sharp from "sharp";
+import { shots } from "../lib/shots";
 
 // How many cards show at once (front to back); the rest wait hidden at the back.
 const VISIBLE = 5;
@@ -22,7 +21,17 @@ const VISIBLE = 5;
 // amounts, and the front card makes the biggest move as it arrives. So moving on throws the
 // front card out and turns the others slightly towards straight, never past it (Robin: calm,
 // but not static).
-const poses = projects.map((_, i) => ({
+// The cards: each project's preview in list order, plus any extra `stack` images, dealt in one
+// after each of the projects that follow their own (projects.ts).
+// Projects without a preview (a coming-soon project with no image yet) have no card of their own.
+const deck = projects.map((p) => (p.preview ? [{ project: p, image: p.preview, tags: p.tags }] : []));
+projects.forEach((p, i) =>
+  (p.stack ?? []).forEach(({ image, tags }, k) =>
+    deck[Math.min(i + 1 + k, deck.length - 1)].push({ project: p, image, tags }),
+  ),
+);
+const cards = deck.flat();
+const poses = cards.map((_, i) => ({
   x: (i % 2 ? 1 : -1) * (1.5 + ((i * 37) % 40) / 10), // ±1.5 to 5.4% of the card's width
   y: ((i * 53) % 90) / 10 - 4.5, // -4.5 to 4.4% of its height
   side: i % 2 ? 1 : -1,
@@ -32,25 +41,21 @@ const tilt = (i: number, pos: number) =>
   poses[i].side * (1.2 + poses[i].v + 6.8 * (1 - ((VISIBLE - 1 - Math.min(pos, VISIBLE - 1)) / (VISIBLE - 1)) ** 2));
 const slotStyle = (i: number) => {
   const s = { ...poses[i], r: tilt(i, i) };
-  return `--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;z-index:${projects.length - i};${
+  return `--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;z-index:${cards.length - i};${
     i >= VISIBLE ? "opacity:0;" : ""
   }`;
 };
 const pad = (n: number) => String(n).padStart(2, "0");
 const first = projects[0];
 
-// Each card takes its image's own proportions (site screenshots 16:10, Design Week 16:9, app
-// screenshots portrait), read from the file at build time.
-const sizes = await Promise.all(
-  projects.map(async (p) => {
-    const { width = 1440, height = 900 } = await sharp(path.join(process.cwd(), "public", p.preview)).metadata();
-    return { width, height };
-  }),
-);
+// Each card takes its image's own proportions (site screenshots 16:10, app
+// screenshots portrait), read from the source at build time (src/lib/shots.ts).
+const img = await shots(cards.map((c) => c.image));
+const sizes = cards.map((c) => img.get(c.image)!);
 ---
 
 <main class="stack-hero">
-  <Nav live={["profile", "services"]} />
+  <Nav live={["about", "services"]} />
   <h1 class="visually-hidden">R&amp;Co. Studio</h1>
   <p class="stack-hero__intro">
     A digital-first design studio that helps businesses find clarity. Shaped by 20+ years
@@ -72,23 +77,25 @@ const sizes = await Promise.all(
       class="stack"
       role="region"
       aria-roledescription="carousel"
-      aria-label="Selected projects. Use the arrow keys to move through them."
+      aria-label="Selected work. Use the arrow keys to move through them."
       tabindex="0"
       data-poses={JSON.stringify(poses)}
       data-visible={VISIBLE}
     >
       {
-        projects.map((p, i) => (
+        cards.map(({ project: p, tags }, i) => (
           <div
             class:list={["stack__card", { "is-front": i === 0 }]}
             style={`${slotStyle(i)}--ar:${sizes[i].width} / ${sizes[i].height};`}
             data-name={p.name}
-            data-tags={p.tags}
+            data-tags={tags}
             data-href={p.href}
             aria-hidden="true"
           >
             <img
-              src={p.preview}
+              src={sizes[i].src}
+              srcset={sizes[i].srcset}
+              sizes="(min-width: 1200px) min(58vw, 1260px), (min-width: 768px) min(76vw, 720px), 100vw"
               alt=""
               width={sizes[i].width}
               height={sizes[i].height}
@@ -103,6 +110,47 @@ const sizes = await Promise.all(
         <span class="stack__arrow" aria-hidden="true"></span>
       </button>
     </div>
+    {/* A new order on every visit (Robin, 2026-11-15). The slots stay as they are (each one's
+        place, lean, deal-in timing and z-index); only the projects move between them: each
+        card's image (the already-loading <img> itself, so nothing is fetched twice), its
+        proportions and its caption data. Runs straight after the stack's markup and before the
+        stack's script below reads the cards. Without JavaScript the list order stays. */}
+    <script is:inline>
+      (() => {
+        const cards = Array.from(document.querySelectorAll(".stack .stack__card"));
+        const items = cards.map((c) => ({
+          img: c.querySelector("img"),
+          ar: c.style.getPropertyValue("--ar"),
+          name: c.dataset.name,
+          tags: c.dataset.tags,
+          href: c.dataset.href,
+        }));
+        // Projects with extra stack cards: keep their cards at least three apart (also across
+        // the wrap from the last card to the first), so the same project never sits close by.
+        // A few tries at most; the last shuffle is kept if none fits.
+        const shuffle = () => {
+          for (let i = items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [items[i], items[j]] = [items[j], items[i]];
+          }
+        };
+        const spread = () =>
+          items.every((it, i) => [1, 2].every((d) => items[(i + d) % items.length].name !== it.name));
+        for (let tries = 0; tries < 200; tries++) {
+          shuffle();
+          if (spread()) break;
+        }
+        cards.forEach((card, i) => {
+          const it = items[i];
+          card.style.setProperty("--ar", it.ar);
+          card.dataset.name = it.name ?? "";
+          card.dataset.tags = it.tags ?? "";
+          if (it.href) card.dataset.href = it.href;
+          else delete card.dataset.href;
+          card.append(it.img);
+        });
+      })();
+    </script>
   </div>
 
   <div class="stack-cursor" aria-hidden="true">
@@ -110,7 +158,7 @@ const sizes = await Promise.all(
   </div>
 
   <div class="stack-hero__caption" aria-live="polite">
-    <span class="stack-hero__count"><span data-caption-count>{pad(1)}</span> / {pad(projects.length)}</span>
+    <span class="stack-hero__count"><span data-caption-count>{pad(1)}</span> / {pad(cards.length)}</span>
     <a
       class="stack-hero__project"
       data-caption-link
@@ -303,13 +351,13 @@ const sizes = await Promise.all(
     animation: stack-deal 0.5s cubic-bezier(0.25, 1.1, 0.5, 1) both;
   }
 
-  /* One by one, 200ms apart, back card first: the first five cards are the visible stack at
+  /* One by one, 160ms apart (Robin, 2026-11-15; was 200ms), back card first: the first five cards are the visible stack at
      load (VISIBLE in the frontmatter), card 1 in front. */
   .stack.is-dealing .stack__card:nth-child(5) { animation-delay: 0s; }
-  .stack.is-dealing .stack__card:nth-child(4) { animation-delay: 0.2s; }
-  .stack.is-dealing .stack__card:nth-child(3) { animation-delay: 0.4s; }
-  .stack.is-dealing .stack__card:nth-child(2) { animation-delay: 0.6s; }
-  .stack.is-dealing .stack__card:nth-child(1) { animation-delay: 0.8s; }
+  .stack.is-dealing .stack__card:nth-child(4) { animation-delay: 0.16s; }
+  .stack.is-dealing .stack__card:nth-child(3) { animation-delay: 0.32s; }
+  .stack.is-dealing .stack__card:nth-child(2) { animation-delay: 0.48s; }
+  .stack.is-dealing .stack__card:nth-child(1) { animation-delay: 0.64s; }
 
   /* The round button only shows once the front card has landed. */
   :global(:root.stack-deal) .stack__next,

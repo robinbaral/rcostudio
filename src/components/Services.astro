@@ -10,7 +10,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
 <section class="services" id="services" aria-labelledby="services-heading">
   <div class="services__aside">
     <h2 class="services__title" id="services-heading">Services</h2>
-    <p class="services__note">{servicesNote}</p>
+    {servicesNote.map((para) => <p class="services__note">{para}</p>)}
     <p class="services__contact">
       {servicesContact.lead}{" "}
       <a class="services__link" href="mailto:baralrobin@gmail.com">{servicesContact.link}</a>
@@ -76,7 +76,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
   .services__note {
     width: calc(100% + clamp(24px, 3vw, 60px));
     max-width: 26ch;
-    margin: 20px 0 0; /* the same as .service__lead, so they line up */
+    margin: 10px 0 0; /* the same as .service__lead, so they line up */
     font-family: var(--font-sans);
     font-size: clamp(22px, 1.9vw, 30px);
     font-weight: 500;
@@ -84,6 +84,11 @@ import { services, servicesNote, servicesContact } from "../data/services";
     letter-spacing: -0.005em;
     color: var(--muted);
     text-wrap: pretty;
+  }
+
+  /* Paragraphs after the first: the same spacing as the Profile's setup text. */
+  .services__note + .services__note {
+    margin-top: 0.9em;
   }
 
   /* The contact line: small and muted, the link only marked by an underline. */
@@ -141,8 +146,9 @@ import { services, servicesNote, servicesContact } from "../data/services";
   /* The lead: styled and spaced exactly like the note on the left (Robin), so the first
      service's lead lines up with the note, and each lead reads as the opening line of its
      paragraph rather than a second heading. Keep the two in step. */
+  /* Close under the name, so name and lead read as one unit (Robin, 2026-11-15). */
   .service__lead {
-    margin: 20px 0 0;
+    margin: 10px 0 0;
     font-family: var(--font-sans);
     font-size: clamp(22px, 1.9vw, 30px);
     font-weight: 500;
@@ -191,7 +197,7 @@ import { services, servicesNote, servicesContact } from "../data/services";
 
     .service__lead {
       max-width: none;
-      margin-top: 16px;
+      margin-top: 8px;
       font-size: 22px;
     }
 
@@ -199,6 +205,13 @@ import { services, servicesNote, servicesContact } from "../data/services";
       max-width: none;
       margin-top: 12px;
       font-size: 18px;
+    }
+
+    /* Plain wrapping on phones, so each line runs the full width. Safari's "pretty" evens the
+       lines out and leaves a ragged gap down the right side. */
+    .service__lead,
+    .service__text {
+      text-wrap: wrap;
     }
   }
 </style>

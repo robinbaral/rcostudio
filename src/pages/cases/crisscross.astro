@@ -1,0 +1,341 @@
+---
+// Case study: CrissCross (draft). Same article layout as the ProLog case (src/styles/case.css),
+// with more room for the technology: Puzzle Studio, the word set, audio, FlagSync, versions and
+// the move to iPad and iPhone Duo. Not linked from the homepage Cases section and kept out of
+// search results (noindex, not in the sitemap) until Robin confirms the copy.
+// Copy, sources and open points: notes/cases/crisscross.md.
+//
+// Leave out on purpose: hosting and database providers, the speech engine's name, and any
+// diagram of how the system fits together (proprietary).
+//
+// Image sources are in src/assets/cases/crisscross/. The process boards are exported from the
+// CrissCross Figma file (page "Drafts / R&Co Case"); the device line-up and the Studio sketches
+// are drawn by scripts/cases/.
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import CaseFigure from "../../components/cases/CaseFigure.astro";
+import { shots } from "../../lib/shots";
+import "../../styles/case.css";
+
+const c = (name: string) => `cases/crisscross/crisscross-${name}.png`;
+// Images set by hand below; the process boards go through CaseFigure.
+const img = await shots(["hero", "studio-sketches", "studio-sketches-phone", "device-lineup", "device-lineup-phone"].map(c));
+const shot = (name: string) => img.get(c(name))!;
+const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
+
+// Figures between the text: the composed boards carry their own background. "wide" boards
+// (rows of phone screens) switch on phones to a <name>-phone version with fewer screens in
+// fewer columns (scripts/cases/case-phone-boards.py).
+const figure = (name: string, alt: string, caption: string, wide = false) => ({
+  name: c(name),
+  phone: wide ? c(`${name}-phone`) : undefined,
+  alt,
+  caption,
+  wide,
+});
+const figures = {
+  evolution: figure("puzzle-screens", "Six versions of the puzzle screen, from a plain grid of letter tiles to a late draft with clue bar and mascot, the first three as grey wireframes", "The puzzle screen, from the first grid of tiles to one of the final drafts.", true),
+  themes: figure("theme-range", "Six colour themes of the same puzzle: lavender with yellow tiles, white with rainbow tiles, peach, pale pink, then navy and red on dark", "Theme explorations, from soft light themes to dark ones at the edges of legibility.", true),
+  icons: figure("app-icons-rounded", "Sixteen app icon drafts in different colours, from a letter tile to a crossword grid", "App icon explorations. Several became alternate icons players unlock.", true),
+  medals: figure("medal-editor-v4", "Five versions of the medal editor with a kaleidoscope drawing and a row of tools, ending on the finished editor in a blue theme", "The medal editor: drawing tools, slices and mirroring.", true),
+  studio: figure("puzzle-studio", "Puzzle Studio showing the Animals topic: its word list with clues, puzzle counts for British and American English, and tabs for grids, audio and flashcards", "Puzzle Studio: one topic's words and clues, in both spellings, with its grids, audio and flashcards a tab away."),
+  achievements: figure("badges", "Eighteen achievement badges with hexagonal rings: one for each kind of achievement, then the rings growing over higher levels", "Achievement badges and how their rings grow, refined over many rounds of testing across the themes.", true),
+  purchase: figure("paywalls", "Five versions of the paywall for unlocking puzzle packs", "Paywall explorations, from a plain list of prices to the pack itself.", true),
+  cards: figure("home-cards", "Four home screen layouts with daily challenges, recently played topics and puzzle packs: three iPhone drafts and the finished iPad mini home screen in landscape, all in the yellow Highlighter theme", "Home screen structures: cards for challenges, topics and packs.", true),
+};
+---
+
+<Base
+  noindex
+  themeColor="#ffffff"
+  path="/cases/crisscross"
+  pageTitle="CrissCross"
+  pageDescription="CrissCross, a crossword and spelling app for children on iPhone and iPad: the app, the puzzle authoring tool behind it, a word set in British and American English, and the move to larger screens."
+>
+  <header class="case-head">
+    <Nav live={["about", "services"]} subpage />
+    <div class="article__head">
+      <p class="article__kicker">CrissCross</p>
+      <h1 class="article__title">A spelling app built from the words up</h1>
+    </div>
+  </header>
+
+  <main class="article">
+    <figure class="article__media">
+      <img
+        class="article__image article__image--hero"
+        src={shot("hero").src}
+        srcset={shot("hero").srcset}
+        sizes={FULL}
+        width={shot("hero").width}
+        height={shot("hero").height}
+        alt="Colourful CrissCross letter tiles scattered across a white background"
+        decoding="async"
+      />
+    </figure>
+
+    <div class="article__body">
+      <p>
+        CrissCross is a crossword and spelling app for children, on iPhone and iPad. Players drag letter tiles into
+        small themed crosswords, one clue at a time. There are no ads and no subscription, and it works offline. I
+        designed and built the app, the tools behind it and its website, from the first sketch to the App Store.
+      </p>
+      <p>
+        The interface is the part people see. Underneath sits most of the work: a word set of thousands of answers,
+        each with clues written for young readers, in British and American English, every word transcribed into audio and
+        checked by ear. That word set forms the project's core, and it needed its own tools to build, test and keep up
+        to date.
+      </p>
+
+      <h2>Finding the game</h2>
+      <p>
+        It started as a single grid of letter tiles. Over many rounds on a real device, the screen found its parts: a
+        board that shows only the current word's cells, a clue bar with a small mascot that reacts as you play, and a
+        bank of letters that offers just enough to work the answer out. Wrong letters get gentle feedback, and hints
+        help without giving everything away.
+      </p>
+      <p>
+        A large part of the exploration went into how many letters the game should work with, weighing age groups and
+        reading abilities against the space on screen, the size and sourcing of the word pool, and how much complexity
+        the interface could carry.
+      </p>
+    </div>
+
+    <CaseFigure {...figures.evolution} />
+
+    <div class="article__body">
+      <h2>Play, not pressure</h2>
+      <p>
+        We were deliberate about what the app should reward. A subscription model would have brought a kind of time
+        pressure with it, so instead the app is built around simple, bite-sized practice that allows for continuous
+        progress at each learner's own pace, without streaks or reminders.
+      </p>
+      <p>
+        Colour themes and alternate app icons unlock through achievements. Some theme explorations went deliberately far, to find the edges of legibility: how dark, how
+        saturated and how faint a theme could get before tiles and clues stopped reading. The ones that shipped stay
+        on the right side of that line.
+      </p>
+    </div>
+
+    <CaseFigure {...figures.themes} />
+    <CaseFigure {...figures.icons} />
+
+    <div class="article__body">
+      <p>
+        Here too, it mattered to us that young players can take small breaks that feel like real breaks from practice,
+        with rewards that are cute, engaging and worth earning. Through lots of user testing, not least with my own son,
+        we settled on an underlying system of achievements that unlocks the themes and app icons. It counts words,
+        solves and fixed mistakes, with badges whose rings grow as they go.
+      </p>
+      <p>
+        At its core sits the medal editor. Finishing a topic earns a medal, which players then decorate themselves. A
+        lot of work went into a system that balances complete freedom with the app's overall look, giving the medals a
+        shared logic while supporting genuine creativity. We settled on a kaleidoscope-like approach, with mirroring,
+        slices, a pen and an eraser, that lets anyone make a beautiful medal. The medals then appear throughout the app
+        and become the design of each completed deck. Keeping drawing fluid across hundreds of mirrored strokes called
+        for a canvas engineered for exactly that, refined until it felt effortless.
+      </p>
+    </div>
+
+    <CaseFigure {...figures.medals} />
+    <CaseFigure {...figures.achievements} />
+
+    <div class="article__body">
+      <h2>Small things to discover</h2>
+      <p>
+        Outside the puzzles there are lots of small things to find, inviting children to explore and get comfortable and
+        playful with the app. Poke the mascot and it answers back, from a beep boop to a complaint about being poked.
+        Spin a medal or a badge and it gets dizzy. On a locked pack, the mascot makes its own sales pitch.
+      </p>
+      <p>
+        Every sound effect and every mascot line was recorded by my son, which made for hours of fun and a learning
+        experience for both of us. Jumping around the app and poking at everything to find them all made him its most
+        vigorous tester.
+      </p>
+
+      <h2>A fair way to pay</h2>
+      <p>
+        Ultimately, we wanted to get CrissCross into as many hands as possible. But what's the best way to let people
+        know whether they'll like what they're getting? A free starter pack offers plenty of puzzles to dive into,
+        enough for parents and learners to find out whether they enjoy playing and whether it's right for them. The
+        rest come as one-off purchases, per pack or all at once, with no subscription.
+      </p>
+      <p>
+        We knew that children would often be the ones to bring up the purchase screens, so they had to make it
+        completely clear what was happening, and avoid dark patterns at all costs. The paywall went through a long run
+        of explorations: what to show, what to say and how to price it, without putting pressure on children or their
+        parents. In the end, locked packs can simply be opened and browsed before buying.
+      </p>
+    </div>
+
+    <CaseFigure {...figures.purchase} />
+    <CaseFigure {...figures.cards} />
+
+    <div class="article__body">
+      <h2>Puzzle Studio</h2>
+      <p>
+        The puzzles are managed in Puzzle Studio, an app of its own that I built alongside the game. It's arguably the
+        brain of the whole project: it holds every topic, word and clue, side by side in both spellings, so COLOUR and COLOR each get a puzzle of their own.
+      </p>
+      <p>
+        From a word list, the Studio generates crossword layouts that interlock densely. Topics can follow their
+        own rules: rhymes, anagrams, word ladders, pairs of opposites, words with two meanings. Grids can be reviewed, reordered and regenerated, and a flashcard mode runs through every clue
+        quickly, with a flag for anything that reads wrong. Released versions are safeguarded, so
+        puzzles players already know don't change under them. When a release is ready, the Studio writes the content
+        straight into the app, so the game works offline.
+      </p>
+    </div>
+
+    <CaseFigure {...figures.studio} />
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("studio-sketches-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("studio-sketches").src}
+          srcset={shot("studio-sketches").srcset}
+          sizes={FULL}
+          width={shot("studio-sketches").width}
+          height={shot("studio-sketches").height}
+          alt="Pencil sketches: a word list, a crossword grid, COLOUR and COLOR in tiles, a speaker with a pronunciation, flashcards, a flag on a clue, stacked versions and a phone"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>What Puzzle Studio looks after: words, grids, two spellings, audio, review, flags, versions.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>Every word, read aloud</h2>
+      <p>
+        Learners can often put the letters of a word together and still be unsure how to say it, so every answer can
+        be read aloud. The phone's built-in voices and screen readers were tested first and weren't reliable enough, so
+        the audio is made ahead of time through a speech API and bundled with the app: thousands of clips in British
+        and American English, all playable offline.
+      </p>
+      <p>
+        Each clip is reviewed by hand in the Studio and approved, rejected or regenerated. Where the voice misreads a word, or a word like READ or TEAR has two pronunciations, an IPA
+        transcription sets it exactly. Any clip can be remade or fine-tuned whenever it's needed.
+      </p>
+
+      <h2>Seamless sync and backups</h2>
+      <p>
+        With FlagSync, test users can flag a clue straight from the game and note what seems off. Flags are queued and synced in the
+        background, offline or not, before they reach Puzzle Studio, where each one is worked through and the fix kept
+        on record. Fully anonymous play counts show which themes people enjoy most, so the app's future development is
+        rooted in actual use.
+      </p>
+      <p>
+        Every release is versioned and backed up in more than one way, together with the Studio's content. Checks run
+        before each release, so every update keeps the experience consistent for players: nothing lost, nothing broken.
+      </p>
+
+      <h2>One app, every screen</h2>
+      <p>
+        CrissCross runs on iPad, iPhone and iPhone Duo. Rather than a separate design for each device, every
+        screen adapts to the size of its window. In landscape the board and letters sit side by side, and outlines
+        scale with the tiles. In a very small window the whole game shrinks as one piece and keeps its proportions.
+        Several layouts were explored along the way, and the one that felt most unified across devices won out, so
+        CrissCross works the same everywhere.
+      </p>
+      <p>
+        The Duo needed its own decisions: closed, its narrow screen gives the status bar a column of its own, so back
+        buttons and controls move there; open, the app may rotate.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("device-lineup-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("device-lineup").src}
+          srcset={shot("device-lineup").srcset}
+          sizes={FULL}
+          width={shot("device-lineup").width}
+          height={shot("device-lineup").height}
+          alt="A puzzle screen on iPhone, iPhone Duo closed, an iPad in landscape with the board and letters side by side, and iPhone Duo open, shown at their real relative sizes"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>iPhone, iPhone Duo closed, iPad in landscape and iPhone Duo open, to scale.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>A website you can play</h2>
+      <p>
+        The website takes a show-don't-tell approach: rather than describing the game, it lets visitors dive straight
+        into a real puzzle from the app. It uses the same tiles and clues, the same sounds and feedback, and even the
+        same click-and-drag interactions as the app.
+      </p>
+      <p>
+        It was made for children and parents alike. It gives a quick, clear picture of what the app offers, shares a
+        little of the story behind it, and provides plenty of material to help spread the word. Alongside it came the
+        App Store screenshots for every device, widgets and a press kit.
+      </p>
+    </div>
+
+    <!-- The puzzle from crisscrosswords.app itself, playable here: the website's own build, copied
+         into public/embeds/ by scripts/cases/crisscross-embed.py. It reports its height so the
+         frame fits the layout (board and letters side by side, or stacked on phones). -->
+    <figure class="article__media puzzle-embed">
+      <div class="puzzle-embed__panel">
+        <iframe
+          src="/embeds/crisscross-puzzle.html"
+          title="A CrissCross puzzle to play: drag or tap letter tiles into the grid"
+          data-puzzle-embed
+        ></iframe>
+      </div>
+      <figcaption>The puzzle from crisscrosswords.app. Try it: tap a letter, or drag it into the grid.</figcaption>
+    </figure>
+
+    <!-- Links out, in the style of the project drawer's. -->
+    <div class="article__links">
+      <a class="article__link" href="https://www.crisscrosswords.app" target="_blank" rel="noopener">
+        Visit crisscrosswords.app
+        <span class="article__link-arrow" aria-hidden="true"></span>
+      </a>
+      <a class="article__link" href="https://apps.apple.com/app/id6781901433" target="_blank" rel="noopener">
+        Download on the App Store
+        <span class="article__link-arrow" aria-hidden="true"></span>
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  // Fit the puzzle's frame to its content, which it reports on load and on every resize.
+  const frame = document.querySelector<HTMLIFrameElement>("[data-puzzle-embed]");
+  window.addEventListener("message", (e) => {
+    if (frame && e.source === frame.contentWindow && e.data?.type === "crisscross-puzzle-height") {
+      frame.style.height = `${e.data.height}px`;
+    }
+  });
+  // The puzzle may have reported before this listener existed, so ask once it's ready.
+  const ask = () => frame?.contentWindow?.postMessage({ type: "crisscross-puzzle-ping" }, "*");
+  frame?.addEventListener("load", ask);
+  ask();
+</script>
+
+<style>
+
+  /* The same panel as the other images: full width, the boards' warm grey, 6px corners. The
+     puzzle inside switches between side by side and stacked by the width it's given. */
+  .puzzle-embed__panel {
+    padding: clamp(24px, 4vw, 64px) 0;
+    background-color: #f2f1ee;
+    border-radius: 6px;
+  }
+
+  .puzzle-embed iframe {
+    display: block;
+    width: 100%;
+    height: 640px; /* until the puzzle reports its own height */
+    border: 0;
+  }
+</style>

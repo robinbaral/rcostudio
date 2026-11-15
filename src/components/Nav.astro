@@ -1,28 +1,131 @@
 ---
 // Items not in `live` are greyed out until their section exists on the page. The home link
-// reads just "R&Co." for now; revisit it if the site gets sub-pages. Cases is left out of the
-// menu while it only holds placeholders (the section stays on the page).
+// reads just "R&Co." for now; revisit it if the site gets sub-pages. Links follow the page
+// order: Work (the projects list), About, Services, Cases. On narrow screens Cases and then
+// About drop out (global.css).
 interface Props {
   live?: string[];
+  // Sub-pages (cases): section links go back to the homepage, and "R&Co." isn't the current
+  // page. "Contact" stays on the page, since every page ends with the footer.
+  subpage?: boolean;
 }
-const { live = [] } = Astro.props;
+const { live = [], subpage = false } = Astro.props;
+const home = subpage ? "/" : "";
 const later = [
-  { id: "profile", label: "Profile" },
+  { id: "about", label: "About" },
   { id: "services", label: "Services" },
 ];
 ---
 
-<nav class="nav" aria-label="Main">
-  <a class="nav__link nav__link--current" href="/" aria-current="page">R&amp;Co.</a>
-  <a class="nav__link" href="#projects">Projects</a>
+<!-- The nav is fixed to the top of the screen. It slides away while scrolling down and back in
+     as soon as the user scrolls up (as on the Colombo site). The slot keeps its place in the
+     layout, so the page looks the same at the top. -->
+<div class="nav-slot" data-nav-slot>
+<nav class="nav" aria-label="Main" data-nav>
+  <a class:list={["nav__link", { "nav__link--current": !subpage }]} href="/" aria-current={subpage ? undefined : "page"}>R&amp;Co.</a>
+  <a class="nav__link" href={`${home}#work`}>Work</a>
   {
     later.map((item) =>
       live.includes(item.id) ? (
-        <a class="nav__link" href={`#${item.id}`}>{item.label}</a>
+        <a class={`nav__link nav__link--${item.id}`} href={`${home}#${item.id}`}>{item.label}</a>
       ) : (
-        <span class="nav__link nav__link--soon" aria-disabled="true">{item.label}</span>
+        <span class={`nav__link nav__link--soon nav__link--${item.id}`} aria-disabled="true">{item.label}</span>
       ),
     )
   }
+  <a class="nav__link nav__link--cases" href={`${home}#cases`}>Cases</a>
   <a class="nav__link" href="#contact">Contact</a>
 </nav>
+</div>
+
+<script>
+  const slot = document.querySelector<HTMLElement>("[data-nav-slot]");
+  const nav = slot?.querySelector<HTMLElement>("[data-nav]");
+
+  if (slot && nav) {
+    // The slot holds the height of the links themselves; the fixed bar adds its own padding.
+    const fit = () => {
+      const cs = getComputedStyle(nav);
+      slot.style.height = `${nav.offsetHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)}px`;
+    };
+    fit();
+    new ResizeObserver(fit).observe(nav);
+
+    const SHOW_AFTER = 6; // px of upward scroll
+    const HIDE_AFTER = 12; // px of downward scroll
+    let lastY = Math.max(window.scrollY, 0);
+    let travel = 0; // distance moved in the current direction
+    let jumping = false; // following a link to a section, not scrolling
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        const y = Math.max(window.scrollY, 0);
+        const delta = y - lastY;
+        lastY = y;
+        if (y === 0) {
+          nav.classList.remove("nav--hidden", "nav--floating");
+          travel = 0;
+          return;
+        }
+        if (delta === 0 || jumping) return;
+        travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
+        // Once hidden, the bar switches to its compact, centred spacing out of sight, so it
+        // slides back in that way; it returns to the page spacing at the very top.
+        if (travel >= HIDE_AFTER && y > nav.offsetHeight) nav.classList.add("nav--hidden", "nav--floating");
+        else if (travel <= -SHOW_AFTER) nav.classList.remove("nav--hidden");
+      },
+      { passive: true },
+    );
+
+    // A jump to a section hides the bar, whichever way it scrolls, so it doesn't cover the
+    // section's heading.
+    const hideForJump = () => {
+      nav.classList.add("nav--hidden", "nav--floating");
+      travel = 0;
+      jumping = true;
+      window.setTimeout(() => (jumping = false), 800); // smooth scrolling takes a moment
+    };
+    // Links to a section keep their #hash in the HTML (search engines, no JavaScript, "Copy
+    // link", new tabs), but a click on the same page scrolls there without putting the hash in
+    // the address bar, so a reload doesn't jump back to that section. Smoothness and reduced
+    // motion come from scroll-behavior in global.css. Arriving with a hash (a shared link, or
+    // the nav on a case page) still lands on the section, and the hash is then dropped.
+    const section = (hash: string) => {
+      try {
+        return hash ? document.querySelector<HTMLElement>(decodeURIComponent(hash)) : null;
+      } catch {
+        return null;
+      }
+    };
+    const clearHash = () => history.replaceState(history.state, "", location.pathname + location.search);
+
+    // Arriving with a hash: let the page finish loading (the browser jumps to the section once
+    // the layout has settled), make sure it's there, then drop the hash.
+    if (section(location.hash)) {
+      hideForJump();
+      const land = () => {
+        const target = section(location.hash);
+        if (!target) return;
+        if (Math.abs(target.getBoundingClientRect().top) > 2) target.scrollIntoView({ behavior: "instant" });
+        clearHash();
+      };
+      if (document.readyState === "complete") land();
+      else window.addEventListener("load", land, { once: true });
+    }
+    document.addEventListener("click", (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href*="#"]');
+      if (!link || link.target || link.origin !== location.origin || link.pathname !== location.pathname) return;
+      const target = section(link.hash);
+      if (!target) return;
+      event.preventDefault();
+      hideForJump();
+      target.scrollIntoView();
+      // Move keyboard focus along, as following the link would, without a second jump.
+      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+      if (location.hash) clearHash();
+    });
+  }
+</script>

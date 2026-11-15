@@ -1,8 +1,9 @@
 ---
 // Everyday Stack: the section just above the footer, listing the tools R&Co works in (data in
-// src/data/stack.ts). Inverted (the opposite of the page and the footer, like Services), so the
-// footer reads as its own part when it's revealed underneath.
-import { stack } from "../data/stack";
+// src/data/stack.ts), then a small Recognition subsection in the same structure: awards won by
+// agency projects Robin worked on. Inverted (the opposite of the page and the footer, like
+// Services), so the footer reads as its own part when it's revealed underneath.
+import { stack, awards } from "../data/stack";
 ---
 
 <section class="stack" id="stack" aria-labelledby="stack-heading">
@@ -26,6 +27,26 @@ import { stack } from "../data/stack";
       ))
     }
   </dl>
+
+  <!-- Recognition: its own small heading, then one row set like the stack groups, the label
+       saying whose awards they were. -->
+  <div class="stack__sub" aria-labelledby="recognition-heading">
+    <div class="stack__head">
+      <h2 class="stack__title stack__title--sub" id="recognition-heading">{awards.name}</h2>
+    </div>
+    <dl class="stack__list">
+      <div class="stack__group">
+        <dt class="stack__name">{awards.note}</dt>
+        <dd class="stack__tools">
+          <ul>
+            {awards.names.map((name) => (
+              <li>{name}</li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    </dl>
+  </div>
 </section>
 
 <style>
@@ -77,6 +98,17 @@ import { stack } from "../data/stack";
 
   .stack__tools {
     margin: 0;
+  }
+
+  /* Recognition: a smaller heading than the section's, closer to its row. */
+  .stack__sub {
+    display: flex;
+    flex-flow: column;
+    gap: calc(var(--projects-padding-y) * 0.4);
+  }
+
+  .stack__title--sub {
+    font-size: calc(var(--heading-size) * 0.5);
   }
 
   /* One run of names with a quiet dot between them, wrapping naturally. */

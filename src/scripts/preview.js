@@ -1,7 +1,7 @@
-// Project rows: a desktop screenshot follows the cursor while hovering a row. Entering a row
-// always shows its first image; once the mouse moves sideways, its position along the row
-// picks from the row's images (data-previews: the preview, then the gallery), first on the
-// far left, last on the far right.
+// Project rows: a desktop screenshot follows the cursor while hovering a row. The row shows its
+// first (hero) image; only the thumbnail strip after the name (.project__thumb) switches it:
+// the thumbnail under the cursor picks from the row's images (data-previews: the preview, then
+// the gallery) and is marked as active. Back on the rest of the row, the hero image returns.
 (function () {
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
@@ -118,14 +118,14 @@
     im.src = row.dataset.preview;
   });
 
-  // The section flips colours with the OS theme, so re-check contrast when that changes.
-  var scheme = window.matchMedia("(prefers-color-scheme: dark)");
-  if (scheme.addEventListener) scheme.addEventListener("change", function () { setTimeout(paint, 250); });
 
   function target(e) {
     var w = preview.offsetWidth, h = preview.offsetHeight;
     // Sit right of the cursor; flip left near the edge, keep inside the viewport vertically.
-    tx = e.clientX + OFFSET + w > window.innerWidth ? e.clientX - OFFSET - w : e.clientX + OFFSET;
+    // Over the thumbnail strip, sit past its end instead, so no thumbnail is covered.
+    var from = e.clientX;
+    if (thumbs.length && overThumb(e) >= 0) from = thumbs[thumbs.length - 1].getBoundingClientRect().right;
+    tx = from + OFFSET + w > window.innerWidth ? e.clientX - OFFSET - w : from + OFFSET;
     ty = Math.min(Math.max(e.clientY - h / 2, 16), window.innerHeight - h - 16);
   }
 
@@ -142,33 +142,46 @@
     else if (!raf) raf = requestAnimationFrame(tick);
   }
 
-  var SCRUB_AFTER = 24; // px of sideways movement before scrubbing takes over from the first image
-  var list = [], shown = 0, enterX = 0, scrubbing = false;
+  var list = [], shown = 0, thumbs = [];
+
+  function mark(i) {
+    thumbs.forEach(function (t, k) { t.classList.toggle("is-active", k === i); });
+  }
 
   function show(i) {
     if (i === shown) return;
     shown = i;
     img.src = list[i];
+    mark(i);
   }
 
-  function scrub(row, e) {
+  // The thumbnail under the cursor (gaps between thumbnails count towards the nearer one), or -1
+  // off the strip.
+  function overThumb(e) {
+    if (!thumbs.length) return -1;
+    var first = thumbs[0].getBoundingClientRect(), last = thumbs[thumbs.length - 1].getBoundingClientRect();
+    if (e.clientX < first.left || e.clientX > last.right) return -1;
+    var best = 0, dist = Infinity;
+    thumbs.forEach(function (t, k) {
+      var r = t.getBoundingClientRect(), d = Math.abs(e.clientX - (r.left + r.width / 2));
+      if (d < dist) { dist = d; best = k; }
+    });
+    return best;
+  }
+
+  function scrub(e) {
     if (list.length < 2) return;
-    if (!scrubbing) {
-      if (Math.abs(e.clientX - enterX) < SCRUB_AFTER) return;
-      scrubbing = true;
-    }
-    var r = row.getBoundingClientRect();
-    var t = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 0.9999);
-    show(Math.floor(t * list.length));
+    var i = overThumb(e);
+    show(i >= 0 ? i : 0);
   }
 
   rows.forEach(function (row) {
     row.addEventListener("mouseenter", function (e) {
       list = (row.dataset.previews || row.dataset.preview).split(",");
+      thumbs = Array.prototype.slice.call(row.querySelectorAll(".project__thumb"));
       shown = 0;
-      enterX = e.clientX;
-      scrubbing = false;
-      // Warm the rest of this row's images, so scrubbing doesn't wait on the network.
+      mark(0);
+      // Warm the rest of this row's images, so the thumbnails don't wait on the network.
       if (!row._warmed) {
         row._warmed = true;
         list.slice(1).forEach(function (src) { new Image().src = src; });
@@ -182,7 +195,7 @@
     });
     row.addEventListener("mousemove", function (e) {
       move(e);
-      scrub(row, e);
+      scrub(e);
     });
     row.addEventListener("mouseleave", function () { preview.classList.remove("is-visible"); });
   });

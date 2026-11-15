@@ -1,0 +1,262 @@
+---
+// Case study: ProLog (draft), set as a short article in the site's own layout: the nav, a
+// large heading, running text in the same second column as About and Services (plain bold
+// subheads inside the text), and full-width images between. Light head and article, then
+// the dark footer. Not linked from the homepage and kept out of
+// search results (noindex, not in the sitemap) until Robin confirms the copy and the quote.
+// Copy and open points: notes/cases/prolog.md.
+//
+// Images are built from sources in src/assets/cases/prolog/ (src/lib/shots.ts): the slide
+// overview, logo sketches and page concepts are composed from the Figma files and the logo
+// drafts; each has a phone version with fewer columns (the page concepts' from
+// scripts/cases/case-phone-boards.py).
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import ProLogHero from "../../components/cases/ProLogHero.astro";
+import { shots } from "../../lib/shots";
+import "../../styles/case.css";
+
+const c = (name: string) => `cases/prolog/${name}.png`;
+
+// The design in four steps, all cropped to the same desktop viewport (16:10, top of page).
+const steps = [
+  { src: c("prolog-step-1-wireframe"), alt: "Grey wireframe of the homepage", caption: "Wireframe: content and order first, before any visuals." },
+  { src: c("prolog-step-2-light"), alt: "An early light homepage design with three figure cards", caption: "An early prototype, light and quiet." },
+  { src: c("prolog-step-3-refined"), alt: "A refined light homepage with a diagram of how ProLog works", caption: "A later round, with a diagram of how ProLog works." },
+  { src: c("prolog-step-4-dark"), alt: "The dark homepage design with an orange accent", caption: "The dark, precise direction the site launched with." },
+];
+
+const img = await shots([
+  ...steps.map((s) => s.src),
+  ...["prolog-slides", "prolog-slides-phone", "prolog-logo-sketches", "prolog-logo-sketches-phone", "prolog-page-concepts", "prolog-page-concepts-phone", "prolog-live-desktop", "prolog-live-phone"].map(c),
+]);
+const shot = (name: string) => img.get(c(name))!;
+const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
+---
+
+<Base
+  noindex
+  themeColor="#ffffff"
+  path="/cases/prolog"
+  pageTitle="ProLog"
+  pageDescription="A new website for ProLog, makers of offline log management in Germany: from the first briefing call to a Webflow site connected to their CRM."
+>
+  <header class="case-head">
+    <Nav live={["about", "services"]} subpage />
+    <div class="article__head">
+      <p class="article__kicker">ProLog</p>
+      <h1 class="article__title">A website that makes offline security easy to trust</h1>
+    </div>
+  </header>
+
+  <main class="article">
+    <div class="article__media">
+      <ProLogHero />
+    </div>
+
+    <div class="article__body">
+      <p>
+        ProLog, a software company in Pforzheim, makes log management that runs entirely offline, for public bodies,
+        utilities and other organisations with strict rules on data. In 2026 I designed and built its new website, from
+        the brief to launch.
+      </p>
+      <p>
+        The old site had become the weakest part of ProLog's communication. It no longer did the product justice, and it
+        wasn't up to scratch with what responsive design asks of a site today.
+      </p>
+
+      <h2>Understanding the problem</h2>
+      <p>
+        The project began with a brief, to understand what the site had to solve: who it is for, what brings them to it
+        and what they need to know before they get in touch. Together with Martin and the team, we distilled a few clear messages and a focused
+        structure for the content, so every topic has a job and the site is easy to find.
+      </p>
+      <p>
+        One insight from the data and customer feedback shaped the rest: most customers didn't go looking for log
+        management, they needed it because an audit asked for it. So the site starts there, and builds trust through
+        precise language rather than big promises.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("prolog-slides-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("prolog-slides").src}
+          srcset={shot("prolog-slides").srcset}
+          sizes={FULL}
+          width={shot("prolog-slides").width}
+          height={shot("prolog-slides").height}
+          alt="Thirty-five slides from the kickoff presentation laid out in a grid"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>The kickoff presentation: brief, strategy, logo and first drafts.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>A mark for every size</h2>
+      <p>
+        The old logo was an all-caps wordmark. It read as one standalone term, so the “log” in the name got lost, and it
+        offered nothing to use where space is tight. The exploration covered many variations on protection, logs and
+        layers of security, and settled on a padlock built from lines of a log. The icon was drawn to stay clear at the
+        smallest sizes, down to a favicon, and the logo now comes as a set: wordmark, lockup and icon.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("prolog-logo-sketches-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("prolog-logo-sketches").src}
+          srcset={shot("prolog-logo-sketches").srcset}
+          sizes={FULL}
+          width={shot("prolog-logo-sketches").width}
+          height={shot("prolog-logo-sketches").height}
+          alt="Pencil sketches of logo ideas: log lines, padlocks, stacked layers, keys and a shield"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>Early logo drafts.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>Shaped in iterations</h2>
+      <p>
+        Wireframes came first, to settle what the site needed to convey: how much detail customers need to make an
+        informed decision, and how much a security company should keep to itself when explaining its processes online.
+      </p>
+      <p>
+        Once that was agreed and refined, the design grew through prototypes and feedback until the direction was clear:
+        dark, calm and precise. The hero settled on an abstract picture of the company's work: a quiet stream of log
+        lines like the data ProLog collects, pouring in continuously, obscured but open to inspection.
+      </p>
+    </div>
+
+    <figure class="article__media gallery" data-gallery>
+      <div class="gallery__track" tabindex="0" aria-label="The design in four steps">
+        {
+          steps.map((s, i) => (
+            <div class="gallery__slide" data-caption={s.caption} role="group" aria-label={`${i + 1} of ${steps.length}`}>
+              <div class="gallery__frame">
+                <img
+                  src={img.get(s.src)!.src}
+                  srcset={img.get(s.src)!.srcset}
+                  sizes="(max-width: 767px) calc(100vw - 80px), 1000px"
+                  alt={s.alt}
+                  width={img.get(s.src)!.width}
+                  height={img.get(s.src)!.height}
+                  decoding="async"
+                />
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <div class="gallery__bar">
+        <figcaption class="gallery__caption" aria-live="polite">{steps[0].caption}</figcaption>
+        <div class="gallery__nav">
+          <span class="gallery__count"><span data-gallery-index>1</span> / {steps.length}</span>
+          <button type="button" class="gallery__button" data-gallery-prev aria-label="Previous image">
+            <span class="gallery__arrow gallery__arrow--prev" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="gallery__button" data-gallery-next aria-label="Next image">
+            <span class="gallery__arrow" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </figure>
+
+    <div class="article__body">
+      <h2>Ready to grow</h2>
+      <p>
+        The homepage was only the start. Alongside it we developed the pages that come next, from articles to sector
+        pages, as a joint plan for how the site can and should grow: to answer customers' needs and pain points, to make
+        information easier to find and come back to, and to present ProLog's services in the depth they deserve.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("prolog-page-concepts-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image article__image--capped"
+          src={shot("prolog-page-concepts").src}
+          srcset={shot("prolog-page-concepts").srcset}
+          sizes={FULL}
+          width={shot("prolog-page-concepts").width}
+          height={shot("prolog-page-concepts").height}
+          alt="Three page designs side by side: a blog article, a page for public administration and an audit page"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>Concepts for an article, a sector page and an audit page.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>Connected from day one</h2>
+      <p>
+        It was important to tie the site into the systems ProLog already runs, for the best possible workflow for
+        Martin and his team. It launched connected to Odoo, so enquiries, demo bookings and security reports arrive
+        where they already work, with nothing copied over by hand.
+      </p>
+    </div>
+
+    <figure class="article__media devices">
+      <div class="devices__panel">
+        <div class="devices__desktop">
+          <img
+            src={shot("prolog-live-desktop").src}
+            srcset={shot("prolog-live-desktop").srcset}
+            sizes="(max-width: 767px) 80vw, 60vw"
+            width={shot("prolog-live-desktop").width}
+            height={shot("prolog-live-desktop").height}
+            alt="The ProLog homepage at desktop width"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="devices__phone">
+          <img
+            src={shot("prolog-live-phone").src}
+            srcset={shot("prolog-live-phone").srcset}
+            sizes="(max-width: 767px) 30vw, 18vw"
+            width={shot("prolog-live-phone").width}
+            height={shot("prolog-live-phone").height}
+            alt="The ProLog homepage at mobile width"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+      <figcaption>The launched site, optimised for every viewport, including the mobile screens where many visitors first see it.</figcaption>
+    </figure>
+
+    <!-- Martin's words, translated from his German message (Robin, 2026-11-15); to confirm with him before launch. -->
+    <blockquote class="article__quote">
+      <p>“I'm still thrilled by how confidently Robin built our new site, and how good it turned out. Really impressed!”</p>
+      <footer>Martin Schlicksupp, CEO, ProLog AG</footer>
+    </blockquote>
+
+    <!-- Links out, in the style of the project drawer's. -->
+    <div class="article__links">
+      <a class="article__link" href="https://www.prolog.ag" target="_blank" rel="noopener">
+        Visit prolog.ag
+        <span class="article__link-arrow" aria-hidden="true"></span>
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import "../../scripts/case-gallery";
+</script>
+

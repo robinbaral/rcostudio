@@ -5,15 +5,23 @@ import { services } from "../data/services";
 interface Props {
   // Test pages: keep them out of search results.
   noindex?: boolean;
+  // Sub-pages: their own title, description and path; the homepage uses the defaults.
+  pageTitle?: string;
+  pageDescription?: string;
+  // Browser bar colour on phones: the colour at the top of the page (dark by default).
+  themeColor?: string;
+  path?: string;
 }
-const { noindex = false } = Astro.props;
+const { noindex = false, themeColor = "#141414", pageTitle, pageDescription, path = "/" } = Astro.props;
 
 const name = "R&Co. Studio";
 // No locale in the title: clients can be anywhere. No bullet separators (Robin).
-const title = `${name} – Digital-first design studio`;
-const description =
+const title = pageTitle ? `${pageTitle} – ${name}` : `${name} – Digital-first design studio`;
+const siteDescription =
   "A digital-first design studio that helps businesses find clarity. Shaped by 20+ years of experience in strategy, branding, and design.";
-const url = "https://rcostudio.nz/";
+const description = pageDescription ?? siteDescription;
+const siteUrl = "https://rcostudio.nz/";
+const url = new URL(path, siteUrl).href;
 const ogImage = "https://rcostudio.nz/assets/og/og-image.png";
 const ogImageAlt = "R&Co. Studio in white type on a dark background";
 
@@ -24,10 +32,10 @@ const schema = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": `${url}#studio`,
+      "@id": `${siteUrl}#studio`,
       name,
       alternateName: "R&Co Studio",
-      url,
+      url: siteUrl,
       description,
       logo: "https://rcostudio.nz/assets/icons/favicon-512.png",
       image: ogImage,
@@ -51,11 +59,11 @@ const schema = {
     },
     {
       "@type": "WebSite",
-      "@id": `${url}#website`,
-      url,
+      "@id": `${siteUrl}#website`,
+      url: siteUrl,
       name,
       inLanguage: "en",
-      publisher: { "@id": `${url}#studio` },
+      publisher: { "@id": `${siteUrl}#studio` },
     },
   ],
 };
@@ -92,8 +100,7 @@ const schema = {
     <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/favicon-512.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
 
-    <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={themeColor} />
 
     <link rel="preload" href="/assets/fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
 

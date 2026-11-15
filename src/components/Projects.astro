@@ -1,12 +1,23 @@
 ---
-// Selected Projects: each row is a button that opens the project's drawer (ProjectDrawer).
-// On desktop a screenshot follows the cursor while hovering a row (scripts/preview.js).
+// Selected Work: each row is a button that opens the project's drawer (ProjectDrawer).
+// On desktop a screenshot follows the cursor while hovering a row (scripts/preview.js), and a
+// small row of thumbnails, one per image, appears after the name, marking which image the
+// preview shows as the cursor moves along the row.
 import { projects, projectId } from "../data/projects";
 import ProjectDrawer from "./ProjectDrawer.astro";
+import { shots } from "../lib/shots";
+
+// The hover preview is a single small image, so one size (about 2x its display width) is enough.
+const img = await shots(projects.flatMap((p) => [p.preview, ...(p.gallery ?? [])]), 960);
+const url = (name: string) => img.get(name)!.src;
+// Thumbnails sit at the x-height of the name (about 16px), so a small file each is enough.
+const thumb = await shots(projects.flatMap((p) => [p.preview, ...(p.gallery ?? [])]), 120);
+// Coming-soon rows get no hover image and no thumbnails (Robin, 2026-11-15).
+const images = (p: (typeof projects)[number]) => (p.soon ? [] : [p.preview, ...(p.gallery ?? [])].filter((n): n is string => !!n));
 ---
 
-<section class="projects" id="projects" aria-labelledby="projects-heading">
-  <h2 class="projects__heading" id="projects-heading">Selected Projects</h2>
+<section class="projects" id="work" aria-labelledby="work-heading">
+  <h2 class="projects__heading" id="work-heading">Selected Work</h2>
   <ul class="projects__list">
     {
       projects.map((p) => (
@@ -17,14 +28,31 @@ import ProjectDrawer from "./ProjectDrawer.astro";
             aria-haspopup="dialog"
             aria-controls="project-drawer"
             data-project-open={projectId(p)}
-            data-preview={p.preview}
-            data-previews={[p.preview, ...(p.gallery ?? [])].join(",")}
+            data-preview={images(p).length ? url(images(p)[0]) : undefined}
+            data-previews={images(p).length ? images(p).map(url).join(",") : undefined}
             data-preview-shape={p.portrait ? "portrait" : undefined}
             data-accent={typeof p.accent === "string" ? p.accent : undefined}
             data-accent-on-dark={typeof p.accent === "object" ? p.accent.onDark : undefined}
             data-accent-on-light={typeof p.accent === "object" ? p.accent.onLight : undefined}
           >
-            <span class="project__name">{p.name}</span>
+            <span class="project__name">
+              {p.name}
+              {images(p).length > 1 && (
+                <span class="project__thumbs" aria-hidden="true">
+                  {images(p).map((name, i) => (
+                    <img
+                      class:list={["project__thumb", { "is-active": i === 0 }]}
+                      src={thumb.get(name)!.src}
+                      width={thumb.get(name)!.width}
+                      height={thumb.get(name)!.height}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
+                </span>
+              )}
+            </span>
             <span class="project__tags">{p.tags}</span>
           </button>
         </li>

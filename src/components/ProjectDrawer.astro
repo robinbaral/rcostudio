@@ -7,6 +7,14 @@
 // the page is hidden and the drawer becomes the page, so it scrolls on under Safari's
 // translucent address bar instead of stopping above it.
 import { projects, projectId, projectLinkLabel } from "../data/projects";
+import { shots } from "../lib/shots";
+
+// Every image the drawers show, built from its source (src/lib/shots.ts).
+const img = await shots(projects.flatMap((p) => [p.preview, p.drawerImage, ...(p.gallery ?? []), ...(p.galleryMobile ?? [])]));
+// Display widths for srcset (measured): on desktop the shots are about 82vw, at most 1012px;
+// tablets get the 46rem side panel; phones the full width. Phone overlays are about 230px.
+const SIZES = "(min-width: 1024px) min(1012px, 82vw), (min-width: 768px) 736px, 100vw";
+const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
 ---
 
 <dialog class="project-drawer" id="project-drawer" data-project-drawer>
@@ -40,16 +48,20 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
                   <video src={p.video.mobile} poster={p.video.mobilePoster} muted playsinline preload="none" aria-hidden="true" />
                 </div>
               </div>
-            ) : !p.portrait || p.drawerImage ? (
+            ) : !p.preview && !p.drawerImage ? null : !p.portrait || p.drawerImage ? (
               // The images as blocks, one below the other, each on the grey panel; a phone view
               // of the same section overlaps its corner where there is one (galleryMobile).
               <div class="project-detail__media project-shots">
                 {[p.drawerImage ?? p.preview, ...(p.gallery ?? [])].map((src, i) => (
-                  <figure class:list={["project-gallery", { "project-gallery--phone": p.galleryMobile?.[i] }]}>
+                  <figure class:list={["project-gallery", { "project-gallery--phone": p.galleryMobile?.[i], "project-gallery--bleed": !p.galleryFramed?.includes(src) && (p.galleryBleed === "all" || (p.galleryBleed && i > 0)) }]}>
                     <div class="project-gallery__frame">
                       <img
                         class="project-gallery__img"
-                        src={src}
+                        src={img.get(src)!.src}
+                        srcset={img.get(src)!.srcset}
+                        sizes={SIZES}
+                        width={img.get(src)!.width}
+                        height={img.get(src)!.height}
                         alt={i === 0 ? `${p.name}, website` : ""}
                         loading="lazy"
                         decoding="async"
@@ -57,7 +69,7 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
                     </div>
                     {p.galleryMobile?.[i] && (
                       <div class="project-gallery__phone" aria-hidden="true">
-                        <img class="project-gallery__img" src={p.galleryMobile[i]} alt="" loading="lazy" decoding="async" />
+                        <img class="project-gallery__img" src={img.get(p.galleryMobile[i])!.src} srcset={img.get(p.galleryMobile[i])!.srcset} sizes={PHONE_SIZES} width={img.get(p.galleryMobile[i])!.width} height={img.get(p.galleryMobile[i])!.height} alt="" loading="lazy" decoding="async" />
                       </div>
                     )}
                   </figure>
@@ -65,7 +77,7 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
               </div>
             ) : (
               <div class:list={["project-detail__media", { "project-detail__media--portrait": p.portrait }]}>
-                <img src={p.preview} alt={`${p.name}, preview`} loading="lazy" decoding="async" />
+                <img src={img.get(p.preview)!.src} srcset={img.get(p.preview)!.srcset} sizes={SIZES} alt={`${p.name}, preview`} loading="lazy" decoding="async" />
               </div>
             )}
 
@@ -78,6 +90,12 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
               <ul>
                 {p.services.map((s) => <li>{s}</li>)}
               </ul>
+              {p.caseStudy && (
+                <a class="project-detail__link project-detail__case" href={p.caseStudy}>
+                  Read the case study
+                  <span class="project-detail__arrow project-detail__arrow--in" aria-hidden="true" />
+                </a>
+              )}
             </div>
 
             {p.href && !p.soon ? (
@@ -358,6 +376,16 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
       0 10px 30px rgb(0 0 0 / 0.08);
   }
 
+  /* Composed boards (galleryBleed): the image is the whole block, with its own background. */
+  .project-gallery--bleed {
+    padding: 0;
+  }
+
+  .project-gallery--bleed .project-gallery__frame {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   /* With phone shots: the desktop frame narrows to make room, and the phone overlaps its
      bottom right corner, like the frames in the ProLog video. */
   .project-gallery--phone {
@@ -498,7 +526,7 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
     line-height: 1.6;
   }
 
-  /* Website link, with the App Store link to its right where there is one. */
+  /* Website and App Store links, in a row (the case study link sits under Services). */
   .project-detail__links {
     display: flex;
     flex-wrap: wrap;
@@ -512,9 +540,41 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
     align-self: flex-start;
     font-size: 18px;
     font-weight: 600;
+    position: relative;
+    padding-bottom: 4px;
     color: inherit;
     text-decoration: none;
-    border-bottom: 1px solid currentColor;
+  }
+
+  /* No underline until hover or focus, then the footer's line grows in from the left. */
+  .project-detail__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease-in;
+  }
+
+  .project-detail__link:hover::after,
+  .project-detail__link:focus-visible::after {
+    transform: scaleX(1);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-detail__link::after {
+      transition: none;
+    }
+  }
+
+  /* The case study link sits under the services list. */
+  .project-detail__case {
+    margin-top: 20px;
   }
 
   .project-detail__arrow {
@@ -529,6 +589,15 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
 
   .project-detail__link:hover .project-detail__arrow {
     translate: 0.1em -0.1em;
+  }
+
+  /* The case study stays on this site: a straight arrow instead of the outward one. */
+  .project-detail__arrow--in {
+    rotate: 0deg;
+  }
+
+  .project-detail__link:hover .project-detail__arrow--in {
+    translate: 0.15em 0;
   }
 
   .project-detail__soon {
@@ -600,6 +669,29 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
     :global(html.project-page) .project-drawer__body {
       flex: none;
       overflow: visible;
+    }
+  }
+
+  /*
+   * Phones and tablets (the stacked layout): the first image, then the text, then the rest of
+   * the images. The image stack unwraps into the column so its blocks can be reordered; blocks
+   * after the second keep the stack's smaller gap. A single image (Pindrop) reads as before.
+   */
+  @media screen and (max-width: 1023px) {
+    .project-shots {
+      display: contents;
+    }
+
+    .project-detail__title { order: 0; }
+    .project-shots > .project-gallery:first-child { order: 1; }
+    .project-detail__summary { order: 2; }
+    .project-shots > .project-gallery { order: 3; }
+    .project-detail__services { order: 4; }
+    .project-detail__links,
+    .project-detail__soon { order: 5; }
+
+    .project-shots > .project-gallery:nth-child(n + 3) {
+      margin-top: -16px;
     }
   }
 

@@ -1,0 +1,268 @@
+---
+// Case study: Tommy Pickett (draft). A shorter, visual case in the same article layout as the
+// others (src/styles/case.css): album covers, tour posters, the website and the release work
+// around the music. Kept out of search results (noindex, not in the sitemap) until Robin
+// confirms the copy. Copy, sources and open points: notes/cases/tommy-pickett.md.
+//
+// Images are drawn by scripts/cases/tommy-pickett-boards.py from the files in
+// ~/Projects/Tommy Pickett: the hero borrows the tommypickett.com hero (wordmark on olive with
+// the copper cutout), the boards hold the covers and posters. The live shots come from the site.
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import CaseFigure from "../../components/cases/CaseFigure.astro";
+import { shots } from "../../lib/shots";
+// Tommy's own icons and links, as in the Follow / Listen row of the tommypickett.com hero.
+import Facebook from "../../assets/cases/tommy-pickett/icons/facebook.svg";
+import Spotify from "../../assets/cases/tommy-pickett/icons/spotify.svg";
+import AppleMusic from "../../assets/cases/tommy-pickett/icons/apple-music.svg";
+import DistroKid from "../../assets/cases/tommy-pickett/icons/distrokid.svg";
+import "../../styles/case.css";
+
+const c = (name: string) => `cases/tommy-pickett/tommy-pickett-${name}.png`;
+const img = await shots(["hero", "card", "covers", "covers-phone", "posters", "posters-phone", "live-desktop", "live-phone"].map(c));
+const shot = (name: string) => img.get(c(name))!;
+const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
+
+// Same links as tommypickett.com (src/lib/links.ts there). DistroKid has no artist page, so it
+// points at the latest release's HyperFollow page, as on his site.
+const listen = [
+  { label: "Facebook", href: "https://www.facebook.com/p/Tommy-Pickett-SingerSongwriter-100063693361174/", Icon: Facebook, wordmark: false },
+  { label: "Spotify", href: "https://open.spotify.com/artist/2ArB056WEd6PgyDzc2ChQW", Icon: Spotify, wordmark: false },
+  { label: "Apple Music", href: "https://music.apple.com/nz/artist/tommy-pickett/276250465", Icon: AppleMusic, wordmark: false },
+  { label: "DistroKid", href: "https://distrokid.com/hyperfollow/tommypickett1/streetlights", Icon: DistroKid, wordmark: true },
+];
+---
+
+<Base
+  noindex
+  themeColor="#ffffff"
+  path="/cases/tommy-pickett"
+  pageTitle="Tommy Pickett"
+  pageDescription="Album covers, tour posters, a website and release support for Tommy Pickett, a singer-songwriter on Waiheke Island, New Zealand."
+>
+  <header class="case-head">
+    <Nav live={["about", "services"]} subpage />
+    <div class="article__head">
+      <p class="article__kicker">Tommy Pickett</p>
+      <h1 class="article__title">Supporting great music, one release at a time</h1>
+    </div>
+  </header>
+
+  <main class="article">
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("card").srcset} sizes={FULL} />
+        <img
+          class="article__image article__image--hero article__image--top"
+          src={shot("hero").src}
+          srcset={shot("hero").srcset}
+          sizes={FULL}
+          width={shot("hero").width}
+          height={shot("hero").height}
+          alt="Tommy Pickett with his guitar in copper tones, in front of his name in large letters on olive green"
+          decoding="async"
+        />
+      </picture>
+    </figure>
+
+    <div class="article__body">
+      <p>
+        Tommy Pickett is a singer-songwriter on Waiheke Island, playing original folk-rock songs and familiar covers in
+        pubs, bars and venues around New Zealand. He's an all-round great human and a criminally underappreciated
+        musician, and I really enjoy working with him and supporting his music.
+      </p>
+      <p>
+        Over the years I've helped him out with some of what surrounds the music: album covers, posters for his tours,
+        the website, and getting new releases out to the places people listen.
+      </p>
+
+      <h2>Album covers</h2>
+      <p>
+        Each record has its own look, drawn from the songs rather than a template, and together they still read as one
+        artist. Streetlights followed the rugged, handmade way its songs were written and produced. Rivertown grew out of
+        a photo shoot in a cold river on the South Island, which set both the cover and the theme of the album. Dive
+        Deep gathered songs that had been in the making for years, many of them about the people closest to him, which
+        led to the cover: Tommy and his younger brother walking through nature.
+      </p>
+      <p>
+        Tommy knows what he wants from his covers and the photography around them, and has strong opinions on both.
+        That made each cover a real collaboration, and all the more his own.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("covers-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("covers").src}
+          srcset={shot("covers").srcset}
+          sizes={FULL}
+          width={shot("covers").width}
+          height={shot("covers").height}
+          alt="Three album covers: Streetlights, Rivertown and Dive Deep"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>Streetlights, Rivertown and Dive Deep.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>On the road</h2>
+      <p>
+        Every year Tommy tours New Zealand, and each tour got a poster of its own: a fresh look every year, always
+        recognisably his.
+      </p>
+      <p>
+        His gigs are rowdy in the best way, with a great atmosphere. If you happen to be in the right part of the world
+        when he's playing, go and join one.
+      </p>
+    </div>
+
+    <figure class="article__media">
+      <picture>
+        <source media="(max-width: 767px)" srcset={shot("posters-phone").srcset} sizes={FULL} />
+        <img
+          class="article__image"
+          src={shot("posters").src}
+          srcset={shot("posters").srcset}
+          sizes={FULL}
+          width={shot("posters").width}
+          height={shot("posters").height}
+          alt="Four tour posters, one for each year from 2023 to 2026"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+      <figcaption>Tour posters from four years.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <p>
+        From each tour design came a set for the individual music venues: posters in a range of print sizes, and assets
+        for social media and listings, so every venue on the route had what it needed to promote the night, on its walls
+        and online.
+      </p>
+    </div>
+
+    <CaseFigure
+      name={c("venues")}
+      phone={c("venues-phone")}
+      alt="Six posters from one tour, each with a different date and venue"
+      caption="One tour, a poster for every stop."
+      wide
+    />
+
+    <div class="article__body">
+      <h2>A home for the music</h2>
+      <p>
+        After many years on an older site, the website got a fresh look that puts the music, tour dates and bookings up
+        front. The hero takes its cue from the posters: the name large, Tommy and his guitar in front. It's built with
+        Astro and a headless CMS, with an editing side designed around the site itself, so Tommy can keep dates, albums
+        and videos up to date on his own. Simple custom features let him manage his own gigs.
+      </p>
+    </div>
+
+    <figure class="article__media devices">
+      <div class="devices__panel">
+        <div class="devices__desktop">
+          <img
+            src={shot("live-desktop").src}
+            srcset={shot("live-desktop").srcset}
+            sizes="(max-width: 767px) 80vw, 60vw"
+            width={shot("live-desktop").width}
+            height={shot("live-desktop").height}
+            alt="The Tommy Pickett homepage at desktop width"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="devices__phone">
+          <img
+            src={shot("live-phone").src}
+            srcset={shot("live-phone").srcset}
+            sizes="(max-width: 767px) 30vw, 18vw"
+            width={shot("live-phone").width}
+            height={shot("live-phone").height}
+            alt="The Tommy Pickett homepage at mobile width"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+      <figcaption>tommypickett.com, responsive across viewports and optimised for any device.</figcaption>
+    </figure>
+
+    <div class="article__body">
+      <h2>Ready for release</h2>
+      <p>
+        For each release, I helped prepare everything for publication, creating the artwork and assets the different
+        music outlets and streaming services ask for. After that came ongoing maintenance and the occasional update.
+        His music on Spotify, Apple Music and the other services is linked just below.
+      </p>
+
+      <h2>Go and listen</h2>
+      <p>
+        Do yourself a favour and check out Tommy's music. If you start with one song, make it High Tide Line. Even without
+        knowing him, it would have become a staple in our household.
+      </p>
+      <!-- Follow / Listen, carried over from the tommypickett.com hero: his icons and links, in the text colour. -->
+      <ul class="tp-listen" aria-label="Tommy Pickett on Facebook, Spotify, Apple Music and DistroKid">
+        {
+          listen.map(({ label, href, Icon, wordmark }) => (
+            <li>
+              <a class="tp-listen__link" href={href} target="_blank" rel="noopener" aria-label={label}>
+                <Icon class:list={["tp-listen__icon", { "tp-listen__icon--wordmark": wordmark }]} aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="article__links">
+      <a class="article__link" href="https://www.tommypickett.com" target="_blank" rel="noopener">
+        Visit tommypickett.com
+        <span class="article__link-arrow" aria-hidden="true"></span>
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  /* Tommy's icons, in the text colour, tucked under the last paragraph. */
+  .tp-listen {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tp-listen__link {
+    display: block;
+    color: inherit;
+    transition: opacity 0.3s;
+  }
+
+  .tp-listen__link:hover,
+  .tp-listen__link:focus-visible {
+    opacity: 0.6;
+  }
+
+  .tp-listen__icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+  }
+
+  .tp-listen__icon--wordmark {
+    width: 84px;
+    height: 11px;
+  }
+</style>

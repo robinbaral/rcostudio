@@ -79,14 +79,6 @@
   }
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-fg: #141414;
-    --color-bg: #ffffff;
-    color-scheme: light;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
@@ -130,6 +122,43 @@ a {
 
 /* Nav (Figma 22:1548): five items spread across the top. The current page is underlined;
    Profile and Services are greyed out until those pages exist. */
+/* The bar is fixed to the top of the screen in the colours of the section it starts in (dark on
+   the homepage, white on the cases). Nav.astro slides it away while scrolling down. */
+.nav-slot {
+  position: relative;
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: var(--distributor-padding) var(--gutter) 16px;
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Slid back in after scrolling up: the links sit in the vertical middle of the bar. The
+   bottom is 8px less than the top because each link carries 8px below it for its underline. */
+.nav--floating {
+  padding-top: 20px;
+  padding-bottom: 12px;
+}
+
+.nav--hidden {
+  transform: translateY(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition: none;
+  }
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
@@ -141,17 +170,23 @@ a {
   line-height: 1;
 }
 
-@media screen and (max-width: 479px) {
-  .nav {
-    gap: 6px;
-    font-size: 13px;
+/* On narrower screens links drop out step by step instead of the row shrinking: Cases first,
+   then About. Hidden with CSS only, so every link stays in the HTML for search engines. */
+@media screen and (max-width: 599px) {
+  .nav__link--cases {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 419px) {
+  .nav__link--about {
+    display: none;
   }
 }
 
 @media screen and (max-width: 359px) {
   .nav {
-    gap: 4px;
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 
@@ -202,6 +237,12 @@ html {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* Sections the nav jumps to take focus (Nav.astro) so keyboard and screen reader users carry
+   on from there, but show no outline: the section isn't something to act on. */
+[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Projects ---------------------------------------------------------------- */
@@ -295,6 +336,55 @@ button.project {
   outline: none;
 }
 
+/* Thumbnails after the name, one per image of the project, shown while hovering the row on
+   devices that can hover. They sit on the baseline at the cap height of the name (Robin; the
+   x-height and the full type height were tried), a little apart; the one under the cursor switches
+   the preview and is fully visible, the others faded (scripts/preview.js moves is-active). */
+.project__thumbs {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .project__thumbs {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.22em;
+    margin-left: 0.45em;
+    opacity: 0;
+    transform: translateX(-0.2em);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .project:hover .project__thumbs {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* A hairline keeps light screenshots apart from the white section; the active one is
+     outlined in the row's hover colour. */
+  .project__thumb {
+    display: block;
+    width: auto;
+    height: 0.7em; /* fallback where the cap unit isn't supported */
+    height: 1cap;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--rule);
+    opacity: 0.4;
+    transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .project__thumb.is-active {
+    opacity: 1;
+    box-shadow: 0 0 0 1.5px currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project__thumbs {
+    transform: none;
+  }
+}
+
 /* Cursor-following screenshot; only shown on devices that can hover. */
 .preview {
   position: fixed;
@@ -349,7 +439,8 @@ button.project {
    footer itself is fixed to the bottom of the viewport, so the page above slides off it. */
 .footer-reveal {
   position: relative;
-  height: 80svh;
+  /* 60svh (was 80): a shorter gap between "Get in touch" and the lines below (Robin). */
+  height: 60svh;
   clip-path: inset(0);
 }
 
@@ -358,7 +449,7 @@ button.project {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80svh;
+  height: 60svh;
   display: flex;
   flex-flow: column;
   justify-content: space-between;
@@ -384,7 +475,7 @@ button.project {
   .footer {
     position: static;
     height: auto;
-    min-height: 80svh;
+    min-height: 60svh;
   }
 }
 

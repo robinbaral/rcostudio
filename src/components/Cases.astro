@@ -1,30 +1,81 @@
 ---
-// Cases: skeleton cards until the case studies exist. Three columns with
-// staggered image heights; each card will become an image, a title and a short line.
-const cards = [
-  { ratio: "7 / 10", title: "62%", lines: ["88%", "64%"] },
-  { ratio: "4 / 3", title: "48%", lines: ["92%", "56%"] },
-  { ratio: "1 / 1", title: "56%", lines: ["84%", "70%"] },
+// Cases: one card per case study, linking to its page in src/pages/cases/. Each card is an
+// image, the project's name and the case headline. Three columns with staggered image
+// heights (ratio), as in the first skeleton design. A card without href is a placeholder for
+// a case still to come. Add a case by adding an entry.
+import { shots } from "../lib/shots";
+
+const cases = [
+  {
+    name: "CrissCross",
+    title: "A spelling app built from the words up",
+    href: "/cases/crisscross",
+    ratio: "4 / 5",
+    image: "cases/crisscross/crisscross-hero.png",
+    alt: "Colourful CrissCross letter tiles scattered across a white background",
+  },
+  {
+    name: "ProLog",
+    title: "A website that makes offline security easy to trust",
+    href: "/cases/prolog",
+    ratio: "4 / 3",
+    image: "cases/prolog/prolog-card.png",
+    alt: "The ProLog logo, a padlock made of log lines, on a dark stream of log entries",
+  },
+  {
+    name: "Tommy Pickett",
+    title: "Supporting great music, one release at a time",
+    href: "/cases/tommy-pickett",
+    ratio: "1 / 1",
+    image: "cases/tommy-pickett/tommy-pickett-card.png",
+    position: "top", // keeps his face and the wordmark in the wider crop on phones
+    alt: "Tommy Pickett with his guitar in copper tones, in front of his name in large letters on olive green",
+  },
 ];
+
+const img = await shots(cases.map((c) => c.image));
+
 ---
 
 <section class="cases" id="cases" aria-labelledby="cases-heading">
   <div class="cases__head">
     <h2 class="cases__title" id="cases-heading">Cases</h2>
-    <p class="cases__note">Case studies are on their way.</p>
   </div>
 
-  <ul class="cases__grid" aria-hidden="true">
+  <ul class="cases__grid">
     {
-      cards.map((c) => (
-        <li class="case">
-          <div class="case__image skeleton" style={`aspect-ratio:${c.ratio}`} />
-          <div class="case__title skeleton" style={`width:${c.title}`} />
-          {c.lines.map((w) => (
-            <div class="case__line skeleton" style={`width:${w}`} />
-          ))}
-        </li>
-      ))
+      cases.map((c) =>
+        c.href && c.image ? (
+          <li class="case">
+            <a class="case__link" href={c.href}>
+              <div class="case__image" style={`aspect-ratio:${c.ratio}`}>
+                <img
+                  style={c.position ? `object-position:${c.position}` : undefined}
+                  src={img.get(c.image)!.src}
+                  srcset={img.get(c.image)!.srcset}
+                  sizes="(max-width: 767px) calc(100vw - 40px), 33vw"
+                  width={img.get(c.image)!.width}
+                  height={img.get(c.image)!.height}
+                  alt={c.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <p class="case__name">{c.name}</p>
+              <h3 class="case__title">
+                {c.title}
+                <span class="case__arrow" aria-hidden="true" />
+              </h3>
+            </a>
+          </li>
+        ) : (
+          <li class="case case--soon" aria-hidden="true">
+            <div class="case__image skeleton" style={`aspect-ratio:${c.ratio}`} />
+            <div class="case__line skeleton" style="width:40%;margin-top:24px" />
+            <div class="case__line skeleton" style="width:80%;margin-top:14px;height:22px" />
+          </li>
+        ),
+      )
     }
   </ul>
 </section>
@@ -34,8 +85,7 @@ const cards = [
      marks the new section (no rule needed). The Everyday Stack below is inverted again. */
   .cases {
     --ink: var(--color-fg);
-    --block: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
-    --rule: color-mix(in srgb, var(--color-fg) 20%, var(--color-bg));
+    --muted: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
     display: flex;
     flex-direction: column;
     gap: var(--projects-padding-y);
@@ -49,10 +99,6 @@ const cards = [
 
   .cases__head {
     padding-top: var(--projects-padding-y);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 24px;
   }
 
   .cases__title {
@@ -63,60 +109,110 @@ const cards = [
     line-height: 0.9;
   }
 
-  .cases__note {
-    margin: 0;
-    font-size: 18px;
-    color: color-mix(in srgb, var(--color-fg) 55%, var(--color-bg));
-  }
-
   .cases__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: start;
-    gap: 24px;
+    gap: 48px 24px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .case {
+  .case__link {
     display: flex;
     flex-direction: column;
+    color: inherit;
+    text-decoration: none;
   }
 
+  /* Each card has its own height (ratio in the data), cropped to fill. */
   .case__image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+  }
+
+  /* A hairline, so a dark image (ProLog) still reads as a card on the dark section. Drawn on
+     top of the image, so it stays put while the image zooms on hover. */
+  .case__image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid color-mix(in srgb, var(--color-fg) 14%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .case__image img {
+    display: block;
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .case__link:hover .case__image img {
+    scale: 1.03;
+  }
+
+  .case__name {
+    margin: 24px 0 8px;
+    font-size: 16px;
+    color: var(--muted);
   }
 
   .case__title {
-    height: 22px;
-    margin-top: 24px;
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--project-size);
+    font-weight: 700;
+    line-height: 1.15;
+    text-wrap: balance;
   }
 
+  .case__arrow {
+    display: inline-block;
+    width: 0.6em;
+    height: 0.6em;
+    margin-left: 0.3em;
+    vertical-align: 0.05em;
+    background-color: currentColor;
+    -webkit-mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    mask: url("/assets/icons/arrow-right.svg") center / contain no-repeat;
+    transition: translate 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .case__link:hover .case__arrow {
+    translate: 0.15em 0;
+  }
+
+  /* The placeholder for the next case: flat blocks, no animation. */
   .case__line {
     height: 14px;
-    margin-top: 12px;
   }
 
-  .case__title + .case__line {
-    margin-top: 18px;
-  }
-
-  /* Flat placeholder blocks, no animation. */
   .skeleton {
     border-radius: 3px;
-    background-color: var(--block);
+    background-color: color-mix(in srgb, var(--color-fg) 8%, var(--color-bg));
+  }
+
+  .case__image.skeleton::after {
+    content: none;
   }
 
   @media screen and (max-width: 767px) {
-    .cases__head {
-      flex-direction: column;
-      gap: 12px;
+    .case--soon {
+      display: none;
+    }
+
+    /* One column on phones, every card the same height, a little wider than tall. */
+    .case__image {
+      aspect-ratio: 3 / 2 !important;
     }
 
     .cases__grid {
       grid-template-columns: minmax(0, 1fr);
-      gap: 48px;
     }
   }
 </style>
