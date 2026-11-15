@@ -1,6 +1,6 @@
 // The site's Worker. Every request passes through it (run_worker_first in wrangler.jsonc).
 // Pages and files come straight from the static build (dist/). On any address other than
-// rcostudio.nz (the workers.dev address while the domain still points at Vercel, preview
+// rcostudio.nz (the workers.dev address, preview
 // URLs) they carry `X-Robots-Tag: noindex, nofollow`, so search engines leave those copies
 // out. www.rcostudio.nz forwards to rcostudio.nz (301). Caching for /assets/ and /_astro/ is
 // set in public/_headers.

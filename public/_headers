@@ -1,6 +1,6 @@
 # Cloudflare: fonts, icons and built files never change under the same name (a replaced file
 # gets a new filename, see AGENTS.md), so browsers may keep them for a year. Same as the
-# headers in the old vercel.json.
+# headers the site had on Vercel.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
