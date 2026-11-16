@@ -12,7 +12,7 @@ export const GET: APIRoute = () => {
   const lines: string[] = [
     "# R&Co. Studio",
     "",
-    "> A digital-first design studio for sites, interfaces and branding, shaped by 20+ years of experience in strategy, branding and design. Based in New Zealand, working with clients anywhere.",
+    "> A digital-first design studio for sites, interfaces and branding, shaped by 20+ years of experience in strategy, branding, development and design. Based in New Zealand, working with clients anywhere.",
     "",
     `${profile.opening} ${profile.rest}`,
     "",
