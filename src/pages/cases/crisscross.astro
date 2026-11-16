@@ -305,8 +305,10 @@ const boards = {
 
   /* The same panel as the other images: full width, the boards' warm grey, 6px corners. The
      puzzle inside switches between side by side and stacked by the width it's given. */
+  /* Side margins keep the card's border off the panel's edges, so on phones (and in dark mode,
+     where the light panel stands out) it reads as framed, not cropped. */
   .puzzle-embed__panel {
-    padding: clamp(24px, 4vw, 64px) 0;
+    padding: clamp(24px, 4vw, 64px) clamp(12px, 3vw, 64px);
     background-color: #f2f1ee;
     border-radius: 6px;
   }
@@ -316,5 +318,8 @@ const boards = {
     width: 100%;
     height: 640px; /* until the puzzle reports its own height */
     border: 0;
+    /* Matches the puzzle page's own light scheme: on a dark page the browser would otherwise
+       paint the frame opaque white inside the grey panel. */
+    color-scheme: light;
   }
 </style>

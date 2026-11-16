@@ -13,6 +13,11 @@
   /* The case page draws the panel (full width, like the other images), so the demo's own
      rounded grey card is switched off here. */
   .puzzle-demo { background: transparent !important; border-radius: 0 !important; }
+  /* Stacked (phones): the tiles shrink so the card (7 tiles, 6 gaps, padding and border:
+     64px) fits the frame instead of being cropped at its edges. */
+  @media (width < 768px) {
+    .puzzle-demo { --tile-size: min(clamp(2.7232rem, 0.51vw + 2.598rem, 3.0804rem), (100cqw - 64px) / 7) !important; }
+  }
 </style>
 </head>
 <body>

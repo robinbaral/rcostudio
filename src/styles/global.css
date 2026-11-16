@@ -111,6 +111,10 @@
     --distributor-padding-bottom: 1.75em;
     --tagline-size: 26px;
     --small-size: 18px;
+    /* Section and footer headings scale with the screen on phones: "Selected Work" stays on
+       one line and well below the R&Co Studio wordmark, and "Have a project to discuss?"
+       fits on two lines (Robin, 2026-11-16). */
+    --heading-size: min(64px, calc((100vw - 2 * var(--gutter)) * 0.115));
   }
 }
 
@@ -118,7 +122,6 @@
   :root {
     --distributor-padding-bottom: 1.5em;
     --gutter: 20px;
-    --heading-size: 56px;
     --tagline-size: 22px;
   }
 }

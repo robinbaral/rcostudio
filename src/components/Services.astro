@@ -174,21 +174,23 @@ import { services, servicesNote, servicesContact } from "../data/services";
       grid-template-columns: minmax(0, 1fr);
     }
 
+    /* Stacked above the services: the aside takes their measure (58ch at 20px), so the note
+       runs as wide as the service text below instead of keeping its side-column width. */
     .services__aside {
       position: static;
+      max-width: 58ch;
+      font-size: 20px;
+    }
+
+    .services__note {
+      width: auto;
+      max-width: none;
     }
   }
 
   @media screen and (max-width: 767px) {
     .services__note {
-      width: auto;
-      max-width: none;
       font-size: 22px;
-    }
-
-    /* A smaller name, so long ones like "Prototyping" and "Development" fit a phone screen. */
-    .service__name {
-      font-size: 44px;
     }
 
     .service + .service {
