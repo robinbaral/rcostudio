@@ -46,6 +46,11 @@ const slotStyle = (i: number) => {
   }`;
 };
 const pad = (n: number) => String(n).padStart(2, "0");
+// How tall a card may run, as a share of the stack's height: tall phone shots up to 125% so
+// they don't look tiny next to the sites, square ones (album covers) halfway between that and
+// a site's 100%, so they don't look oversized (Robin, 2026-11-16). Same rule in the shuffle
+// script below.
+const hmax = (ratio: number) => (ratio >= 0.8 && ratio <= 1.25 ? "112.5cqh" : "125cqh");
 const first = projects[0];
 
 // Each card takes its image's own proportions (site screenshots 16:10, app
@@ -59,7 +64,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
   <h1 class="visually-hidden">R&amp;Co. Studio</h1>
   <p class="stack-hero__intro">
     A digital-first design studio that helps businesses find clarity. Shaped by 20+ years
-    of experience in strategy, branding, and design.
+    of experience in strategy, branding, development, and design.
   </p>
 
   <div class="stack-hero__stage">
@@ -86,7 +91,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
         cards.map(({ project: p, tags }, i) => (
           <div
             class:list={["stack__card", { "is-front": i === 0 }]}
-            style={`${slotStyle(i)}--ar:${sizes[i].width} / ${sizes[i].height};`}
+            style={`${slotStyle(i)}--ar:${sizes[i].width} / ${sizes[i].height};--hmax:${hmax(sizes[i].width / sizes[i].height)};`}
             data-name={p.name}
             data-tags={tags}
             data-href={p.href}
@@ -121,6 +126,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
         const items = cards.map((c) => ({
           img: c.querySelector("img"),
           ar: c.style.getPropertyValue("--ar"),
+          hmax: c.style.getPropertyValue("--hmax"),
           name: c.dataset.name,
           tags: c.dataset.tags,
           href: c.dataset.href,
@@ -143,6 +149,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
         cards.forEach((card, i) => {
           const it = items[i];
           card.style.setProperty("--ar", it.ar);
+          card.style.setProperty("--hmax", it.hmax);
           card.dataset.name = it.name ?? "";
           card.dataset.tags = it.tags ?? "";
           if (it.href) card.dataset.href = it.href;
@@ -253,6 +260,20 @@ const sizes = cards.map((c) => img.get(c.image)!);
     }
   }
 
+  /* Portrait tablets: plenty of height, so sitting just above the caption left the stack
+     riding low with a big gap under the intro. Here it's centred between the intro and the
+     wordmark, as on phones (Robin, 2026-11-16): the padding takes back the part of the stage
+     that reaches into the wordmark, so the content box runs from the intro to the wordmark's
+     top. The stack is limited by the width here, so it stays well clear of the caption.
+     Landscape tablets keep the rule above: the stack fills their height either way, and
+     centred it would run over the caption. */
+  @media screen and (min-width: 768px) and (max-width: 1199px) and (orientation: portrait) {
+    .stack-hero__stage {
+      place-items: center;
+      padding-bottom: calc(var(--wordmark-h) * 0.55);
+    }
+  }
+
   /* Wide screens: the stack grows with the screen, limited by the stage's height first, then
      a 1260px cap. Narrower than this, a bigger stack would cover the caption. */
   @media screen and (min-width: 1200px) {
@@ -280,18 +301,44 @@ const sizes = cards.map((c) => img.get(c.image)!);
     left: 50%;
     /* As large as fits the stack frame at the image's own proportions. Tall phone shots may run
        a little above and below the frame (125%), so they don't look tiny next to the sites. */
-    width: min(100cqw, 125cqh * (var(--ar)));
+    width: min(100cqw, var(--hmax, 125cqh) * (var(--ar)));
     aspect-ratio: var(--ar);
     overflow: hidden;
     border-radius: 6px;
     /* No fill behind the image: on a tilted, rounded card a fill shows through the image's
        anti-aliased edge as a dark hairline. */
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
-    /* --nx/--ny: a small nudge from the script, so a back card never shows as a thin sliver. */
-    transform: translate(-50%, -50%) translate(calc(var(--x) + var(--dx, 0px) + var(--nx, 0px)), calc(var(--y) + var(--ny, 0px))) rotate(calc(var(--r) + var(--dr, 0deg)));
+    /* --nx/--ny: a small nudge from the script, so a back card never shows as a thin sliver.
+       --s: the waiting cards' smaller size (see .is-waiting). */
+    transform: translate(-50%, -50%) translate(calc(var(--x) + var(--dx, 0px) + var(--nx, 0px)), calc(var(--y) + var(--ny, 0px))) rotate(calc(var(--r) + var(--dr, 0deg))) scale(var(--s, 1));
+    /* No opacity fade: cards are only shown or hidden while covered (see .is-waiting). */
     transition:
       transform 0.75s var(--stack-settle),
-      opacity 0.4s ease;
+      box-shadow 0.4s ease;
+  }
+
+  /* The cards not in view wait behind the back card, smaller, so it covers them completely:
+     a card going to the back slips under it, and the next one slides out from behind it,
+     instead of fading out and in (Robin, 2026-11-16). No shadow, so the waiting cards don't
+     darken the space around the stack. */
+  .stack__card.is-waiting {
+    box-shadow: none;
+  }
+
+  /* While the window is being resized the stack just scales: no easing behind the change. */
+  .stack.is-resizing .stack__card,
+  .stack.is-resizing .stack__next {
+    transition: none !important;
+  }
+
+  /* The card on its way to the back, and the one coming out from behind the back card: no
+     overshoot, so the first can't swing out past the back card and the second doesn't bounce
+     as it grows. */
+  .stack__card.is-tucking,
+  .stack__card.is-emerging {
+    transition:
+      transform 0.6s var(--stack-ease),
+      box-shadow 0.4s ease;
   }
 
   .stack__card img {
@@ -568,10 +615,15 @@ const sizes = cards.map((c) => img.get(c.image)!);
     const poses: { x: number; y: number; side: number; v: number }[] = JSON.parse(stack.dataset.poses ?? "[]");
     const VISIBLE = Number(stack.dataset.visible ?? 5);
     // The same angle rule as on the server (see the note at the top).
+    // Size by position: the two front cards at full size, the ones behind a little smaller,
+    // so a card coming out at the back grows to full size over its first few steps forward
+    // rather than in one go (Robin, 2026-11-16).
+    const SCALE = [1, 1, 0.97, 0.94, 0.91];
     const pose = (i: number, pos: number) => ({
       x: poses[i].x,
       y: poses[i].y,
       r: poses[i].side * (1.2 + poses[i].v + 6.8 * (1 - ((VISIBLE - 1 - Math.min(pos, VISIBLE - 1)) / (VISIBLE - 1)) ** 2)),
+      k: SCALE[Math.min(pos, SCALE.length - 1)],
     });
     const cards = Array.from(stack.querySelectorAll<HTMLElement>(".stack__card"));
     const button = stack.querySelector<HTMLButtonElement>(".stack__next")!;
@@ -588,7 +640,51 @@ const sizes = cards.map((c) => img.get(c.image)!);
     const SWIPE = 0.18; // share of the card width a drag must travel to count as a swipe
     const T_OUT = 300; // ms, matches .is-leaving
 
-    const place = () => {
+    // Showing and hiding: a card only changes while it's covered, so there's no fade. The first
+    // waiting card is always there behind the back card (it slides out from there next), the
+    // rest are hidden. A card that only just became the first waiting one is shown once it's
+    // covered, after the move; the card tucking in at the back is hidden once it's under.
+    // With reduced motion, only the visible cards show (cards jump rather than move).
+    const T_MOVE = 750; // ms, matches the cards' transform transition
+    const timers = new Map<HTMLElement, number>();
+    const show = (card: HTMLElement, shown: boolean, delay = 0) => {
+      window.clearTimeout(timers.get(card));
+      const apply = () => (card.style.opacity = shown ? "" : "0");
+      if (delay) timers.set(card, window.setTimeout(apply, delay));
+      else apply();
+    };
+
+    // The waiting cards: centred on the back card, at its angle, small enough to sit inside it
+    // whatever their shape (a tall phone shot behind a wide site), with no nudge of their own.
+    const placeWaiting = () => {
+      const backPos = Math.min(VISIBLE, order.length) - 1;
+      const back = cards[order[backPos]];
+      const sb = pose(order[backPos], backPos);
+      const b = sizeOf(back);
+      // The back card's nudge is in cqw: back to pixels.
+      const px = (v: string) => ((parseFloat(v) || 0) * stackW()) / 100;
+      const cx = (sb.x / 100) * b.w + px(back.style.getPropertyValue("--nx"));
+      const cy = (sb.y / 100) * b.h + px(back.style.getPropertyValue("--ny"));
+      order.forEach((i, pos) => {
+        const card = cards[i];
+        card.classList.toggle("is-waiting", pos >= VISIBLE);
+        if (pos < VISIBLE) {
+          card.style.setProperty("--s", String(pose(i, pos).k));
+          return;
+        }
+        const c = sizeOf(card);
+        card.style.setProperty("--x", cq(cx));
+        card.style.setProperty("--y", cq(cy));
+        card.style.setProperty("--r", `${sb.r}deg`);
+        card.style.setProperty("--nx", "0px");
+        card.style.setProperty("--ny", "0px");
+        // Just inside the back card (95% of it at most), so the step out from behind is small.
+        card.style.setProperty("--s", String(0.95 * sb.k * Math.min(1, b.w / c.w, b.h / c.h)));
+      });
+    };
+
+    // tucking: the card that was just sent to the back, still on its way under the stack.
+    const place = (tucking?: HTMLElement) => {
       order.forEach((cardIndex, pos) => {
         const card = cards[cardIndex];
         const s = pose(cardIndex, pos);
@@ -596,7 +692,14 @@ const sizes = cards.map((c) => img.get(c.image)!);
         card.style.setProperty("--y", `${s.y}%`);
         card.style.setProperty("--r", `${s.r}deg`);
         card.style.zIndex = String(cards.length - pos);
-        card.style.opacity = pos >= VISIBLE ? "0" : "";
+        // Coming out from behind the back card: no overshoot, so it doesn't bounce as it grows.
+        if (pos === VISIBLE - 1 && card.classList.contains("is-waiting") && !reduce.matches) {
+          card.classList.add("is-emerging");
+          window.setTimeout(() => card.classList.remove("is-emerging"), T_MOVE);
+        }
+        if (reduce.matches || pos < VISIBLE) show(card, pos < VISIBLE);
+        else if (pos === VISIBLE) show(card, true, card.style.opacity === "0" ? T_MOVE : 0);
+        else show(card, false, card === tucking ? T_MOVE : 0);
         card.classList.toggle("is-front", pos === 0);
       });
       applyNudges();
@@ -624,6 +727,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
     // At least 2.5% of the card's width (about 8px on a phone), at most 16px on larger screens:
     // the cards' offsets scale with their size, so a fixed 16px can't be met on small cards.
     let MIN_EDGE = 16; // px, set from the card size in avoidSlivers
+    let minEdgeShare = 0; // the same as a share of the stack's width, to follow a resize
     type Pt = { x: number; y: number };
     // Each card's exact size, not offsetWidth/offsetHeight (rounded to whole pixels): half a
     // pixel is the difference between a hidden corner and a hairline. Measured once per layout
@@ -638,10 +742,12 @@ const sizes = cards.map((c) => img.get(c.image)!);
       }
       return size;
     };
-    const corners = (card: HTMLElement, s: { x: number; y: number; r: number }, nx: number, ny: number): Pt[] => {
-      const { w, h } = sizeOf(card);
+    const corners = (card: HTMLElement, s: { x: number; y: number; r: number; k: number }, nx: number, ny: number): Pt[] => {
+      const { w: w0, h: h0 } = sizeOf(card);
+      const w = w0 * s.k, h = h0 * s.k;
       const a = (s.r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
-      const cx = (s.x / 100) * w + nx, cy = (s.y / 100) * h + ny;
+      // The offset is a share of the card's own (unscaled) box, as in the CSS transform.
+      const cx = (s.x / 100) * w0 + nx, cy = (s.y / 100) * h0 + ny;
       return [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => ({
         x: cx + x * cos - y * sin,
         y: cy + x * sin + y * cos,
@@ -720,6 +826,12 @@ const sizes = cards.map((c) => img.get(c.image)!);
     // the current arrangement: the angles change a little per position, so one fixed nudge can't
     // always suit every pairing. Where it doesn't, the card shifts by at most 10px more, along
     // with its turn towards straight.
+    // Offsets the script sets are written in cqw (a share of the stack's width), so the layout
+    // scales with the stack as one piece when the window resizes, instead of being worked out
+    // again (which made cards jump and turn while resizing). The nudges are kept as shares of
+    // the stack's width too.
+    const stackW = () => stack.clientWidth;
+    const cq = (px: number) => `${(px / stackW()) * 100}cqw`;
     let fixed: Pt[] = cards.map(() => ({ x: 0, y: 0 }));
     const EXTRA: Pt[] = [];
     for (let x = -10; x <= 10; x += 1) for (let y = -10; y <= 10; y += 1) EXTRA.push({ x, y });
@@ -727,7 +839,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
     const applyNudges = () => {
       const front: Pt[][] = [];
       order.slice(0, VISIBLE).forEach((i, pos) => {
-        const card = cards[i], base = fixed[i], s = pose(i, pos);
+        const card = cards[i], w = stackW(), s = pose(i, pos);
+        const base = { x: fixed[i].x * w, y: fixed[i].y * w };
         let n = base;
         // Checked more finely than the cycle-wide pass: only five cards, and a hairline near a
         // corner can fall between coarser samples.
@@ -745,15 +858,17 @@ const sizes = cards.map((c) => img.get(c.image)!);
           }
           if (e) n = { x: base.x + e.x, y: base.y + e.y };
         }
-        card.style.setProperty("--nx", `${n.x}px`);
-        card.style.setProperty("--ny", `${n.y}px`);
+        card.style.setProperty("--nx", cq(n.x));
+        card.style.setProperty("--ny", cq(n.y));
         front.push(corners(card, s, n.x, n.y));
       });
+      placeWaiting();
     };
 
     const avoidSlivers = () => {
       sizes.clear();
       MIN_EDGE = Math.max(8, Math.min(16, cards[0].offsetWidth * 0.025));
+      minEdgeShare = MIN_EDGE / stackW();
       const n = cards.length;
       const nudges: Pt[] = cards.map(() => ({ x: 0, y: 0 }));
       const outline = ([i, pos]: number[]) => corners(cards[i], pose(i, pos), nudges[i].x, nudges[i].y);
@@ -799,7 +914,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
         });
         if (!changed) break;
       }
-      fixed = nudges;
+      const w = stackW();
+      fixed = nudges.map((d) => ({ x: d.x / w, y: d.y / w }));
       applyNudges();
     };
 
@@ -825,8 +941,10 @@ const sizes = cards.map((c) => img.get(c.image)!);
       leaving.classList.add("is-leaving");
       window.setTimeout(() => {
         leaving.classList.remove("is-leaving");
+        leaving.classList.add("is-tucking");
         clearDrag(leaving);
-        place();
+        place(leaving);
+        window.setTimeout(() => leaving.classList.remove("is-tucking"), T_MOVE);
         busy = false;
       }, T_OUT);
       return true;
@@ -953,24 +1071,26 @@ const sizes = cards.map((c) => img.get(c.image)!);
       if (e.pointerType === "mouse" && !stack.matches(":hover")) cursor.classList.remove("is-visible");
     });
 
-    // The stack resizes with the window; keep the button on the front card's edge.
-    let sliverFrame = 0;
-    // The observer also fires once when it starts watching. That first call is skipped: the
-    // nudges were just worked out below, and running the heavy sliver pass again on the first
-    // frame blocked Safari's main thread for about 1.5s, right as the cards were dealt in, so
-    // they all landed at once.
+    // The stack resizes with the window. Everything in it is sized and placed relative to the
+    // stack, so it simply scales: nothing is worked out again, and nothing animates while the
+    // window is being resized (.is-resizing). Only the sizes the next step's sliver check uses
+    // are refreshed, and the button is kept on the front card's edge.
+    // The observer also fires once when it starts watching; that first call is skipped.
     let firstResize = true;
+    let resizeEnd = 0;
     new ResizeObserver(() => {
       if (firstResize) {
         firstResize = false;
         return;
       }
+      stack.classList.add("is-resizing");
+      window.clearTimeout(resizeEnd);
+      resizeEnd = window.setTimeout(() => stack.classList.remove("is-resizing"), 200);
+      sizes.clear();
+      if (minEdgeShare) MIN_EDGE = minEdgeShare * stackW();
       const front = cards[order[0]];
       stack.style.setProperty("--front-w", `${front.offsetWidth}px`);
       stack.style.setProperty("--front-h", `${front.offsetHeight}px`);
-      // At most once a frame while the window is being resized.
-      cancelAnimationFrame(sliverFrame);
-      sliverFrame = requestAnimationFrame(avoidSlivers);
     }).observe(stack);
 
     avoidSlivers();
