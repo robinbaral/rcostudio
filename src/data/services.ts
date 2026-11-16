@@ -30,7 +30,7 @@ export const services: Service[] = [
     id: "design",
     name: "Design",
     lead: "Shaping the idea, then the details.",
-    text: "Before anything gets designed, I get everyone on board and agree on a creative direction. From there, a concept takes one idea and works it through into real design choices, down to interfaces that look right and are easy to use.",
+    text: "Before anything gets designed, I get everyone on board and agree on a creative direction. From there, a concept takes one idea and works it through into real design choices, from branding and graphic design down to interfaces that look right and are easy to use.",
   },
   {
     id: "prototyping",

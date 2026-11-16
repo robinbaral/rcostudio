@@ -16,8 +16,9 @@ const { noindex = false, pageTitle, pageDescription, path = "/" } = Astro.props;
 const name = "R&Co. Studio";
 // No locale in the title: clients can be anywhere. No bullet separators (Robin).
 const title = pageTitle ? `${pageTitle} – ${name}` : `${name} – Digital-first design studio`;
+// Not the hero line: names the town once for local search, without leaning on it (Robin).
 const siteDescription =
-  "A digital-first design studio that helps businesses find clarity. Shaped by 20+ years of experience in strategy, branding, development, and design.";
+  "A digital-first design studio in Napier, NZ, working with clients worldwide. Shaped by 20+ years of experience in strategy, branding, development, and design.";
 const description = pageDescription ?? siteDescription;
 const siteUrl = "https://rcostudio.nz/";
 const url = new URL(path, siteUrl).href;
@@ -25,12 +26,15 @@ const ogImage = "https://rcostudio.nz/assets/og/og-image.png";
 const ogImageAlt = "R&Co. Studio in white type on a dark background";
 
 // Structured data: the studio (with its services from src/data/services.ts) and the site.
-// Based in New Zealand, working with clients anywhere.
+// Based in New Zealand, working with clients anywhere. ProfessionalService is a kind of
+// LocalBusiness, so search engines can tie the studio to Napier for local results; the
+// address stays at town level (no street: a service-area business). Add profile links
+// (LinkedIn, Google Business Profile …) as `sameAs` once they exist.
 const schema = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
+      "@type": "ProfessionalService",
       "@id": `${siteUrl}#studio`,
       name,
       alternateName: "R&Co Studio",
@@ -40,9 +44,13 @@ const schema = {
       image: ogImage,
       email: "baralrobin@gmail.com",
       telephone: "+64 21 082 039 40",
-      address: { "@type": "PostalAddress", addressLocality: "Napier", addressCountry: "NZ" },
-      areaServed: "Worldwide",
-      knowsAbout: ["Strategy", "Branding", "Web design", "UI/UX design", "Prototyping", "Web development"],
+      address: { "@type": "PostalAddress", addressLocality: "Napier", addressRegion: "Hawke's Bay", addressCountry: "NZ" },
+      areaServed: [
+        { "@type": "AdministrativeArea", name: "Hawke's Bay, New Zealand" },
+        { "@type": "Country", name: "New Zealand" },
+        "Worldwide",
+      ],
+      knowsAbout: ["Strategy", "Branding", "Graphic design", "Web design", "UI/UX design", "Prototyping", "Web development"],
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: "Services",

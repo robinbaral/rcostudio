@@ -88,7 +88,8 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
             </div>
 
             <div class="project-detail__services">
-              <h3 class="project-detail__label">Services</h3>
+              {/* Plain text, not a heading: one "Services" heading per drawer crowded the page outline. */}
+              <p class="project-detail__label">Services</p>
               <ul>
                 {p.services.map((s) => <li>{s}</li>)}
               </ul>
