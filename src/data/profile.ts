@@ -9,7 +9,7 @@ export const profile = {
     // person, draft).
     text: [
       "R&Co is an independent studio, with experience from start-ups to international brands. I take on whole projects, from the first idea to the finished build, or strengthen your team with the skills it needs. Either way, I work closely with you, get to know how things run and fit in with the way you already work.",
-      "I'm Robin. The R in R&Co. I founded the studio and lead every project. Some projects stay with me throughout; others bring in trusted collaborators with the right skills for the work. That's the Co: a small circle of people who come together as each project needs them.",
+      "I'm Robin. The R in R&Co. I founded the studio and lead every project. I design and I build. Some projects stay with me throughout; others bring in trusted collaborators with the right skills for the work. That's the Co: a small circle of people who come together as each project needs them.",
     ],
   },
 };
