@@ -618,7 +618,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
     // Size by position: the two front cards at full size, the ones behind a little smaller,
     // so a card coming out at the back grows to full size over its first few steps forward
     // rather than in one go (Robin, 2026-11-16).
-    const SCALE = [1, 1, 0.97, 0.94, 0.91];
+    // Steps of 2% (were 3%, Robin 2026-11-16: slightly less).
+    const SCALE = [1, 1, 0.98, 0.96, 0.94];
     const pose = (i: number, pos: number) => ({
       x: poses[i].x,
       y: poses[i].y,
