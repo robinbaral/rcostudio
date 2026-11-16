@@ -24,7 +24,7 @@ export const stack: { name: string; tools: string[] }[] = [
 // confirms it; notes/copy.md has it too. Also used in /llms.txt.
 export const awards = {
   name: "Recognition",
-  note: "Awards won by agency projects I worked on",
+  note: "Awards for agency projects I worked on",
   names: [
     "Red Dot",
     "iF Design Award",

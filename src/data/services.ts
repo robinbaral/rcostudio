@@ -14,7 +14,7 @@ export interface Service {
 // design") and a quiet, contextual contact line (Robin's wording, 2026-11-14).
 export const servicesNote = [
   "Not every project needs every step. It can start with strategy or a creative direction, move straight to a prototype or develop an existing product.",
-  "A modern toolkit leaves more time to explore ideas, refine the details and create something easy to maintain and build on. We'll work out the right mix together.",
+  "With a toolkit that lets us explore ideas quickly, there's more room to refine the details and create something easy to maintain and build on. We'll work out the right mix together.",
 ];
 export const servicesContact = { lead: "Not sure where yours starts?", link: "Get in touch" };
 
