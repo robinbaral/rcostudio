@@ -1,0 +1,106 @@
+---
+// Standalone pages for Robin's apps (privacy policy, support): the app's own name and icon,
+// none of the studio site's nav, footer or styles, so they read as the app's pages. Linked
+// from App Store Connect. One folder per app under src/pages (pop-drop/privacy …).
+
+interface Props {
+  app: string; // "Pop Drop"
+  icon: string; // /assets/apps/<app>-icon-256.png
+  slug: string; // "pop-drop": the folder under src/pages
+  title: string; // "Privacy policy"
+  description: string;
+  accent: string; // the app's colour, used for links and the icon's shadow
+}
+const { app, icon, slug, title, description, accent } = Astro.props;
+const url = new URL(Astro.url.pathname, "https://rcostudio.nz").href;
+const year = new Date().getFullYear();
+const here = Astro.url.pathname.replace(/\.html$/, "");
+const nav = [
+  { href: `/${slug}/support`, label: "Support" },
+  { href: `/${slug}/privacy`, label: "Privacy" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} – {app}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <link rel="icon" type="image/png" href={icon} />
+    <link rel="apple-touch-icon" href={icon} />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161616" />
+    <link rel="preload" href="/assets/fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
+    <style is:inline define:vars={{ accent }}>
+      @font-face {
+        font-family: "General Sans";
+        src: url("/assets/fonts/general-sans-500.woff2") format("woff2");
+        font-weight: 500;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "General Sans";
+        src: url("/assets/fonts/general-sans-600.woff2") format("woff2");
+        font-weight: 600;
+        font-display: swap;
+      }
+      :root {
+        --fg: #141414;
+        --bg: #ffffff;
+        --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
+        --rule: color-mix(in srgb, var(--fg) 12%, var(--bg));
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #f2f2f2;
+          --bg: #161616;
+          --muted: color-mix(in srgb, var(--fg) 58%, var(--bg));
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 500 17px/1.6 "General Sans", -apple-system, system-ui, sans-serif;
+      }
+      .page { max-width: 640px; margin: 0 auto; padding: 48px 20px 64px; }
+      .app { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
+      .app img { width: 56px; height: 56px; border-radius: 13px; }
+      .app__name { font-weight: 600; font-size: 20px; line-height: 1.2; }
+      .app__nav { display: flex; gap: 16px; font-size: 15px; }
+      .app__nav a { color: var(--muted); text-decoration: none; }
+      .app__nav a[aria-current="page"] { color: var(--fg); }
+      h1 { font-weight: 600; font-size: 34px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+      h2 { font-weight: 600; font-size: 19px; line-height: 1.3; margin: 36px 0 6px; }
+      p, ul { margin: 0 0 14px; }
+      ul { padding-left: 20px; }
+      li { margin-bottom: 6px; }
+      a { color: inherit; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+      .lede { font-size: 19px; }
+      h1 + .lede { margin-top: 16px; }
+      .meta { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+      footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="app">
+        <img src={icon} alt="" width="56" height="56" />
+        <div>
+          <div class="app__name">{app}</div>
+          <nav class="app__nav" aria-label={app}>
+            {nav.map((n) => <a href={n.href} aria-current={here === n.href ? "page" : undefined}>{n.label}</a>)}
+          </nav>
+        </div>
+      </header>
+      <slot />
+      <footer>© {year} Robin Baral</footer>
+    </main>
+  </body>
+</html>
