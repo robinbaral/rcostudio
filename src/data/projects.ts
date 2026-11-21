@@ -226,7 +226,7 @@ export const projects: Project[] = [
   {
     name: "Pindrop",
     tags: "Web, App",
-    href: "https://robinbaral.github.io/pindrop/",
+    href: "/pindrop",
     // No country code, so it opens each visitor's own App Store.
     appStore: "https://apps.apple.com/app/pindrop-scorecard/id6761825783",
     // The OG image from Figma "Pindrop Screens" (node 6:2, exported at 3x), reframed to 16:10 on

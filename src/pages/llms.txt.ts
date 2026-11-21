@@ -30,7 +30,7 @@ export const GET: APIRoute = () => {
     "",
     ...projects.map((p) => {
       const kind = p.soon ? "coming soon" : p.tags;
-      return p.href ? `- [${p.name}](${p.href}): ${kind}` : `- ${p.name}: ${kind}`;
+      return p.href ? `- [${p.name}](${new URL(p.href, "https://rcostudio.nz").href}): ${kind}` : `- ${p.name}: ${kind}`;
     }),
     "",
     "## Everyday stack",

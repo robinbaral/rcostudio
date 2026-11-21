@@ -1,7 +1,7 @@
 // /sitemap.xml, generated at build time so <lastmod> is the date of each deploy.
 import type { APIRoute } from "astro";
 
-const pages = ["/"];
+const pages = ["/", "/pindrop"];
 
 export const GET: APIRoute = ({ site }) => {
   const lastmod = new Date().toISOString();

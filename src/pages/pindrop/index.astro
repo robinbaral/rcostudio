@@ -1,0 +1,67 @@
+---
+// Pindrop's home page, the App Store listing's marketing URL. Moved from GitHub Pages
+// (robinbaral/pindrop, a Figma Sites export) with the same content: icon, name, tagline,
+// App Store badge and the phones. Images: src/assets/apps/ (from that export).
+import AppPage from "../../layouts/AppPage.astro";
+import { shot } from "../../lib/shots";
+
+const appStore = "https://apps.apple.com/app/pindrop-scorecard/id6761825783";
+const wide = await shot("apps/pindrop-phones.png");
+const narrow = await shot("apps/pindrop-phones-narrow.png");
+---
+
+<AppPage
+  app="Pindrop"
+  slug="pindrop"
+  icon="/assets/apps/pindrop-icon-256.png"
+  accent="#ffe74c"
+  title="Pindrop – Finska, Skittles & Mölkky Scorecard"
+  description="Pindrop is a free iOS app for tracking scores in Finska, Skittles, and Mölkky. Simple setup, no account needed."
+  image="/assets/apps/pindrop-og.png"
+  appId="6761825783"
+  home
+  landing
+>
+  <section class="hero">
+    <img class="hero__icon" src="/assets/apps/pindrop-icon-256.png" alt="" width="88" height="88" />
+    <h1>Pindrop</h1>
+    <p class="hero__tagline">Finska, Skittles &amp; Mölkky Scorecard</p>
+    <a class="hero__badge" href={appStore}>
+      <img src="/assets/apps/app-store-badge.png" alt="Download on the App Store" width="200" height="67" />
+    </a>
+  </section>
+
+  <picture class="phones">
+    <source media="(max-width: 560px)" srcset={narrow.srcset} sizes="calc(100vw - 40px)" />
+    <img
+      src={wide.src}
+      srcset={wide.srcset}
+      sizes="(max-width: 880px) calc(100vw - 40px), 820px"
+      width={wide.width}
+      height={wide.height}
+      alt="Pindrop on iPhone: the score sheet for three players, the player list, and the warning when a player goes over 50 and drops back to 25."
+    />
+  </picture>
+
+  <nav class="links" aria-label="Pindrop">
+    <a href={appStore}>Download</a>
+    <a href="/pindrop/support">Support</a>
+    <a href="/pindrop/privacy">Privacy</a>
+  </nav>
+</AppPage>
+
+<style>
+  .hero { text-align: center; }
+  .hero__icon { width: 88px; height: 88px; border-radius: 20px; box-shadow: 0 6px 24px rgb(0 0 0 / 0.12); }
+  h1 { font-size: 40px; margin: 22px 0 4px; }
+  .hero__tagline { font-size: clamp(24px, 5vw, 34px); line-height: 1.2; margin: 0 auto; max-width: 13em; }
+  .hero__badge { display: inline-block; margin-top: 28px; }
+  .hero__badge img { display: block; width: 160px; height: auto; }
+  .phones img { display: block; width: 100%; max-width: 820px; height: auto; margin: 48px auto 0; }
+  .links { display: flex; justify-content: center; gap: 24px; margin-top: 48px; font-size: 15px; }
+  .links a { color: var(--muted); text-decoration: none; }
+  .links a:hover { color: var(--fg); }
+  @media (max-width: 560px) {
+    .phones img { max-width: 360px; }
+  }
+</style>

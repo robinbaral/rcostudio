@@ -1,18 +1,25 @@
 ---
 // Standalone pages for Robin's apps (privacy policy, support): the app's own name and icon,
 // none of the studio site's nav, footer or styles, so they read as the app's pages. Linked
-// from App Store Connect. One folder per app under src/pages (pop-drop/privacy …).
+// from App Store Connect. One folder per app under src/pages (pop-drop/privacy …). An app
+// with its own home page (pindrop/index.astro) sets `home` on every page, so the app's name
+// links back to it; the home page itself sets `landing` and draws its own header.
 
 interface Props {
   app: string; // "Pop Drop"
   icon: string; // /assets/apps/<app>-icon-256.png
   slug: string; // "pop-drop": the folder under src/pages
-  title: string; // "Privacy policy"
+  title: string; // "Privacy policy" (the landing page's is the whole title)
   description: string;
   accent: string; // the app's colour, used for links and the icon's shadow
+  home?: boolean; // the app has a home page at /<slug>
+  landing?: boolean; // this is that home page: no header, a wider page
+  appId?: string; // App Store ID, for Safari's Smart App Banner
+  image?: string; // share image (Open Graph), 1200x630
 }
-const { app, icon, slug, title, description, accent } = Astro.props;
+const { app, icon, slug, title, description, accent, home, landing, appId, image } = Astro.props;
 const url = new URL(Astro.url.pathname, "https://rcostudio.nz").href;
+const fullTitle = landing ? title : `${title} – ${app}`;
 const year = new Date().getFullYear();
 const here = Astro.url.pathname.replace(/\.html$/, "");
 const nav = [
@@ -26,9 +33,18 @@ const nav = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} – {app}</title>
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={app} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    {image && <meta property="og:image" content={new URL(image, "https://rcostudio.nz").href} />}
+    {image && <meta property="og:image:alt" content={app} />}
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    {appId && <meta name="apple-itunes-app" content={`app-id=${appId}`} />}
     <link rel="icon" type="image/png" href={icon} />
     <link rel="apple-touch-icon" href={icon} />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
@@ -85,20 +101,24 @@ const nav = [
       .lede { font-size: 19px; }
       h1 + .lede { margin-top: 16px; }
       .meta { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+      a.app__home { color: inherit; text-decoration: none; }
+      .page--landing { max-width: 880px; padding-top: 72px; }
       footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
     </style>
   </head>
   <body>
-    <main class="page">
+    <main class:list={["page", { "page--landing": landing }]}>
+      {!landing && (
       <header class="app">
-        <img src={icon} alt="" width="56" height="56" />
+        {home ? <a class="app__home" href={`/${slug}`}><img src={icon} alt={app} width="56" height="56" /></a> : <img src={icon} alt="" width="56" height="56" />}
         <div>
-          <div class="app__name">{app}</div>
+          <div class="app__name">{home ? <a class="app__home" href={`/${slug}`}>{app}</a> : app}</div>
           <nav class="app__nav" aria-label={app}>
             {nav.map((n) => <a href={n.href} aria-current={here === n.href ? "page" : undefined}>{n.label}</a>)}
           </nav>
         </div>
       </header>
+      )}
       <slot />
       <footer>© {year} Robin Baral</footer>
     </main>
