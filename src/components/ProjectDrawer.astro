@@ -10,6 +10,13 @@ import { projects, projectId, projectLinkLabel } from "../data/projects";
 import { shots } from "../lib/shots";
 import CaseBoard from "./cases/CaseBoard.astro";
 
+interface Props {
+  // On a project's own page (/work/<name>): that project, shown when the page loads, with its
+  // name as the page's main heading.
+  openProject?: string;
+}
+const { openProject } = Astro.props;
+
 // Every image the drawers show, built from its source (src/lib/shots.ts).
 const img = await shots(projects.flatMap((p) => [p.preview, p.drawerImage, ...(p.gallery ?? []), ...(p.galleryMobile ?? [])]));
 // Display widths for srcset (measured): on desktop the shots are about 82vw, at most 1012px;
@@ -18,7 +25,7 @@ const SIZES = "(min-width: 1024px) min(1012px, 82vw), (min-width: 768px) 736px, 
 const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
 ---
 
-<dialog class="project-drawer" id="project-drawer" data-project-drawer>
+<dialog class="project-drawer" id="project-drawer" data-project-drawer data-open-project={openProject}>
   <div class="project-drawer__panel" tabindex="-1" autofocus>
     <!-- Just the close button, floating top right; the title is part of each project below. -->
     <div class="project-drawer__head">
@@ -32,8 +39,12 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
     <div class="project-drawer__body">
       {
         projects.filter((p) => !p.soon).map((p) => (
-          <article class="project-detail" data-project={projectId(p)} hidden>
-            <h2 class="project-detail__title" id={`project-title-${projectId(p)}`}>{p.name}</h2>
+          <article class="project-detail" data-project={projectId(p)} data-page-title={`${p.name} – R&Co. Studio`} hidden={projectId(p) !== openProject}>
+            {projectId(p) === openProject ? (
+              <h1 class="project-detail__title" id={`project-title-${projectId(p)}`}>{p.name}</h1>
+            ) : (
+              <h2 class="project-detail__title" id={`project-title-${projectId(p)}`}>{p.name}</h2>
+            )}
             {p.video ? (
               <div class="project-detail__media project-video" data-video>
                 <video
@@ -231,23 +242,77 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
     // Turning a phone or resizing past the breakpoint swaps between the two modes.
     phone.addEventListener("change", () => (phone.matches ? enterPageMode() : leavePageMode()));
 
-    document.querySelectorAll<HTMLElement>("[data-project-open]").forEach((button) =>
-      button.addEventListener("click", () => open(button.dataset.projectOpen!, button)),
+    // Each open project has its own address, /work/<name> (src/pages/work/), so it can be reloaded
+    // and shared. Opening a row adds that address to the history; closing goes back to the
+    // homepage's, and the back button closes the drawer. A page loaded at a project's address
+    // opens on it, and closing it replaces the address with the homepage's.
+    // The homepage's title (Base.astro), also when the page was loaded at a project's address.
+    const home = { path: "/", title: "R&Co. Studio – Digital-first design studio" };
+    const pathOf = (id: string) => `/work/${id}`;
+    const titleOf = (id: string) => dialog.querySelector<HTMLElement>(`[data-project="${id}"]`)?.dataset.pageTitle;
+    const projectAt = (path: string) => path.match(/^\/work\/([^/]+)$/)?.[1];
+    const rowFor = (id: string) => document.querySelector<HTMLElement>(`[data-project-open="${id}"]`);
+
+    const openWithAddress = (id: string, from: HTMLElement) => {
+      if (isOpen()) return;
+      open(id, from);
+      if (location.pathname !== pathOf(id)) history.pushState({ project: id }, "", pathOf(id));
+      document.title = titleOf(id) ?? home.title;
+    };
+
+    const closeWithAddress = () => {
+      if (!isOpen()) return;
+      close();
+      document.title = home.title;
+      if (!projectAt(location.pathname)) return;
+      // Opened from a row on this visit: step back, as the back button would.
+      if (history.state?.project) history.back();
+      else history.replaceState(null, "", home.path);
+    };
+
+    // A project page opens on its project. Titles and addresses already match.
+    const initial = dialog.dataset.openProject;
+    if (initial) {
+      const row = rowFor(initial);
+      if (row) open(initial, row);
+    }
+
+    // Back and forward between the homepage and a project.
+    window.addEventListener("popstate", () => {
+      const id = projectAt(location.pathname);
+      if (id && !isOpen()) {
+        const row = rowFor(id);
+        if (row) open(id, row);
+        document.title = titleOf(id) ?? home.title;
+      } else if (!id && isOpen()) {
+        close();
+        document.title = home.title;
+      }
+    });
+
+    // Rows are links to the project's address: a plain click opens the drawer here, while a
+    // click with a modifier key (new tab, new window) follows the link.
+    document.querySelectorAll<HTMLElement>("[data-project-open]").forEach((row) =>
+      row.addEventListener("click", (event) => {
+        if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
+        event.preventDefault();
+        openWithAddress(row.dataset.projectOpen!, row);
+      }),
     );
-    dialog.querySelector("[data-project-close]")?.addEventListener("click", close);
+    dialog.querySelector("[data-project-close]")?.addEventListener("click", closeWithAddress);
 
     // A click on the backdrop (the dialog itself, outside the panel) closes it.
     dialog.addEventListener("click", (event) => {
-      if (event.target === dialog) close();
+      if (event.target === dialog) closeWithAddress();
     });
 
     // Escape animates out too; in page mode the dialog isn't modal, so it's caught here.
     dialog.addEventListener("cancel", (event) => {
       event.preventDefault();
-      close();
+      closeWithAddress();
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && inPageMode()) close();
+      if (event.key === "Escape" && inPageMode()) closeWithAddress();
     });
   }
 </script>

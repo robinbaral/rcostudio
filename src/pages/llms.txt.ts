@@ -3,7 +3,7 @@
 import type { APIRoute } from "astro";
 import { profile } from "../data/profile";
 import { services, servicesNote } from "../data/services";
-import { projects } from "../data/projects";
+import { projects, projectId } from "../data/projects";
 import { stack, awards } from "../data/stack";
 
 const site = "https://rcostudio.nz";
@@ -29,8 +29,10 @@ export const GET: APIRoute = () => {
     "## Selected work",
     "",
     ...projects.map((p) => {
-      const kind = p.soon ? "coming soon" : p.tags;
-      return p.href ? `- [${p.name}](${new URL(p.href, "https://rcostudio.nz").href}): ${kind}` : `- ${p.name}: ${kind}`;
+      if (p.soon) return `- ${p.name}: coming soon`;
+      // The project's page here, then its own site where there is one.
+      const link = p.href ? ` (live: ${new URL(p.href, site).href})` : "";
+      return `- [${p.name}](${site}/work/${projectId(p)}): ${p.tags}${link}`;
     }),
     "",
     "## Everyday stack",

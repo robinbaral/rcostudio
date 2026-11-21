@@ -1,0 +1,41 @@
+---
+// One address per project, /work/<name>: the homepage with that project's drawer open, so a
+// project can be reloaded and shared. Each has its own title, description and share image.
+// The drawer moves between / and these addresses as it opens and closes (ProjectDrawer).
+// Coming-soon projects have no drawer, so no page either.
+import { getImage } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import Home from "../../components/Home.astro";
+import { projects, projectId, type Project } from "../../data/projects";
+import { source } from "../../lib/shots";
+
+export function getStaticPaths() {
+  return projects.filter((p) => !p.soon).map((p) => ({ params: { project: projectId(p) }, props: { project: p } }));
+}
+
+const { project } = Astro.props as { project: Project };
+const id = projectId(project);
+
+// The description: the summary's first paragraph, cut after a sentence when it runs long.
+const first = [project.summary].flat()[0];
+const description = first.length <= 160 ? first : first.slice(0, 160).replace(/[^.!?]*$/, "").trim() || first;
+
+// Share image: the drawer's opening image as a JPEG, 1200 wide (16:10). Portrait previews and
+// older images in public/ keep the studio's own share image.
+const meta = !project.portrait || project.drawerImage ? source(project.drawerImage ?? project.preview ?? "") : undefined;
+const share = meta ? await getImage({ src: meta, format: "jpg", quality: 85, width: 1200 }) : undefined;
+---
+
+<Base
+  pageTitle={project.name}
+  pageDescription={description}
+  path={`/work/${id}`}
+  shareImage={share && {
+    src: new URL(share.src, "https://rcostudio.nz").href,
+    width: 1200,
+    height: Math.round((1200 * meta!.height) / meta!.width),
+    alt: `${project.name}, ${project.tags}`,
+  }}
+>
+  <Home openProject={id} />
+</Base>

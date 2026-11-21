@@ -368,16 +368,9 @@ html {
   color: var(--row-accent, inherit);
 }
 
-/* Rows are buttons that open the project drawer: reset the button look. */
-button.project {
-  width: 100%;
-  margin: 0;
+/* Rows are links to each project's address that open the project drawer. */
+a.project {
   color: inherit;
-  text-align: left;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  cursor: pointer;
 }
 
 /* No outline on the rows (Robin); keyboard focus shows as the row's hover colour instead

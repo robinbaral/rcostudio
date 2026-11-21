@@ -1,0 +1,25 @@
+---
+// The homepage, shared by / and the project pages at /work/<name> (src/pages/work/), which are
+// the same page with that project's drawer open.
+import HeroStack from "./HeroStack.astro";
+import Projects from "./Projects.astro";
+import Profile from "./Profile.astro";
+import Services from "./Services.astro";
+import Cases from "./Cases.astro";
+import Stack from "./Stack.astro";
+import Footer from "./Footer.astro";
+
+interface Props {
+  // The project whose drawer is open when the page loads (its projectId).
+  openProject?: string;
+}
+const { openProject } = Astro.props;
+---
+
+<HeroStack />
+<Projects openProject={openProject} />
+<Profile />
+<Services />
+<Cases />
+<Stack />
+<Footer />

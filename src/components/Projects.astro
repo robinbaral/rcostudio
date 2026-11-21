@@ -8,6 +8,12 @@ import { projects, projectId } from "../data/projects";
 import ProjectDrawer from "./ProjectDrawer.astro";
 import { shots } from "../lib/shots";
 
+interface Props {
+  // The project whose drawer is open when the page loads (/work/<name>).
+  openProject?: string;
+}
+const { openProject } = Astro.props;
+
 // The hover preview is a single small image, so one size (about 2x its display width) is enough.
 // The images run in the drawer's order: drawerImage (when set) in place of the preview, then the gallery.
 const order = (p: (typeof projects)[number]) => [p.drawerImage ?? p.preview, ...(p.gallery ?? [])];
@@ -32,8 +38,10 @@ const images = (p: (typeof projects)[number]) => (p.soon ? [] : order(p).filter(
               <span class="project__tags">{p.tags}</span>
             </div>
           ) : (
-          <button
-            type="button"
+          // A link to the project's own address (/work/<name>), so it can be opened in a new tab
+          // and search engines follow it; a plain click opens the drawer instead (ProjectDrawer).
+          <a
+            href={`/work/${projectId(p)}`}
             class="project"
             aria-haspopup="dialog"
             aria-controls="project-drawer"
@@ -64,7 +72,7 @@ const images = (p: (typeof projects)[number]) => (p.soon ? [] : order(p).filter(
               )}
             </span>
             <span class="project__tags">{p.tags}</span>
-          </button>
+          </a>
           )}
         </li>
       ))
@@ -74,6 +82,6 @@ const images = (p: (typeof projects)[number]) => (p.soon ? [] : order(p).filter(
 
 <div class="preview" aria-hidden="true"><img class="preview__img" alt="" /></div>
 
-<ProjectDrawer />
+<ProjectDrawer openProject={openProject} />
 
 <script src="../scripts/preview.js"></script>

@@ -10,8 +10,10 @@ interface Props {
   pageDescription?: string;
   // Browser bar colour on phones: the colour at the top of the page (dark by default).
   path?: string;
+  // Link previews: an image of the page itself (project pages); the studio's otherwise.
+  shareImage?: { src: string; width: number; height: number; alt: string };
 }
-const { noindex = false, pageTitle, pageDescription, path = "/" } = Astro.props;
+const { noindex = false, pageTitle, pageDescription, path = "/", shareImage } = Astro.props;
 
 const name = "R&Co. Studio";
 // No locale in the title: clients can be anywhere. No bullet separators (Robin).
@@ -24,6 +26,9 @@ const siteUrl = "https://rcostudio.nz/";
 const url = new URL(path, siteUrl).href;
 const ogImage = "https://rcostudio.nz/assets/og/og-image.png";
 const ogImageAlt = "R&Co. Studio in white type on a dark background";
+const share = shareImage ?? { src: ogImage, width: 1200, height: 630, alt: ogImageAlt };
+// Link previews name the page on sub-pages, the studio on the homepage.
+const shareTitle = pageTitle ? title : name;
 
 // Structured data: the studio (with its services from src/data/services.ts) and the site.
 // Based in New Zealand, working with clients anywhere. ProfessionalService is a kind of
@@ -39,7 +44,7 @@ const schema = {
       name,
       alternateName: "R&Co Studio",
       url: siteUrl,
-      description,
+      description: siteDescription,
       logo: "https://rcostudio.nz/assets/icons/favicon-512.png",
       image: ogImage,
       email: "baralrobin@gmail.com",
@@ -86,20 +91,20 @@ const schema = {
     <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
     <link rel="canonical" href={url} />
 
-    <meta property="og:title" content={name} />
+    <meta property="og:title" content={shareTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={url} />
     <meta property="og:site_name" content={name} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image" content={share.src} />
+    <meta property="og:image:width" content={String(share.width)} />
+    <meta property="og:image:height" content={String(share.height)} />
+    <meta property="og:image:alt" content={share.alt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={name} />
+    <meta name="twitter:title" content={shareTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={ogImageAlt} />
+    <meta name="twitter:image" content={share.src} />
+    <meta name="twitter:image:alt" content={share.alt} />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="Summary for language models" />
 
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48.png" />
