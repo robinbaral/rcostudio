@@ -167,7 +167,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
         cards.slice(0, Number(document.querySelector(".stack")?.dataset.visible ?? 5) + 1).forEach((card) => {
           const img = card.querySelector("img[data-src]");
           img.fetchPriority = "high";
-          img.srcset = img.dataset.srcset;
+          // Older images in public/ come in one size, with no srcset (Solarkraftwerk).
+          if (img.dataset.srcset) img.srcset = img.dataset.srcset;
           img.src = img.dataset.src;
         });
       })();
@@ -1126,7 +1127,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
         const img = card.querySelector<HTMLImageElement>("img")!;
         if (img.src || !img.dataset.src) return;
         img.fetchPriority = "low";
-        img.srcset = img.dataset.srcset ?? "";
+        if (img.dataset.srcset) img.srcset = img.dataset.srcset;
         img.src = img.dataset.src;
       });
     if (!root.classList.contains("stack-deal")) loadRest();
