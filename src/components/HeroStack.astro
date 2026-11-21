@@ -14,6 +14,7 @@ import { shots } from "../lib/shots";
 
 // How many cards show at once (front to back); the rest wait hidden at the back.
 const VISIBLE = 5;
+const CARD_SIZES = "(min-width: 1200px) min(58vw, 1260px), (min-width: 768px) min(76vw, 720px), 100vw";
 // Each card keeps its own place and leans to its own side (alternating, so neighbours differ).
 // Only the angle depends on where it is in the stack: about 8° at the back and 1.2° at the
 // front, on a curve, so each step towards straight is a little bigger than the one before
@@ -97,17 +98,22 @@ const sizes = cards.map((c) => img.get(c.image)!);
             data-href={p.href}
             aria-hidden="true"
           >
+            {/* No src in the markup: the shuffle below gives the front cards theirs and the stack's
+                script the rest, once the front cards are in (Robin, 2026-11-22: about 1MB instead
+                of 2.3MB before the deal on a retina laptop). Without JavaScript, the copy in
+                <noscript> shows instead. */}
             <img
-              src={sizes[i].src}
-              srcset={sizes[i].srcset}
-              sizes="(min-width: 1200px) min(58vw, 1260px), (min-width: 768px) min(76vw, 720px), 100vw"
+              data-src={sizes[i].src}
+              data-srcset={sizes[i].srcset}
+              sizes={CARD_SIZES}
               alt=""
               width={sizes[i].width}
               height={sizes[i].height}
-              loading="eager"
-              fetchpriority={i < VISIBLE ? "high" : "auto"}
               draggable="false"
             />
+            <noscript>
+              <img src={sizes[i].src} srcset={sizes[i].srcset} sizes={CARD_SIZES} alt="" width={sizes[i].width} height={sizes[i].height} draggable="false" />
+            </noscript>
           </div>
         ))
       }
@@ -155,6 +161,14 @@ const sizes = cards.map((c) => img.get(c.image)!);
           if (it.href) card.dataset.href = it.href;
           else delete card.dataset.href;
           card.append(it.img);
+        });
+        // The front cards and the first waiting one load now, at high priority; the rest wait
+        // for the stack's script (they only come forward after a few moves).
+        cards.slice(0, Number(document.querySelector(".stack")?.dataset.visible ?? 5) + 1).forEach((card) => {
+          const img = card.querySelector("img[data-src]");
+          img.fetchPriority = "high";
+          img.srcset = img.dataset.srcset;
+          img.src = img.dataset.src;
         });
       })();
     </script>
@@ -1098,15 +1112,25 @@ const sizes = cards.map((c) => img.get(c.image)!);
     place();
 
     // --- Page load: deal the cards in from the right ---------------------------------------
-    // The cards wait off screen (see :root.stack-deal in the styles). The whole stack waits
-    // until every card's image has loaded and decoded (all of them, not
-    // just the visible five, and all loaded eagerly: about 700KB together), so no card comes
-    // in blank or fills in late. 6s at most, in case one never arrives. Then the cards are
+    // The cards wait off screen (see :root.stack-deal in the styles). The stack waits until
+    // the images of the front five and the first waiting card (given their src by the shuffle
+    // above) have loaded and decoded, so no card comes in blank or fills in late. 6s at most,
+    // in case one never arrives. The other cards' images start loading then, while the cards
+    // are dealt in; they only come forward after a few moves. Then the cards are
     // dealt in one after another, back card first, so the front card lands last, on top. The
     // motion and the stagger are all CSS (.is-dealing and @keyframes stack-deal); the script
     // only starts it. Shuffling waits until the front card has landed.
     const root = document.documentElement;
-    if (root.classList.contains("stack-deal")) {
+    const loadRest = () =>
+      cards.forEach((card) => {
+        const img = card.querySelector<HTMLImageElement>("img")!;
+        if (img.src || !img.dataset.src) return;
+        img.fetchPriority = "low";
+        img.srcset = img.dataset.srcset ?? "";
+        img.src = img.dataset.src;
+      });
+    if (!root.classList.contains("stack-deal")) loadRest();
+    else {
       busy = true;
       const loaded = (img: HTMLImageElement) =>
         (img.complete
@@ -1116,9 +1140,13 @@ const sizes = cards.map((c) => img.get(c.image)!);
               img.addEventListener("error", resolve, { once: true });
             })
         ).then(() => img.decode().catch(() => {}));
-      const ready = Promise.all(cards.map((card) => loaded(card.querySelector("img")!)));
+      // Only the cards that are loading wait (the front ones and the first waiting one).
+      const ready = Promise.all(
+        cards.map((card) => card.querySelector<HTMLImageElement>("img")!).filter((img) => img.src).map(loaded),
+      );
       const timeout = new Promise((resolve) => window.setTimeout(resolve, 6000));
       Promise.race([ready, timeout]).then(() => {
+        loadRest();
         stack.classList.add("is-dealing");
         const front = cards[order[0]];
         const done = (e: AnimationEvent) => {
