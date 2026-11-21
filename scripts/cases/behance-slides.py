@@ -1,4 +1,4 @@
-# Slides for three older projects (Banking App, QuickScan, Visual Mixtape) in the project
+# Slides for two older projects (Banking App, QuickScan) in the project
 # drawer (src/assets/work/<project>-<n>.png, 2880x1800), from Robin's Behance boards
 # (2800px wide, saved in "03_Working files/behance/<project>/"). Each board is brought to 16:10:
 # a wider one is extended above and below in its own edge colour, a taller one is cropped
@@ -23,10 +23,6 @@ SLIDES = [
     ("quickscan", 1, "quickscan-v1", 0.0),
     ("quickscan", 5, "quickscan-flow", 0.5),
     ("quickscan", 6, "quickscan-screens", 0.5),
-    ("visual-mixtape", 1, "visual-mixtape-hero", 0.5),
-    ("visual-mixtape", 3, "visual-mixtape-posters", 0.5),
-    ("visual-mixtape", 2, "visual-mixtape-detail", 0.5),
-    ("visual-mixtape", 4, "visual-mixtape-pattern", 0.5),
 ]
 
 

@@ -380,21 +380,9 @@ export const projects: Project[] = [
     ],
     services: ["Brand", "Campaign", "Posters and print", "Website", "Social media", "Pitch"],
   },
-  // Three older projects from Robin's Behance boards (2019–2020), brought to 16:10 by
-  // scripts/cases/behance-slides.py. No public link. The two app projects were self-initiated
+  // Two older projects from Robin's Behance boards (2019–2020), brought to 16:10 by
+  // scripts/cases/behance-slides.py. No public link. Both were self-initiated
   // studies, not client work, and say so (Robin, 2026-11-22). Summaries are drafts.
-  {
-    name: "Visual Mixtape",
-    tags: "Print",
-    preview: "work/visual-mixtape-hero.png",
-    gallery: ["work/visual-mixtape-posters.png", "work/visual-mixtape-detail.png", "work/visual-mixtape-pattern.png"],
-    galleryBleed: "all",
-    summary: [
-      "Visual Mixtape is a personal poster series: three prints, a disc, a tape and a record, in red and white.",
-      "The shapes are set in type. Up close, each print is filled with the titles of my all-time most played songs, exported from a smart playlist in iTunes.",
-    ],
-    services: ["Poster design", "Typography", "Print"],
-  },
   {
     name: "Banking App",
     tags: "App, UX study",
