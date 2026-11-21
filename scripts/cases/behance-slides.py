@@ -12,14 +12,15 @@ SRC = ROOT.parent / "03_Working files/behance"
 OUT = ROOT / "src/assets/work"
 W, H = 2880, 1800
 
-# (project folder, source number, output name, crop anchor for tall boards: 0 top … 1 bottom)
+# (project folder, source number or file name, output name, crop anchor for tall boards: 0 top … 1 bottom)
+# The QuickScan hero uses Robin's taller re-export of board 04 (already 16:10), from
+# "Quick Scan/06_Production/Behance/04 Taller.jpg": the 2800x1460 board, extended, smeared its bottom row.
 SLIDES = [
     ("banking", 1, "banking-app-hero", 0.5),
     ("banking", 3, "banking-app-balance", 0.5),
     ("banking", 7, "banking-app-transfers", 0.5),
-    ("banking", 5, "banking-app-notifications", 0.5),
     ("banking", 9, "banking-app-dark", 0.5),
-    ("quickscan", 4, "quickscan-hero", 0.5),
+    ("quickscan", "04-taller.jpg", "quickscan-hero", 0.5),
     ("quickscan", 1, "quickscan-v1", 0.0),
     ("quickscan", 5, "quickscan-flow", 0.5),
     ("quickscan", 6, "quickscan-screens", 0.5),
@@ -42,7 +43,8 @@ def to_16_10(img, anchor):
 
 
 for folder, n, name, anchor in SLIDES:
-    img = Image.open(SRC / folder / f"{n:02d}.png").convert("RGB")
+    src = n if isinstance(n, str) else f"{n:02d}.png"
+    img = Image.open(SRC / folder / src).convert("RGB")
     out = to_16_10(img, anchor).resize((W, H), Image.LANCZOS)
     out.save(OUT / f"{name}.png", optimize=True)
     print(name, img.size, "->", out.size)
