@@ -380,6 +380,53 @@ export const projects: Project[] = [
     ],
     services: ["Brand", "Campaign", "Posters and print", "Website", "Social media", "Pitch"],
   },
+  // Three older projects from Robin's Behance boards (2019–2020), brought to 16:10 by
+  // scripts/cases/behance-slides.py. No public link. The two app projects were self-initiated
+  // studies, not client work, and say so (Robin, 2026-11-22). Summaries are drafts.
+  {
+    name: "Visual Mixtape",
+    tags: "Print",
+    preview: "work/visual-mixtape-hero.png",
+    gallery: ["work/visual-mixtape-posters.png", "work/visual-mixtape-detail.png", "work/visual-mixtape-pattern.png"],
+    galleryBleed: "all",
+    summary: [
+      "Visual Mixtape is a personal poster series: three prints, a disc, a tape and a record, in red and white.",
+      "The shapes are set in type. Up close, each print is filled with the titles of my all-time most played songs, exported from a smart playlist in iTunes.",
+    ],
+    services: ["Poster design", "Typography", "Print"],
+  },
+  {
+    name: "Banking App",
+    tags: "App, UX study",
+    preview: "work/banking-app-hero.png",
+    heroCard: false, // a study: the hero stack keeps to real projects
+    gallery: [
+      "work/banking-app-balance.png",
+      "work/banking-app-transfers.png",
+      "work/banking-app-notifications.png",
+      "work/banking-app-dark.png",
+    ],
+    galleryBleed: "all",
+    summary: [
+      "A self-initiated study: a redesign of a New Zealand bank's iPhone app, looking at common interface patterns and the places where the current app falls short. Not a client project, and not connected to the bank.",
+      "It focuses on what people check most: a combined balance that shows at a glance what's going on across all accounts, transfers reduced to a few clear steps, notifications with the details right there, and a quick transfer for regular payments. A dark mode came with it.",
+    ],
+    services: ["UX study", "App design", "Interaction design"],
+  },
+  {
+    name: "QuickScan",
+    tags: "App, UX study",
+    preview: "work/quickscan-hero.png",
+    heroCard: false, // a study: the hero stack keeps to real projects
+    gallery: ["work/quickscan-v1.png", "work/quickscan-flow.png", "work/quickscan-screens.png"],
+    galleryBleed: "all",
+    summary: [
+      "A self-initiated study of QuickScan, a document scanner for iPhone, to fix issues with the current app. Not a client project, and not connected to QuickScan.",
+      "The first version stays true to the idea of the app: get in, scan, save, done. It tidies up the interface while keeping every feature, and brings the settings scattered across the app into one place.",
+      "A second version adds file management: a history of scans, editing and a choice of where each file is saved, with capture just as quick as before.",
+    ],
+    services: ["UX study", "App design", "User flows"],
+  },
 ];
 
 // A stable id for each project's drawer content ("Tommy Pickett" → "tommy-pickett").
