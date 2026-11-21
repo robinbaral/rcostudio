@@ -27,7 +27,8 @@ type BoardProps = ComponentProps<typeof CaseBoard>;
 //   the gallery, edge to edge. Its background is the --board token, so it follows dark mode,
 //   where a board saved as one image keeps its light background.
 // - drawerImage: a 16:10 image to open the drawer with instead of the preview (for portrait
-//   previews, which don't fit the frame). The hover keeps the preview.
+//   previews, which don't fit the frame, or a mock-up to lead with). The hover image and its
+//   thumbnails follow the drawer's order; the hero stack keeps the preview.
 // - galleryMobile: phone shots of the same sections, in the same order as [preview,
 //   ...gallery]. Shown in a phone frame over the desktop shot, switching in step.
 // - video: a slow scroll down the site (desktop), with the same scroll on a phone on top. Used
@@ -123,7 +124,19 @@ export const projects: Project[] = [
     href: "https://www.prolog.ag",
     caseStudy: "/cases/prolog",
     preview: "work/prolog-hero.png",
+    // The drawer opens on the laptop and phone mock-up, edge to edge; the site screenshots
+    // follow in their frames. The hover thumbnails follow; the hero stack keeps the preview.
+    drawerImage: "work/prolog-mockup.png",
+    galleryBleed: "all",
+    galleryFramed: [
+      "work/prolog-hero.png",
+      "work/prolog-section-1.png",
+      "work/prolog-section-2.png",
+      "work/prolog-section-3.png",
+      "work/prolog-section-4.png",
+    ],
     gallery: [
+      "work/prolog-hero.png",
       "work/prolog-section-1.png",
       "work/prolog-section-2.png",
       "work/prolog-section-3.png",
@@ -174,11 +187,13 @@ export const projects: Project[] = [
     href: "https://www.eventsitters.nz",
     preview: "work/eventsitters-hero.png",
     gallery: ["work/event-sitters-section-1.png", "work/event-sitters-section-2.png", "work/event-sitters-section-3.png"],
+    // The last image is a mock-up of the colouring sheets: edge to edge, with no phone over it.
+    galleryBleed: true,
+    galleryFramed: ["work/event-sitters-section-1.png", "work/event-sitters-section-2.png"],
     galleryMobile: [
       "work/event-sitters-mobile-1.png",
       "work/event-sitters-mobile-2.png",
       "work/event-sitters-mobile-3.png",
-      "work/event-sitters-mobile-4.png",
     ],
     summary: [
       "Event Sitters is a small company in Hawke's Bay, run by Samantha, that brings kids' entertainment to weddings, parties and events, on site.",

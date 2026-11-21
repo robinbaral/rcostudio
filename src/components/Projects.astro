@@ -9,12 +9,14 @@ import ProjectDrawer from "./ProjectDrawer.astro";
 import { shots } from "../lib/shots";
 
 // The hover preview is a single small image, so one size (about 2x its display width) is enough.
-const img = await shots(projects.flatMap((p) => [p.preview, ...(p.gallery ?? [])]), 960);
+// The images run in the drawer's order: drawerImage (when set) in place of the preview, then the gallery.
+const order = (p: (typeof projects)[number]) => [p.drawerImage ?? p.preview, ...(p.gallery ?? [])];
+const img = await shots(projects.flatMap(order), 960);
 const url = (name: string) => img.get(name)!.src;
 // Thumbnails sit at the x-height of the name (about 16px), so a small file each is enough.
-const thumb = await shots(projects.flatMap((p) => [p.preview, ...(p.gallery ?? [])]), 120);
+const thumb = await shots(projects.flatMap(order), 120);
 // Coming-soon rows get no hover image and no thumbnails (Robin, 2026-11-15).
-const images = (p: (typeof projects)[number]) => (p.soon ? [] : [p.preview, ...(p.gallery ?? [])].filter((n): n is string => !!n));
+const images = (p: (typeof projects)[number]) => (p.soon ? [] : order(p).filter((n): n is string => !!n));
 ---
 
 <section class="projects" id="work" aria-labelledby="work-heading">

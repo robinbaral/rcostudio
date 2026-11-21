@@ -30,7 +30,7 @@ const steps = [
 
 const img = await shots([
   ...steps.map((s) => s.src),
-  ...["prolog-logo-sketches", "prolog-logo-sketches-phone", "prolog-live-desktop", "prolog-live-phone"].map(c),
+  ...["prolog-logo-sketches", "prolog-logo-sketches-phone", "prolog-live-mockup"].map(c),
 ]);
 const shot = (name: string) => img.get(c(name))!;
 const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
@@ -199,33 +199,18 @@ const FULL = "(max-width: 767px) calc(100vw - 40px), calc(100vw - 64px)";
       </p>
     </div>
 
-    <figure class="article__media devices">
-      <div class="devices__panel">
-        <div class="devices__desktop">
-          <img
-            src={shot("prolog-live-desktop").src}
-            srcset={shot("prolog-live-desktop").srcset}
-            sizes="(max-width: 767px) 80vw, 60vw"
-            width={shot("prolog-live-desktop").width}
-            height={shot("prolog-live-desktop").height}
-            alt="The ProLog homepage at desktop width"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="devices__phone">
-          <img
-            src={shot("prolog-live-phone").src}
-            srcset={shot("prolog-live-phone").srcset}
-            sizes="(max-width: 767px) 30vw, 18vw"
-            width={shot("prolog-live-phone").width}
-            height={shot("prolog-live-phone").height}
-            alt="The ProLog homepage at mobile width"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-      </div>
+    <figure class="article__media">
+      <img
+        class="article__image"
+        src={shot("prolog-live-mockup").src}
+        srcset={shot("prolog-live-mockup").srcset}
+        sizes={FULL}
+        width={shot("prolog-live-mockup").width}
+        height={shot("prolog-live-mockup").height}
+        alt="The ProLog homepage on a laptop and on a phone held in a hand"
+        loading="lazy"
+        decoding="async"
+      />
       <figcaption>The launched site, optimised for every viewport, including the mobile screens where many visitors first see it.</figcaption>
     </figure>
 
