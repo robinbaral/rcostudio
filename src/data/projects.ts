@@ -23,14 +23,16 @@ type BoardProps = ComponentProps<typeof CaseBoard>;
 //   like site screenshots. The preview above them stays framed; "all" lets it fill its block
 //   too (when the preview is a composed board as well). galleryFramed lists images that stay
 //   framed anyway (site screenshots among boards).
-// - galleryBoard: a case board (src/components/cases/CaseBoard.astro, same props) shown after
-//   the gallery, edge to edge. Its background is the --board token, so it follows dark mode,
+// - galleryBoard: a case board (src/components/cases/CaseBoard.astro, same props), or a list of
+//   them, shown after the gallery, edge to edge. galleryBoardStills: a flat image of each, in
+//   the same order, for the hover preview and its thumbnails (the boards are live HTML). Its background is the --board token, so it follows dark mode,
 //   where a board saved as one image keeps its light background.
 // - drawerImage: a 16:10 image to open the drawer with instead of the preview (for portrait
 //   previews, which don't fit the frame, or a mock-up to lead with). The hover image and its
 //   thumbnails follow the drawer's order; the hero stack keeps the preview.
 // - galleryMobile: phone shots of the same sections, in the same order as [preview,
-//   ...gallery]. Shown in a phone frame over the desktop shot, switching in step.
+//   ...gallery]. Shown in a phone frame over the desktop shot, switching in step. undefined
+//   leaves a slide without a phone (a board among screenshots).
 // - video: a slow scroll down the site (desktop), with the same scroll on a phone on top. Used
 //   instead of the gallery when set. Recorded with a headless browser; posters are the first
 //   frames.
@@ -68,9 +70,10 @@ export interface Project {
   gallery?: string[];
   galleryBleed?: boolean | "all";
   galleryFramed?: string[];
-  galleryBoard?: BoardProps;
+  galleryBoard?: BoardProps | BoardProps[];
+  galleryBoardStills?: string[];
   drawerImage?: string;
-  galleryMobile?: string[];
+  galleryMobile?: (string | undefined)[];
   video?: { desktop: string; mobile: string; poster: string; mobilePoster: string };
   stack?: { image: string; tags: string }[];
 }
@@ -108,7 +111,8 @@ export const projects: Project[] = [
       "work/crisscross-devices-1.png",
       "work/crisscross-section-2.png",
       "work/crisscross-devices-2.png",
-      "work/crisscross-section-3.png",
+      // Three achievement cards from the app (scripts/cases/crisscross-achievements.py).
+      "work/crisscross-achievements.png",
     ],
     accent: "#dab6fc",
     summary: [
@@ -152,6 +156,8 @@ export const projects: Project[] = [
       drops: [0, 3.75, 0],
       gap: 3.1,
     },
+    // Drawn by scripts/cases/prolog-board-still.py.
+    galleryBoardStills: ["work/prolog-page-concepts.png"],
     accent: "#ff4713",
     summary: [
       "ProLog is a log management system from Germany that runs entirely offline, made for companies working to GDPR, ISO 27001 and NIS2.",
@@ -166,7 +172,31 @@ export const projects: Project[] = [
     href: "https://www.tommypickett.com",
     caseStudy: "/cases/tommy-pickett",
     preview: "work/tommy-pickett-desktop.png",
-    gallery: ["work/tommy-pickett-section-1.png", "work/tommy-pickett-section-2.png", "work/tommy-pickett-section-3.png"],
+    gallery: ["work/tommy-pickett-section-1.png", "work/tommy-pickett-section-2.png"],
+    // Then the covers and the tour posters, each in a row, turned a little like the venue posters
+    // on the case page and overlapping, so they come out larger in the 16:10 block.
+    galleryBoard: [
+      {
+        folder: "cases/tommy-pickett/boards/tommy-pickett-covers",
+        phoneRows: [[0, 1], [2]],
+        shadow: "box",
+        tilt: true,
+        pad: 7,
+        gap: -3,
+        alt: "Three album covers: Streetlights, Rivertown and Dive Deep",
+      },
+      {
+        folder: "cases/tommy-pickett/boards/tommy-pickett-posters",
+        phoneRows: [[0, 1], [2, 3]],
+        shadow: "box",
+        tilt: true,
+        pad: 6,
+        gap: -2.5,
+        alt: "Four tour posters, one for each year from 2023 to 2026",
+      },
+    ],
+    // Drawn by scripts/cases/tommy-pickett-board-stills.py.
+    galleryBoardStills: ["work/tommy-pickett-covers.png", "work/tommy-pickett-posters.png"],
     summary: [
       "Tommy Pickett is a singer-songwriter on Waiheke Island, playing original folk-rock songs and familiar covers around New Zealand.",
       "After many years on an older site, the website got a fresh look that puts the music, tour dates and bookings up front. It's built with Astro and a headless CMS, with an editing side designed around the site itself, so Tommy can keep dates, albums and videos up to date without help: simple and straightforward.",
@@ -184,15 +214,11 @@ export const projects: Project[] = [
     tags: "Branding, Web",
     href: "https://www.eventsitters.nz",
     preview: "work/eventsitters-hero.png",
-    gallery: ["work/event-sitters-section-1.png", "work/event-sitters-section-2.png", "work/event-sitters-section-3.png"],
-    // The last image is a mock-up of the colouring sheets: edge to edge, with no phone over it.
+    // The photos from the site's scrolling gallery in their frames (scripts/cases/event-sitters-gallery.py),
+    // then a mock-up of the colouring sheets, both edge to edge with no phone over them.
+    gallery: ["work/event-sitters-gallery.png", "work/event-sitters-section-3.png"],
     galleryBleed: true,
-    galleryFramed: ["work/event-sitters-section-1.png", "work/event-sitters-section-2.png"],
-    galleryMobile: [
-      "work/event-sitters-mobile-1.png",
-      "work/event-sitters-mobile-2.png",
-      "work/event-sitters-mobile-3.png",
-    ],
+    galleryMobile: ["work/event-sitters-mobile-1.png"],
     summary: [
       "Event Sitters is a small company in Hawke's Bay, run by Samantha, that brings kids' entertainment to weddings, parties and events, on site.",
       "Working together started with finding the name. From there I built a logo and a visual style that lean fully into what Event Sitters does: bright, playful and easy to recognise, for kids and grown-ups alike.",
@@ -207,7 +233,28 @@ export const projects: Project[] = [
     // No country code, so it opens each visitor's own App Store.
     appStore: "https://apps.apple.com/app/id6829356882",
     preview: "work/faster-hero.png",
-    gallery: ["work/faster-section-1.png", "work/faster-section-2.png", "work/faster-section-3.png", "work/faster-section-4.png"],
+    // The drawer and hover open on the rings board from Figma "Faster" (node 123:15254, Robin,
+    // 2026-11-22), edge to edge; the site screenshots follow in their frames. The board is
+    // also an extra card in the hero stack.
+    drawerImage: "work/faster-rings.png",
+    gallery: [
+      "work/faster-hero.png",
+      "work/faster-section-1.png",
+      "work/faster-phases.png",
+      "work/faster-themes.png",
+      "work/faster-section-4.png",
+    ],
+    // faster-phases: the five phase sheets in a row (scripts/cases/faster-phase-sheets.py).
+    // faster-themes: the timer in all five themes, each once, staggered (scripts/cases/faster-themes.py).
+    galleryBleed: "all",
+    galleryFramed: [
+      "work/faster-hero.png",
+      "work/faster-section-1.png",
+      "work/faster-phases.png",
+      "work/faster-themes.png",
+      "work/faster-section-4.png",
+    ],
+    stack: [{ image: "work/faster-rings.png", tags: "App" }],
     summary: [
       "Faster is a fasting timer for iPhone and Apple Watch. It shows which phase of a fast you're in and what that means, with no account and no tracking.",
       "The challenge was making complex data simple to read and fun to use. The answer was a clean, diagram-style interface, refined over many rounds on both the phone and the watch.",
@@ -220,11 +267,22 @@ export const projects: Project[] = [
     tags: "Web",
     href: "https://www.foerderverein-schlosskirche.de",
     preview: "work/schlosskirche-hero.png",
-    gallery: ["work/schlosskirche-section-1.png", "work/schlosskirche-section-2.png", "work/schlosskirche-section-3.png"],
+    // Second: an event page (Brass Sextett, captured 2026-11-22). Fourth: three A1 posters from
+    // the "Kirche anders" services, 2017, edge to edge (scripts/cases/schlosskirche-posters.py),
+    // with no phone over them.
+    gallery: [
+      "work/schlosskirche-brass.png",
+      "work/schlosskirche-section-1.png",
+      "work/schlosskirche-posters.png",
+      "work/schlosskirche-section-3.png",
+    ],
+    galleryBleed: true,
+    galleryFramed: ["work/schlosskirche-brass.png", "work/schlosskirche-section-1.png", "work/schlosskirche-section-3.png"],
     galleryMobile: [
       "work/schlosskirche-mobile-1.png",
+      "work/schlosskirche-brass-mobile.png",
       "work/schlosskirche-mobile-2.png",
-      "work/schlosskirche-mobile-3.png",
+      undefined,
       "work/schlosskirche-mobile-4.png",
     ],
     // Robin's picks: the site's own yellow on the dark section (light OS mode), deep blue on white.
@@ -242,9 +300,9 @@ export const projects: Project[] = [
     href: "/pindrop",
     // No country code, so it opens each visitor's own App Store.
     appStore: "https://apps.apple.com/app/pindrop-scorecard/id6761825783",
-    // The OG image from Figma "Pindrop Screens" (node 6:2, exported at 3x), reframed to 16:10 on
-    // the light grey of the App Store board: logo lockup and phone, the phone cut off at the
-    // bottom as in the original.
+    // The OG image from Figma "Pindrop Screens" (node 6:2) laid out for 16:10 on the light grey of
+    // the App Store board: logo lockup centred, phone running off the bottom, even side margins
+    // (scripts/cases/pindrop-og.py).
     preview: "work/pindrop-og.png",
     heroCard: false, // the stack shows the red phone card instead (Robin, 2026-11-16)
     // Then the website on a MacBook mock-up (Robin, 2026-11-21), the three App Store screens side by

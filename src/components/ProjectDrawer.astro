@@ -86,7 +86,7 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
                     )}
                   </figure>
                 ))}
-                {p.galleryBoard && <CaseBoard {...p.galleryBoard} class="project-gallery project-gallery--board" />}
+                {[p.galleryBoard ?? []].flat().map((board) => <CaseBoard {...board} class="project-gallery project-gallery--board" />)}
               </div>
             ) : (
               <div class:list={["project-detail__media", { "project-detail__media--portrait": p.portrait }]}>
@@ -465,6 +465,26 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
   :global(.project-gallery--board .case-board) {
     padding: 5% 5% 0;
     border-radius: 0;
+  }
+
+  /* Boards whose pieces sit whole on the board (covers, posters) take the 16:10 block of the
+     shots above, with the pieces in one row, centred, the board's own side padding kept (as a
+     share of its width), on phones too. Cropped boards (pages running off the bottom edge,
+     ProLog) keep the rules above. */
+  :global(.project-gallery--board .case-board:not(.case-board--crop)) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    aspect-ratio: 16 / 10;
+    padding: 0 calc(var(--pad) * 1%);
+  }
+
+  :global(.project-gallery--board .case-board:not(.case-board--crop) .case-board__set--wide) {
+    display: flex;
+  }
+
+  :global(.project-gallery--board .case-board:not(.case-board--crop) .case-board__set--phone) {
+    display: none;
   }
 
   /* With phone shots: the desktop frame narrows to make room, and the phone overlaps its

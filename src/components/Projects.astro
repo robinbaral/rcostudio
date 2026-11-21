@@ -15,8 +15,9 @@ interface Props {
 const { openProject } = Astro.props;
 
 // The hover preview is a single small image, so one size (about 2x its display width) is enough.
-// The images run in the drawer's order: drawerImage (when set) in place of the preview, then the gallery.
-const order = (p: (typeof projects)[number]) => [p.drawerImage ?? p.preview, ...(p.gallery ?? [])];
+// The images run in the drawer's order: drawerImage (when set) in place of the preview, the
+// gallery, then still images of any case boards at the end.
+const order = (p: (typeof projects)[number]) => [p.drawerImage ?? p.preview, ...(p.gallery ?? []), ...(p.galleryBoardStills ?? [])];
 const img = await shots(projects.flatMap(order), 960);
 const url = (name: string) => img.get(name)!.src;
 // Thumbnails sit at the x-height of the name (about 16px), so a small file each is enough.

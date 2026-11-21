@@ -26,7 +26,7 @@ interface Props {
   crop?: number; // cut each piece to this height/width ratio from the top, running off the board's bottom edge
   phoneCrop?: number; // the same on phones (default: crop)
   drops?: number[]; // per piece (by index): pushed down by this % of the board's width, for uneven tops
-  gap?: number; // between pieces, % of the board's width (default 2.6)
+  gap?: number; // between pieces, % of the board's width (default 2.6); negative overlaps them, each over the one before
   pad?: number; // around the pieces, % of the board's width (default 5)
 }
 
@@ -125,14 +125,20 @@ const sets = sameOnPhones ? [{ cls: "", ...desktop }] : [{ cls: "case-board__set
   .case-board__set {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--gap) * 1cqw);
+    gap: calc(max(var(--gap), 0) * 1cqw);
   }
 
   .case-board__row {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: calc(var(--gap) * 1cqw);
+    gap: calc(max(var(--gap), 0) * 1cqw);
+  }
+
+  /* A negative gap overlaps the pieces instead (flex gaps can't go below zero). The widths
+     below already count it, so the row still fills the board. */
+  .case-board__piece + .case-board__piece {
+    margin-left: calc(min(var(--gap), 0) * 1cqw);
   }
 
   /* Devices to scale stand on one line. */
