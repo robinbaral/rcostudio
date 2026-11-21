@@ -124,23 +124,21 @@ export const projects: Project[] = [
     href: "https://www.prolog.ag",
     caseStudy: "/cases/prolog",
     preview: "work/prolog-hero.png",
-    // The drawer opens on the laptop and phone mock-up, edge to edge; the site screenshots
-    // follow in their frames. The hover thumbnails follow; the hero stack keeps the preview.
-    drawerImage: "work/prolog-mockup.png",
-    galleryBleed: "all",
+    // The site screenshots in their frames, then the laptop and phone mock-up, edge to edge
+    // (moved from first to last, Robin, 2026-11-21).
+    galleryBleed: true,
     galleryFramed: [
-      "work/prolog-hero.png",
       "work/prolog-section-1.png",
       "work/prolog-section-2.png",
       "work/prolog-section-3.png",
       "work/prolog-section-4.png",
     ],
     gallery: [
-      "work/prolog-hero.png",
       "work/prolog-section-1.png",
       "work/prolog-section-2.png",
       "work/prolog-section-3.png",
       "work/prolog-section-4.png",
+      "work/prolog-mockup.png",
     ],
     // The page concepts board from the case (article, sector and audit pages), drawn the same
     // way, so its background follows dark mode. The middle page sits lower, as on the first
@@ -249,7 +247,7 @@ export const projects: Project[] = [
     // bottom as in the original.
     preview: "work/pindrop-og.png",
     heroCard: false, // the stack shows the red phone card instead (Robin, 2026-11-16)
-    // Then the website (top of the page, captured at 2x), the three App Store screens side by
+    // Then the website on a MacBook mock-up (Robin, 2026-11-21), the three App Store screens side by
     // side (06_Production/App Store in the Pindrop folder) and six plain screens from Figma
     // as phones, three per board (scripts/cases/pindrop-boards.py), plus a card on the app's red
     // for the hero stack.
@@ -260,9 +258,8 @@ export const projects: Project[] = [
       "work/pindrop-screens-2.png",
     ],
     // Every slide fills its block (the OG image is on the App Store board's light grey for
-    // that), except the website screenshot, framed like the other sites.
+    // that), the website mock-up included.
     galleryBleed: "all",
-    galleryFramed: ["work/pindrop-website.png"],
     stack: [{ image: "work/pindrop-hero.png", tags: "App" }],
     // Dark grey, so the row still shows a hover (the black-and-white preview gives no colour).
     accent: "#4a4a4a",
