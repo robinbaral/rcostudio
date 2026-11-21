@@ -2,7 +2,8 @@
 # drawer (src/assets/work/<project>-<n>.png, 2880x1800), from Robin's Behance boards
 # (2800px wide, saved in "03_Working files/behance/<project>/"). Each board is brought to 16:10:
 # a wider one is extended above and below in its own edge colour, a taller one is cropped
-# (centred, or from the top where the board's title sits there).
+# (centred, or from the top where the board's title sits there). Banking App's other slides
+# come from the phone renders, in bank-renders.py.
 # Usage: python3 scripts/cases/behance-slides.py   (from rco-website/, needs Pillow)
 from pathlib import Path
 from PIL import Image
@@ -17,9 +18,7 @@ W, H = 2880, 1800
 # "Quick Scan/06_Production/Behance/04 Taller.jpg": the 2800x1460 board, extended, smeared its bottom row.
 SLIDES = [
     ("banking", 1, "banking-app-hero", 0.5),
-    ("banking", 3, "banking-app-balance", 0.5),
     ("banking", 7, "banking-app-transfers", 0.5),
-    ("banking", 9, "banking-app-dark", 0.5),
     ("quickscan", "04-taller.jpg", "quickscan-hero", 0.5),
     ("quickscan", 1, "quickscan-v1", 0.0),
     ("quickscan", 5, "quickscan-flow", 0.5),
