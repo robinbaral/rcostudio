@@ -267,20 +267,20 @@ export const projects: Project[] = [
     tags: "Web",
     href: "https://www.foerderverein-schlosskirche.de",
     preview: "work/schlosskirche-hero.png",
-    // Second: an event page (Brass Sextett, captured 2026-11-22). Fourth: three A1 posters from
+    // Second: an event page (the organ festival with Iveta Apkalna, captured 2026-11-22). Fourth: three A1 posters from
     // the "Kirche anders" services, 2017, edge to edge (scripts/cases/schlosskirche-posters.py),
     // with no phone over them.
     gallery: [
-      "work/schlosskirche-brass.png",
+      "work/schlosskirche-organ-festival.png",
       "work/schlosskirche-section-1.png",
       "work/schlosskirche-posters.png",
       "work/schlosskirche-section-3.png",
     ],
     galleryBleed: true,
-    galleryFramed: ["work/schlosskirche-brass.png", "work/schlosskirche-section-1.png", "work/schlosskirche-section-3.png"],
+    galleryFramed: ["work/schlosskirche-organ-festival.png", "work/schlosskirche-section-1.png", "work/schlosskirche-section-3.png"],
     galleryMobile: [
       "work/schlosskirche-mobile-1.png",
-      "work/schlosskirche-brass-mobile.png",
+      "work/schlosskirche-organ-festival-mobile.png",
       "work/schlosskirche-mobile-2.png",
       undefined,
       "work/schlosskirche-mobile-4.png",
