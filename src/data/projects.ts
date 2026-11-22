@@ -30,6 +30,7 @@ type BoardProps = ComponentProps<typeof CaseBoard>;
 // - drawerImage: a 16:10 image to open the drawer with instead of the preview (for portrait
 //   previews, which don't fit the frame, or a mock-up to lead with). The hover image and its
 //   thumbnails follow the drawer's order; the hero stack keeps the preview.
+// - heroImage: the hero stack's card instead of the preview, when the two should differ.
 // - galleryMobile: phone shots of the same sections, in the same order as [preview,
 //   ...gallery]. Shown in a phone frame over the desktop shot, switching in step. undefined
 //   leaves a slide without a phone (a board among screenshots).
@@ -58,6 +59,8 @@ export interface Project {
   preview?: string;
   // false: the preview stays out of the hero stack (hover and drawer still use it).
   heroCard?: boolean;
+  // The hero stack's card when it should differ from the preview (hover and drawer keep the preview).
+  heroImage?: string;
   summary: string | string[];
   services: string[];
   href?: string;
@@ -276,6 +279,7 @@ export const projects: Project[] = [
     tags: "Web",
     href: "https://www.foerderverein-schlosskirche.de",
     preview: "work/schlosskirche-hero.png",
+    heroImage: "work/schlosskirche-hero-stack.png",
     // Second: an event page (the organ festival with Iveta Apkalna, captured 2026-11-22). Third:
     // three A1 posters from the "Kirche anders" services, 2017, edge to edge
     // (scripts/cases/schlosskirche-posters.py). Phones only on the first two; the last slide, the
