@@ -7,9 +7,11 @@
 //   stack moves on, otherwise it springs back. A tap counts as "next".
 // - Touch tablets keep a fixed round button on the card (phones don't: tap or swipe); keyboard
 //   users get the arrow keys.
-// The project link is the name in the caption, since clicking the stack shuffles it.
+// The project link is the name in the caption, since clicking the stack shuffles it. It opens
+// the project's drawer (its /work/<name> address); coming-soon projects get no link (Robin,
+// 2026-11-22).
 import Nav from "./Nav.astro";
-import { projects } from "../data/projects";
+import { projects, projectId } from "../data/projects";
 import { shots } from "../lib/shots";
 
 // How many cards show at once (front to back); the rest wait hidden at the back.
@@ -95,7 +97,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
             style={`${slotStyle(i)}--ar:${sizes[i].width} / ${sizes[i].height};--hmax:${hmax(sizes[i].width / sizes[i].height)};`}
             data-name={p.name}
             data-tags={tags}
-            data-href={p.href}
+            data-href={p.soon ? undefined : `/work/${projectId(p)}`}
+            data-project={p.soon ? undefined : projectId(p)}
             aria-hidden="true"
           >
             {/* No src in the markup: the shuffle below gives the front cards theirs and the stack's
@@ -136,6 +139,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
           name: c.dataset.name,
           tags: c.dataset.tags,
           href: c.dataset.href,
+          project: c.dataset.project,
         }));
         // Projects with extra stack cards: keep their cards at least three apart (also across
         // the wrap from the last card to the first), so the same project never sits close by.
@@ -160,6 +164,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
           card.dataset.tags = it.tags ?? "";
           if (it.href) card.dataset.href = it.href;
           else delete card.dataset.href;
+          if (it.project) card.dataset.project = it.project;
+          else delete card.dataset.project;
           card.append(it.img);
         });
         // The front cards and the first waiting one load now, at high priority; the rest wait
@@ -184,9 +190,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
     <a
       class="stack-hero__project"
       data-caption-link
-      href={first.href}
-      target="_blank"
-      rel="noopener"
+      href={first.soon ? undefined : `/work/${projectId(first)}`}
+      data-project={first.soon ? undefined : projectId(first)}
     >
       <span data-caption-name>{first.name}</span>
       <span class="stack-hero__tags" data-caption-tags>{first.tags}</span>
@@ -554,7 +559,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
     color: color-mix(in srgb, var(--color-fg) var(--muted-share), var(--color-bg));
   }
 
-  /* No link (coming soon, no public site): plain text, no arrow. */
+  /* No link (coming soon): plain text, no arrow. */
   a.stack-hero__project:not([href]) {
     cursor: default;
   }
@@ -648,6 +653,15 @@ const sizes = cards.map((c) => img.get(c.image)!);
     const link = document.querySelector<HTMLAnchorElement>("[data-caption-link]")!;
     const nameEl = document.querySelector<HTMLElement>("[data-caption-name]")!;
     const tagsEl = document.querySelector<HTMLElement>("[data-caption-tags]")!;
+    // A plain click opens the project's drawer through its row in the project list (same as
+    // clicking the row); a click with a modifier key follows the link to /work/<name>.
+    link.addEventListener("click", (event) => {
+      if (!link.href || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      const row = document.querySelector<HTMLElement>(`[data-project-open="${link.dataset.project}"]`);
+      if (!row) return;
+      event.preventDefault();
+      row.click();
+    });
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
 
@@ -727,9 +741,11 @@ const sizes = cards.map((c) => img.get(c.image)!);
       tagsEl.textContent = front.dataset.tags ?? "";
       if (front.dataset.href) {
         link.href = front.dataset.href;
-        link.setAttribute("aria-label", `${front.dataset.name}, ${front.dataset.tags} (opens in a new tab)`);
+        link.dataset.project = front.dataset.project;
+        link.setAttribute("aria-label", `${front.dataset.name}, ${front.dataset.tags}`);
       } else {
         link.removeAttribute("href");
+        delete link.dataset.project;
         link.removeAttribute("aria-label");
       }
     };
