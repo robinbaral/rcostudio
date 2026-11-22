@@ -396,7 +396,7 @@ export const projects: Project[] = [
     galleryBleed: "all",
     summary: [
       "A self-initiated study: a redesign of a New Zealand bank's iPhone app, looking at common interface patterns and the places where the current app falls short. Not a client project, and not connected to the bank.",
-      "It focuses on what people check most: a combined balance that shows at a glance what's going on across all accounts, transfers reduced to a few clear steps, notifications with the details right there, and a quick transfer for regular payments. A dark mode came with it.",
+      "It focuses on what people check most: a combined balance that shows at a glance what's going on across all accounts, transfers reduced to a few clear steps and a quick transfer for regular payments. A dark mode came with it.",
     ],
     services: ["UX study", "App design", "Interaction design"],
   },
