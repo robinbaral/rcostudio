@@ -391,6 +391,7 @@ export const projects: Project[] = [
     gallery: [
       "work/banking-app-balance.png",
       "work/banking-app-transfers.png",
+      "work/banking-app-photo.png", // photo mock-up of the transfer screen (Robin, 2026-11-22)
       "work/banking-app-dark.png",
     ],
     galleryBleed: "all",
