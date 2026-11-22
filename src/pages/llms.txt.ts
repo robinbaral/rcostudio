@@ -46,7 +46,7 @@ export const GET: APIRoute = () => {
     "## Contact",
     "",
     `- Website: ${site}`,
-    "- Email: baralrobin@gmail.com",
+    "- Email: info@rcostudio.nz",
     "- Phone: +64 21 082 039 40",
     "",
   ];
