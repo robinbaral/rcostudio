@@ -406,7 +406,7 @@ export const projects: Project[] = [
     tags: "App, UX study",
     preview: "work/quickscan-hero.png",
     heroCard: false, // a study: the hero stack keeps to real projects
-    gallery: ["work/quickscan-v1.png", "work/quickscan-flow.png", "work/quickscan-screens.png"],
+    gallery: ["work/quickscan-multi-page.png", "work/quickscan-in-hand.png", "work/quickscan-flow.png", "work/quickscan-screens.png"],
     galleryBleed: "all",
     summary: [
       "A self-initiated study of QuickScan, a document scanner for iPhone, to fix issues with the current app. Not a client project, and not connected to QuickScan.",

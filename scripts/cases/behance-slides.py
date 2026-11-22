@@ -14,13 +14,11 @@ OUT = ROOT / "src/assets/work"
 W, H = 2880, 1800
 
 # (project folder, source number or file name, output name, crop anchor for tall boards: 0 top … 1 bottom)
-# The QuickScan hero uses Robin's taller re-export of board 04 (already 16:10), from
-# "Quick Scan/06_Production/Behance/04 Taller.jpg": the 2800x1460 board, extended, smeared its bottom row.
+# QuickScan's hero and its next two slides (multi-page, phone in hand) are Robin's own 16:10
+# exports ("Tile – 3.png", "custom – 21.png", "custom – 20.png"), resized by hand, not made here.
 SLIDES = [
     ("banking", 1, "banking-app-hero", 0.5),
     ("banking", 7, "banking-app-transfers", 0.5),
-    ("quickscan", "04-taller.jpg", "quickscan-hero", 0.5),
-    ("quickscan", 1, "quickscan-v1", 0.0),
     ("quickscan", 5, "quickscan-flow", 0.5),
     ("quickscan", 6, "quickscan-screens", 0.5),
 ]
