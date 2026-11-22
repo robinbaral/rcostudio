@@ -34,6 +34,10 @@ const boards = {
   themes: { folder: b("theme-range"), ...ROW, phoneRows: [[0, 1, 5]], alt: "Six colour themes of the same puzzle: lavender with yellow tiles, white with rainbow tiles, peach, pale pink, then navy and red on dark", caption: "Theme explorations, from soft light themes to dark ones at the edges of legibility." },
   icons: { folder: b("app-icons-rounded"), ...ROW, rows: [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]], phoneRows: [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7]], alt: "Sixteen app icon drafts in different colours, from a letter tile to a crossword grid", caption: "App icon explorations. Several became alternate icons players unlock." },
   medals: { folder: b("medal-editor-v4"), ...ROW, phoneRows: [[0, 1, 4]], alt: "Five versions of the medal editor with a kaleidoscope drawing and a row of tools, ending on the finished editor in a blue theme", caption: "The medal editor: drawing tools, slices and mirroring." },
+  // Card designs from Figma "CrissCross" (sections 825:22680, the yellow pack covers, and
+  // 825:22681, the green medal-pattern tiles), exported card by card and composed into
+  // crisscross-deck-cards.png for board-items.py.
+  decks: { folder: b("deck-cards"), ...ROW, rows: [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]], phoneRows: [[0, 1], [5, 6], [2, 7]], alt: "Ten card designs: yellow covers for a Word Themes pack, one with a kaleidoscope medal behind the Weather title, and green Weather cards with the same medal repeated in different patterns", caption: "Card explorations: pack covers, and medals repeated into the design of a finished deck." },
   studio: { folder: b("puzzle-studio"), pad: 4.8, alt: "Puzzle Studio showing the Animals topic: its word list with clues, puzzle counts for British and American English, and tabs for grids, audio and flashcards", caption: "Puzzle Studio: one topic's words and clues, in both spellings, with its grids, audio and flashcards a tab away." },
   achievements: { folder: b("badges"), ...ROW, rows: [[0, 1, 2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15, 16, 17]], phoneRows: [[0, 1, 2, 3], [4, 5, 6, 7], [11, 12, 13, 14]], alt: "Eighteen achievement badges with hexagonal rings: one for each kind of achievement, then the rings growing over higher levels", caption: "Achievement badges and how their rings grow, refined over many rounds of testing across the themes." },
   purchase: { folder: b("paywalls"), ...ROW, phoneRows: [[0, 2, 4]], alt: "Five versions of the paywall for unlocking puzzle packs", caption: "Paywall explorations, from a plain list of prices to the pack itself." },
@@ -134,6 +138,7 @@ const boards = {
     </div>
 
     <CaseBoard {...boards.medals} />
+    <CaseBoard {...boards.decks} />
     <CaseBoard {...boards.achievements} />
 
     <div class="article__body">

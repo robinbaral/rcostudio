@@ -214,7 +214,7 @@ FLAT = {
     "crisscross-app-icons-rounded": "crisscross", "crisscross-medal-editor-v4": "crisscross",
     "crisscross-badges": "crisscross", "crisscross-paywalls": "crisscross",
     "crisscross-home-cards": "crisscross", "crisscross-device-lineup": "crisscross",
-    "crisscross-puzzle-studio": "crisscross",
+    "crisscross-puzzle-studio": "crisscross", "crisscross-deck-cards": "crisscross",
     "prolog-slides": "prolog", "prolog-page-concepts": "prolog",
 }
 TOL = {"crisscross-device-lineup": 30}
