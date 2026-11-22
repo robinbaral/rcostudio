@@ -31,7 +31,7 @@ export const GET: APIRoute = () => {
     ...projects.map((p) => {
       if (p.soon) return `- ${p.name}: coming soon`;
       // The project's page here, then its own site where there is one.
-      const link = p.href ? ` (live: ${new URL(p.href, site).href})` : "";
+      const link = p.href ? ` (live: ${new URL(p.href, site).href})` : p.appStore ? ` (App Store: ${p.appStore})` : "";
       return `- [${p.name}](${site}/work/${projectId(p)}): ${p.tags}${link}`;
     }),
     "",

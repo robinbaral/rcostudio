@@ -89,15 +89,6 @@ export const projects: Project[] = [
     services: ["Brand", "Web design", "Development", "Content management", "Online shop"],
   },
   {
-    // Coming soon: no image yet, so no hover preview and no hero card. No summary for now
-    // (Robin, 2026-11-16).
-    name: "Pop Drop",
-    tags: "Coming soon",
-    soon: true,
-    summary: [],
-    services: ["App design", "iOS development"],
-  },
-  {
     name: "CrissCross",
     tags: "Web, App",
     href: "https://www.crisscrosswords.app",
@@ -210,6 +201,24 @@ export const projects: Project[] = [
     ],
   },
   {
+    name: "Pop Drop",
+    tags: "App",
+    // No country code, so it opens each visitor's own App Store. No website of its own.
+    appStore: "https://apps.apple.com/app/id6829979359",
+    // Made by scripts/cases/pop-drop-slides.py: the App Store header at 16:10 in Figma
+    // "Pop Drop" (frame 47:3585), and the game in its five light themes. Composed boards,
+    // edge to edge (Robin, 2026-11-22).
+    preview: "work/pop-drop-header.png",
+    gallery: ["work/pop-drop-themes.png"],
+    galleryBleed: "all",
+    accent: { onDark: "#f8d81c", onLight: "#8e4740" },
+    summary: [
+      "Pop Drop is a calm merge game for iPhone. Slide to aim, tap to drop, and watch equal balls merge into bigger ones before the play area fills up.",
+      "Soft balls wobble as they land and merge with a pop, every merge plays a note that climbs the scale, and there are five colour themes to play in. I designed and built it, from the first sketches to the App Store.",
+    ],
+    services: ["App design", "iOS development", "App Store listing"],
+  },
+  {
     name: "Event Sitters",
     tags: "Branding, Web",
     href: "https://www.eventsitters.nz",
@@ -267,23 +276,20 @@ export const projects: Project[] = [
     tags: "Web",
     href: "https://www.foerderverein-schlosskirche.de",
     preview: "work/schlosskirche-hero.png",
-    // Second: an event page (the organ festival with Iveta Apkalna, captured 2026-11-22). Fourth: three A1 posters from
-    // the "Kirche anders" services, 2017, edge to edge (scripts/cases/schlosskirche-posters.py),
-    // with no phone over them.
+    // Second: an event page (the organ festival with Iveta Apkalna, captured 2026-11-22). Third:
+    // three A1 posters from the "Kirche anders" services, 2017, edge to edge
+    // (scripts/cases/schlosskirche-posters.py). Phones only on the first two; the last slide, the
+    // photo gallery, is desktop only (Robin, 2026-11-22).
     gallery: [
       "work/schlosskirche-organ-festival.png",
-      "work/schlosskirche-section-1.png",
       "work/schlosskirche-posters.png",
       "work/schlosskirche-section-3.png",
     ],
     galleryBleed: true,
-    galleryFramed: ["work/schlosskirche-organ-festival.png", "work/schlosskirche-section-1.png", "work/schlosskirche-section-3.png"],
+    galleryFramed: ["work/schlosskirche-organ-festival.png", "work/schlosskirche-section-3.png"],
     galleryMobile: [
       "work/schlosskirche-mobile-1.png",
       "work/schlosskirche-organ-festival-mobile.png",
-      "work/schlosskirche-mobile-2.png",
-      undefined,
-      "work/schlosskirche-mobile-4.png",
     ],
     // Robin's picks: the site's own yellow on the dark section (light OS mode), deep blue on white.
     accent: { onDark: "#f8e850", onLight: "#2e4057" },

@@ -112,12 +112,14 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
               )}
             </div>
 
-            {p.href && !p.soon ? (
+            {(p.href || p.appStore) && !p.soon ? (
               <div class="project-detail__links">
-                <a class="project-detail__link" href={p.href} target="_blank" rel="noopener">
-                  {projectLinkLabel(p)}
-                  <span class="project-detail__arrow" aria-hidden="true" />
-                </a>
+                {p.href && (
+                  <a class="project-detail__link" href={p.href} target="_blank" rel="noopener">
+                    {projectLinkLabel(p)}
+                    <span class="project-detail__arrow" aria-hidden="true" />
+                  </a>
+                )}
                 {p.appStore && (
                   <a class="project-detail__link" href={p.appStore} target="_blank" rel="noopener">
                     Download on the App Store
