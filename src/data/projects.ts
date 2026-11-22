@@ -328,7 +328,7 @@ export const projects: Project[] = [
     // Dark grey, so the row still shows a hover (the black-and-white preview gives no colour).
     accent: "#4a4a4a",
     summary: [
-      "Pindrop is my own score tracker for Finska, the throwing game, on iPhone.",
+      "Pindrop is a score tracker for Finska, the throwing game, on iPhone.",
       "It started as a UI exercise in physicality: what if keeping score felt more like handling the pins than filling in a form? So scores are dragged down and misses swiped away.",
       "It quickly became my favourite way to score a game, whether in the backyard or at the beach.",
     ],
