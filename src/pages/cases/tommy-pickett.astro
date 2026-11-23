@@ -202,7 +202,7 @@ const listen = [
         {
           listen.map(({ label, href, Icon, wordmark }) => (
             <li>
-              <a class="tp-listen__link" href={href} target="_blank" rel="noopener" aria-label={label}>
+              <a class="tp-listen__link" href={href} target="_blank" rel="noopener" aria-label={label} data-umami-event="outbound" data-umami-event-project="tommy-pickett" data-umami-event-link={label.toLowerCase()} data-umami-event-from="case">
                 <Icon class:list={["tp-listen__icon", { "tp-listen__icon--wordmark": wordmark }]} aria-hidden="true" />
               </a>
             </li>
@@ -212,7 +212,7 @@ const listen = [
     </div>
 
     <div class="article__links">
-      <a class="article__link" href="https://www.tommypickett.com" target="_blank" rel="noopener">
+      <a class="article__link" href="https://www.tommypickett.com" target="_blank" rel="noopener" data-umami-event="outbound" data-umami-event-project="tommy-pickett" data-umami-event-link="website" data-umami-event-from="case">
         Visit tommypickett.com
         <span class="article__link-arrow" aria-hidden="true"></span>
       </a>

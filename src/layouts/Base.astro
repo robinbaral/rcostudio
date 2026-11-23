@@ -119,6 +119,9 @@ const schema = {
     <link rel="preload" href="/assets/fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin />
 
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    {/* Umami analytics (cookieless). */}
+    <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="09090bb4-8099-4616-8a49-397f94143399"></script>
   </head>
   <body class="body">
     <slot />

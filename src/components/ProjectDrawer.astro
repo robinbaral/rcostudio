@@ -105,7 +105,7 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
                 {p.services.map((s) => <li>{s}</li>)}
               </ul>
               {p.caseStudy && (
-                <a class="project-detail__link project-detail__case" href={p.caseStudy}>
+                <a class="project-detail__link project-detail__case" href={p.caseStudy} data-umami-event="case-study" data-umami-event-project={projectId(p)}>
                   Read the case study
                   <span class="project-detail__arrow project-detail__arrow--in" aria-hidden="true" />
                 </a>
@@ -115,13 +115,31 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
             {(p.href || p.appStore) && !p.soon ? (
               <div class="project-detail__links">
                 {p.href && (
-                  <a class="project-detail__link" href={p.href} target="_blank" rel="noopener">
+                  <a
+                    class="project-detail__link"
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener"
+                    data-umami-event="outbound"
+                    data-umami-event-project={projectId(p)}
+                    data-umami-event-link={p.href.includes("apps.apple.com") ? "app-store" : "website"}
+                    data-umami-event-from="drawer"
+                  >
                     {projectLinkLabel(p)}
                     <span class="project-detail__arrow" aria-hidden="true" />
                   </a>
                 )}
                 {p.appStore && (
-                  <a class="project-detail__link" href={p.appStore} target="_blank" rel="noopener">
+                  <a
+                    class="project-detail__link"
+                    href={p.appStore}
+                    target="_blank"
+                    rel="noopener"
+                    data-umami-event="outbound"
+                    data-umami-event-project={projectId(p)}
+                    data-umami-event-link="app-store"
+                    data-umami-event-from="drawer"
+                  >
                     Download on the App Store
                     <span class="project-detail__arrow" aria-hidden="true" />
                   </a>
@@ -138,6 +156,8 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
 </dialog>
 
 <script>
+  import { track } from "../scripts/track";
+
   const dialog = document.querySelector<HTMLDialogElement>("[data-project-drawer]");
 
   if (dialog) {
@@ -298,6 +318,10 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
       row.addEventListener("click", (event) => {
         if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
         event.preventDefault();
+        // Where it was opened from: the hero caption marks the row before clicking it.
+        const from = row.dataset.openedFrom ?? "list";
+        delete row.dataset.openedFrom;
+        if (!isOpen()) track("project-open", { project: row.dataset.projectOpen!, from });
         openWithAddress(row.dataset.projectOpen!, row);
       }),
     );

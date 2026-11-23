@@ -615,6 +615,8 @@ const sizes = cards.map((c) => img.get(c.image)!);
 </style>
 
 <script>
+  import { track } from "../scripts/track";
+
   const stack = document.querySelector<HTMLElement>(".stack");
   if (stack) {
     const poses: { x: number; y: number; side: number; v: number }[] = JSON.parse(stack.dataset.poses ?? "[]");
@@ -645,6 +647,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
       const row = document.querySelector<HTMLElement>(`[data-project-open="${link.dataset.project}"]`);
       if (!row) return;
       event.preventDefault();
+      row.dataset.openedFrom = "hero";
       row.click();
     });
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -943,8 +946,18 @@ const sizes = cards.map((c) => img.get(c.image)!);
 
     // Next: the front card is thrown out to one side (dir 1 right, -1 left), then tucks in at
     // the back. It leaves from wherever a drag left it.
+    // One event per visit, the first time the stack moves on (button, cursor, swipe or keys):
+    // whether people browse the hero at all, without an event for every card.
+    let browsed = false;
+    const noteBrowse = () => {
+      if (browsed) return;
+      browsed = true;
+      track("hero-browse");
+    };
+
     const next = (dir = 1) => {
       if (busy) return false;
+      noteBrowse();
       const leaving = cards[order[0]];
       order = [...order.slice(1), order[0]];
       if (reduce.matches) {
@@ -970,6 +983,7 @@ const sizes = cards.map((c) => img.get(c.image)!);
     // Previous: the back card jumps out to the left, above the stack, then slides in at the front.
     const prev = () => {
       if (busy) return false;
+      noteBrowse();
       const incoming = cards[order[order.length - 1]];
       order = [order[order.length - 1], ...order.slice(0, -1)];
       if (!reduce.matches) {
