@@ -321,8 +321,11 @@ const PHONE_SIZES = "(min-width: 1024px) 230px, 25vw";
         // Where it was opened from: the hero caption marks the row before clicking it.
         const from = row.dataset.openedFrom ?? "list";
         delete row.dataset.openedFrom;
-        if (!isOpen()) track("project-open", { project: row.dataset.projectOpen!, from });
-        openWithAddress(row.dataset.projectOpen!, row);
+        const id = row.dataset.projectOpen!;
+        const wasOpen = isOpen();
+        openWithAddress(id, row);
+        // After the address changes, so the event is logged on /work/<name>, not the page before.
+        if (!wasOpen) track("project-open", { project: id, from });
       }),
     );
     dialog.querySelector("[data-project-close]")?.addEventListener("click", closeWithAddress);
