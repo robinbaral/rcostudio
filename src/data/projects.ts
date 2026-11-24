@@ -412,14 +412,14 @@ export const projects: Project[] = [
     services: ["UX study", "App design", "Interaction design"],
   },
   {
-    name: "QuickScan",
+    name: "Snapper",
     tags: "App, UX study",
-    preview: "work/quickscan-hero.png",
+    preview: "work/snapper-hero.png",
     heroCard: false, // a study: the hero stack keeps to real projects
-    gallery: ["work/quickscan-multi-page.png", "work/quickscan-in-hand.png", "work/quickscan-flow.png", "work/quickscan-screens.png"],
+    gallery: ["work/snapper-multi-page.png", "work/snapper-in-hand.png", "work/snapper-flow.png", "work/snapper-screens.png"],
     galleryBleed: "all",
     summary: [
-      "A self-initiated study of QuickScan, a document scanner for iPhone, to fix issues with the current app. Not a client project, and not connected to QuickScan.",
+      "A self-initiated study of Snapper, a document scanner for iPhone, to fix issues with the current app. Not a client project, and not connected to Snapper.",
       "The first version stays true to the idea of the app: get in, scan, save, done. It tidies up the interface while keeping every feature, and brings the settings scattered across the app into one place.",
       "A second version adds file management: a history of scans, editing and a choice of where each file is saved, with capture just as quick as before.",
     ],

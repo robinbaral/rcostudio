@@ -11,6 +11,11 @@ interface Env {
 
 const LIVE_HOSTS = new Set(["rcostudio.nz", "www.rcostudio.nz"]);
 
+// Old project addresses → new ones (QuickScan became Snapper on 2026-11-24).
+const RENAMED: Record<string, string> = {
+	"/work/quickscan": "/work/snapper",
+};
+
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
@@ -18,6 +23,12 @@ export default {
 		// engines don't see the same pages twice.
 		if (url.hostname === "www.rcostudio.nz") {
 			url.hostname = "rcostudio.nz";
+			return Response.redirect(url.toString(), 301);
+		}
+		// Renamed projects keep their old address working.
+		const moved = RENAMED[url.pathname];
+		if (moved) {
+			url.pathname = moved;
 			return Response.redirect(url.toString(), 301);
 		}
 		const response = await env.ASSETS.fetch(request);

@@ -1,4 +1,4 @@
-# Slides for two older projects (Banking App, QuickScan) in the project
+# Slides for two older projects (Banking App, Snapper) in the project
 # drawer (src/assets/work/<project>-<n>.png, 2880x1800), from Robin's Behance boards
 # (2800px wide, saved in "03_Working files/behance/<project>/"). Each board is brought to 16:10:
 # a wider one is extended above and below in its own edge colour, a taller one is cropped
@@ -14,13 +14,13 @@ OUT = ROOT / "src/assets/work"
 W, H = 2880, 1800
 
 # (project folder, source number or file name, output name, crop anchor for tall boards: 0 top … 1 bottom)
-# QuickScan's hero and its next two slides (multi-page, phone in hand) are Robin's own 16:10
+# Snapper's hero and its next two slides (multi-page, phone in hand) are Robin's own 16:10
 # exports ("Tile – 3.png", "custom – 21.png", "custom – 20.png"), resized by hand, not made here.
 SLIDES = [
     ("banking", 1, "banking-app-hero", 0.5),
     ("banking", 7, "banking-app-transfers", 0.5),
-    ("quickscan", 5, "quickscan-flow", 0.5),
-    ("quickscan", 6, "quickscan-screens", 0.5),
+    ("snapper", 5, "snapper-flow", 0.5),
+    ("snapper", 6, "snapper-screens", 0.5),
 ]
 
 
